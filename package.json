@@ -10,8 +10,10 @@
         "prettier:js": "prettier --write 'js/**/*.js' --config .prettierrc",
         "prettier:ts": "prettier --write 'ts/**/*.ts' --config .prettierrc",
         "prettier": "yarn prettier:js && yarn prettier:ts",
-        "build": "yarn build:ts && cp -r ts/lib js",
+        "build": "yarn build:ts && rm -rf js && cp -r ts/lib/ js",
         "build:ts": "tsc -p ts/tsconfig.json",
+        "start:ts": "node ts/lib/index.js",
+        "start:js": "node js/index.js",
         "lint:ts": "tslint --project ts --format stylish"
     },
     "devDependencies": {
