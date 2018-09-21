@@ -1,0 +1,27 @@
+{
+    "name": "0x-relayer-template",
+    "version": "0.0.1",
+    "description": "Template 0x relayer",
+    "repository": "git@github.com:0xProject/0x-relayer-template.git",
+    "author": "Leonid Logvinov <logvinov.leon@gmail.com>",
+    "license": "Apache-2.0",
+    "scripts": {
+        "prettier": "yarn prettier:js && yarn prettier:ts",
+        "build": "yarn build:ts && rm -rf js && cp -r ts/lib/ js",
+        "prettier:js": "prettier --write 'js/**/*.js' --config .prettierrc",
+        "start:js": "node js/index.js",
+        "build:ts": "tsc -p ts/tsconfig.json",
+        "prettier:ts": "prettier --write 'ts/**/*.ts' --config .prettierrc",
+        "start:ts": "node ts/lib/index.js",
+        "lint:ts": "tslint --project ts --format stylish"
+    },
+    "devDependencies": {
+        "@types/express": "^4.16.0",
+        "prettier": "^1.14.3",
+        "tslint": "^5.11.0",
+        "typescript": "^3.0.3"
+    },
+    "dependencies": {
+        "express": "^4.16.3"
+    }
+}
