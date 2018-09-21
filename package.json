@@ -1,0 +1,10 @@
+{
+  "name": "0x-relayer-template",
+  "version": "0.0.1",
+  "description": "Template 0x relayer",
+  "main": "lib/index.js",
+  "repository": "git@github.com:0xProject/0x-relayer-template.git",
+  "author": "Leonid Logvinov <logvinov.leon@gmail.com>",
+  "license": "Apache-2.0",
+  "private": true
+}
