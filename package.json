@@ -16,12 +16,18 @@
         "lint:ts": "tslint --project ts --format stylish"
     },
     "devDependencies": {
+        "@0xproject/tslint-config": "^1.0.7",
         "@types/express": "^4.16.0",
+        "@types/web3-provider-engine": "^14.0.0",
         "prettier": "^1.14.3",
         "tslint": "^5.11.0",
         "typescript": "^3.0.3"
     },
     "dependencies": {
+        "0x.js": "^1.0.4",
+        "@0xproject/connect": "^2.0.2",
+        "@0xproject/typescript-typings": "^2.0.1",
+        "body-parser": "^1.18.3",
         "express": "^4.16.3"
     }
 }
