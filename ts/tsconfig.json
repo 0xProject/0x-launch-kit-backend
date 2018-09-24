@@ -5,6 +5,7 @@
         "outDir": "lib",
         "strict": true,
         "noUnusedLocals": true,
+        "typeRoots": ["../node_modules/@0xproject/typescript-typings/types", "../node_modules/@types"],
         "noUnusedParameters": true
     },
     "include": ["src"]
