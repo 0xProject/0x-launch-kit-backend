@@ -1,17 +1,3 @@
 {
-    "extends": "tslint:all",
-    "rules": {
-        "typedef": [
-            true,
-            "call-signature",
-            "arrow-call-signature",
-            "parameter",
-            "arrow-parameter",
-            "property-declaration",
-            "member-variable-declaration",
-            "object-destructuring",
-            "array-destructuring"
-        ],
-        "no-unused-variable": false
-    }
+    "extends": ["@0xproject/tslint-config"]
 }
