@@ -107,8 +107,7 @@ function parseNetworkId(networkIdStrIfExists?: string): number {
     if (_.isUndefined(networkIdStrIfExists)) {
         return GANACHE_NETWORK_ID;
     } else {
-        // tslint:disable-next-line:custom-no-magic-numbers
-        const networkId = parseInt(networkIdStrIfExists as string, 10);
+        const networkId = _.parseInt(networkIdStrIfExists);
         return networkId;
     }
 }

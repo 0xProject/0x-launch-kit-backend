@@ -15,7 +15,7 @@ interface AssetPair {
 }
 
 export class AssetPairsStore {
-    private _assetPairs: AssetPair[];
+    private readonly _assetPairs: AssetPair[];
     constructor(assetPairs: AssetPair[]) {
         this._assetPairs = assetPairs;
     }
