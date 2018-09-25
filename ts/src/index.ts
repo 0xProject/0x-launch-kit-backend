@@ -10,6 +10,16 @@ const HTTP_PORT = 3000;
 const app = express();
 app.use(bodyParser.json());
 /**
+ * GET AssetPairs endpoint retrieves a list of available asset pairs and the information required to trade them.
+ * http://sra-spec.s3-website-us-east-1.amazonaws.com/#operation/getAssetPairs
+ */
+app.get('/v2/asset_pairs', handlers.assetPairs);
+/**
+ * GET Orders endpoint retrieves a list of orders given query parameters.
+ * http://sra-spec.s3-website-us-east-1.amazonaws.com/#operation/getOrders
+ */
+app.get('/v2/orders', handlers.orders);
+/**
  * GET Orderbook endpoint retrieves the orderbook for a given asset pair.
  * http://sra-spec.s3-website-us-east-1.amazonaws.com/#operation/getOrderbook
  */
@@ -19,6 +29,11 @@ app.get('/v2/orderbook', handlers.orderbook);
  * http://sra-spec.s3-website-us-east-1.amazonaws.com/#operation/getOrderConfig
  */
 app.get('/v2/order_config', handlers.orderConfig);
+/**
+ * GET FeeRecepients endpoint retrieves a collection of all fee recipient addresses for a relayer.
+ * http://sra-spec.s3-website-us-east-1.amazonaws.com/v2/fee_recipients
+ */
+app.get('/v2/fee_recipients', handlers.feeRecipients);
 /**
  * POST Order endpoint submits an order to the Relayer.
  * http://sra-spec.s3-website-us-east-1.amazonaws.com/#operation/postOrder

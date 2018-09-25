@@ -1,16 +1,59 @@
 import { BigNumber, SignedOrder } from '0x.js';
 import * as express from 'express';
+import * as HttpStatus from 'http-status-codes';
 import * as _ from 'lodash';
 
+import { AssetPairsStore } from './asset_pairs_store';
 import { orderBook } from './orderbook';
+import { paginate } from './paginator';
 import { utils } from './utils';
 
 const GANACHE_NETWORK_ID = 50;
 const NULL_ADDRESS = '0x0000000000000000000000000000000000000000';
-const HTTP_OK_STATUS = 200;
-const HTTP_BAD_REQUEST_STATUS = 400;
 
+// TODO(leo): Load those from config.
+const FEE_RECIPIENTS = [
+    '0x6eC92694ea172ebC430C30fa31De87620967A082',
+    '0x9e56625509c2f60af937f23b7b532600390e8c8b',
+    '0xa2b31dacf30a9c50ca473337c01d8a201ae33e32',
+];
+// TODO(leo): Load those from config.
+const ASSET_PAIRS = [
+    {
+        assetDataA: {
+            minAmount: new BigNumber(0),
+            maxAmount: new BigNumber(0),
+            precision: 5,
+            assetData: '0xf47261b04c32345ced77393b3530b1eed0f346429d',
+        },
+        assetDataB: {
+            minAmount: new BigNumber(0),
+            maxAmount: new BigNumber(0),
+            precision: 5,
+            assetData: '0x0257179264389b814a946f3e92105513705ca6b990',
+        },
+    },
+];
+
+const assetPairsStore = new AssetPairsStore(ASSET_PAIRS);
+
+// TODO(leo): Set proper json headers
+// TODO(leo): Perform JSON schema validation on both request and response
 export const handlers = {
+    assetPairs: (req: express.Request, res: express.Response) => {
+        const assetPairs = assetPairsStore.get(req.query.assetDataA, req.query.assetDataB);
+        const paginatedAssetPairs = paginate(assetPairs);
+        res.status(HttpStatus.OK).send(paginatedAssetPairs);
+    },
+    orders: (_req: express.Request, res: express.Response) => {
+        const orders = orderBook.getOrders();
+        const paginatedOrders = paginate(orders);
+        res.status(HttpStatus.OK).send(paginatedOrders);
+    },
+    feeRecipients: (_req: express.Request, res: express.Response) => {
+        const paginatedFeeRecipients = paginate(FEE_RECIPIENTS);
+        res.status(HttpStatus.OK).send(paginatedFeeRecipients);
+    },
     orderbook: (req: express.Request, res: express.Response) => {
         utils.log('HTTP: GET orderbook');
         const baseAssetData = req.query.baseAssetData;
@@ -18,10 +61,10 @@ export const handlers = {
         const networkId = parseNetworkId(req.query.networkId);
         if (networkId !== GANACHE_NETWORK_ID) {
             utils.log(`Incorrect Network ID: ${networkId}`);
-            res.status(HTTP_BAD_REQUEST_STATUS).send({});
+            res.status(HttpStatus.BAD_REQUEST).send();
         } else {
-            const orderbookResponse = orderBook.get(baseAssetData, quoteAssetData);
-            res.status(HTTP_OK_STATUS).send(orderbookResponse);
+            const orderbookResponse = orderBook.getOrderBook(baseAssetData, quoteAssetData);
+            res.status(HttpStatus.OK).send(orderbookResponse);
         }
     },
     orderConfig: (req: express.Request, res: express.Response) => {
@@ -29,7 +72,7 @@ export const handlers = {
         const networkId = parseNetworkId(req.query.networkId);
         if (networkId !== GANACHE_NETWORK_ID) {
             utils.log(`Incorrect Network ID: ${networkId}`);
-            res.status(HTTP_BAD_REQUEST_STATUS).send({});
+            res.status(HttpStatus.BAD_REQUEST).send();
         } else {
             const orderConfigResponse = {
                 senderAddress: NULL_ADDRESS,
@@ -37,7 +80,7 @@ export const handlers = {
                 makerFee: 0,
                 takerFee: '1000',
             };
-            res.status(HTTP_OK_STATUS).send(orderConfigResponse);
+            res.status(HttpStatus.OK).send(orderConfigResponse);
         }
     },
     order: (req: express.Request, res: express.Response) => {
@@ -45,15 +88,16 @@ export const handlers = {
         const networkId = parseNetworkId(req.query.networkId);
         if (networkId !== GANACHE_NETWORK_ID) {
             utils.log(`Incorrect Network ID: ${networkId}`);
-            res.status(HTTP_BAD_REQUEST_STATUS).send({});
+            res.status(HttpStatus.BAD_REQUEST).send();
         } else {
             const signedOrder = unmarshallOrder(req.body);
             orderBook.addOrder(signedOrder);
-            res.status(HTTP_OK_STATUS).send({});
+            res.status(HttpStatus.OK).send();
         }
     },
 };
 
+// TODO(leo): Throw if networkId is unsupported
 function parseNetworkId(networkIdStrIfExists?: string): number {
     if (_.isUndefined(networkIdStrIfExists)) {
         return GANACHE_NETWORK_ID;

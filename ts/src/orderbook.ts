@@ -1,17 +1,14 @@
-import { orderHashUtils, SignedOrder } from '0x.js';
+import { SignedOrder } from '0x.js';
 import { APIOrder, OrderbookResponse } from '@0xproject/connect';
 
 // Global state
 const orders: SignedOrder[] = [];
-const ordersByHash: { [hash: string]: SignedOrder } = {};
 
 export const orderBook = {
     addOrder: (signedOrder: SignedOrder) => {
-        const orderHash = orderHashUtils.getOrderHashHex(signedOrder);
-        ordersByHash[orderHash] = signedOrder;
         orders.push(signedOrder);
     },
-    get: (baseAssetData: string, quoteAssetData: string): OrderbookResponse => {
+    getOrderBook: (baseAssetData: string, quoteAssetData: string): OrderbookResponse => {
         const bidOrders = orders.filter(
             order => order.takerAssetData === baseAssetData && order.makerAssetData === quoteAssetData,
         );
@@ -35,5 +32,9 @@ export const orderBook = {
                 total: askOrders.length,
             },
         };
+    },
+    getOrders: (): APIOrder[] => {
+        const apiOrders: APIOrder[] = orders.map(order => ({ metaData: {}, order }));
+        return apiOrders;
     },
 };
