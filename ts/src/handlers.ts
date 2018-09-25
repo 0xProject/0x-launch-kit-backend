@@ -55,7 +55,6 @@ export const handlers = {
         res.status(HttpStatus.OK).send(paginatedFeeRecipients);
     },
     orderbook: (req: express.Request, res: express.Response) => {
-        utils.log('HTTP: GET orderbook');
         const baseAssetData = req.query.baseAssetData;
         const quoteAssetData = req.query.quoteAssetData;
         const networkId = parseNetworkId(req.query.networkId);
@@ -68,7 +67,6 @@ export const handlers = {
         }
     },
     orderConfig: (req: express.Request, res: express.Response) => {
-        utils.log('HTTP: GET order config');
         const networkId = parseNetworkId(req.query.networkId);
         if (networkId !== GANACHE_NETWORK_ID) {
             utils.log(`Incorrect Network ID: ${networkId}`);
@@ -83,8 +81,7 @@ export const handlers = {
             res.status(HttpStatus.OK).send(orderConfigResponse);
         }
     },
-    order: (req: express.Request, res: express.Response) => {
-        utils.log('HTTP: POST order');
+    postOrder: (req: express.Request, res: express.Response) => {
         const networkId = parseNetworkId(req.query.networkId);
         if (networkId !== GANACHE_NETWORK_ID) {
             utils.log(`Incorrect Network ID: ${networkId}`);
@@ -93,6 +90,14 @@ export const handlers = {
             const signedOrder = unmarshallOrder(req.body);
             orderBook.addOrder(signedOrder);
             res.status(HttpStatus.OK).send();
+        }
+    },
+    getOrderByHash: (_req: express.Request, res: express.Response) => {
+        const orderIfExists = orderBook.getOrderByHashIfExists(_req.params.orderHash);
+        if (_.isUndefined(orderIfExists)) {
+            res.status(HttpStatus.NOT_FOUND).send();
+        } else {
+            res.status(HttpStatus.OK).send(orderIfExists);
         }
     },
 };

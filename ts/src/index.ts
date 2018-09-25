@@ -6,7 +6,6 @@ import { utils } from './utils';
 
 const HTTP_PORT = 3000;
 
-// HTTP Server
 const app = express();
 app.use(bodyParser.json());
 /**
@@ -38,5 +37,10 @@ app.get('/v2/fee_recipients', handlers.feeRecipients);
  * POST Order endpoint submits an order to the Relayer.
  * http://sra-spec.s3-website-us-east-1.amazonaws.com/#operation/postOrder
  */
-app.post('/v2/order', handlers.order);
+app.post('/v2/order', handlers.postOrder);
+/**
+ * GET Order endpoint retrieves the order by order hash.
+ * http://sra-spec.s3-website-us-east-1.amazonaws.com/#operation/getOrder
+ */
+app.get('/v2/order/:orderHash', handlers.getOrderByHash);
 app.listen(HTTP_PORT, () => utils.log(`Standard relayer API (HTTP) listening on port ${HTTP_PORT}!`));

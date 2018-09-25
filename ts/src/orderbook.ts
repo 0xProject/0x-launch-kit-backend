@@ -1,5 +1,8 @@
-import { SignedOrder } from '0x.js';
+import { orderHashUtils, SignedOrder } from '0x.js';
 import { APIOrder, OrderbookResponse } from '@0xproject/connect';
+import * as _ from 'lodash';
+
+import { paginate } from './paginator';
 
 // Global state
 const orders: SignedOrder[] = [];
@@ -19,22 +22,16 @@ export const orderBook = {
         const askApiOrders: APIOrder[] = askOrders.map(order => ({ metaData: {}, order }));
 
         return {
-            bids: {
-                records: bidApiOrders,
-                page: 1,
-                perPage: 100,
-                total: bidOrders.length,
-            },
-            asks: {
-                records: askApiOrders,
-                page: 1,
-                perPage: 100,
-                total: askOrders.length,
-            },
+            bids: paginate(bidApiOrders),
+            asks: paginate(askApiOrders),
         };
     },
     getOrders: (): APIOrder[] => {
         const apiOrders: APIOrder[] = orders.map(order => ({ metaData: {}, order }));
         return apiOrders;
+    },
+    getOrderByHashIfExists: (orderHash: string): SignedOrder | undefined => {
+        // TODO(leo): Do it smarter
+        return _.find(orders, order => orderHashUtils.getOrderHashHex(order) === orderHash);
     },
 };

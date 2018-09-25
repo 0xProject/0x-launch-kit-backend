@@ -3,11 +3,19 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const _0x_js_1 = require("0x.js");
 const HttpStatus = require("http-status-codes");
 const _ = require("lodash");
-const asset_pairs_1 = require("./asset_pairs");
+const asset_pairs_store_1 = require("./asset_pairs_store");
 const orderbook_1 = require("./orderbook");
+const paginator_1 = require("./paginator");
 const utils_1 = require("./utils");
 const GANACHE_NETWORK_ID = 50;
 const NULL_ADDRESS = '0x0000000000000000000000000000000000000000';
+// TODO(leo): Load those from config.
+const FEE_RECIPIENTS = [
+    '0x6eC92694ea172ebC430C30fa31De87620967A082',
+    '0x9e56625509c2f60af937f23b7b532600390e8c8b',
+    '0xa2b31dacf30a9c50ca473337c01d8a201ae33e32',
+];
+// TODO(leo): Load those from config.
 const ASSET_PAIRS = [
     {
         assetDataA: {
@@ -24,38 +32,42 @@ const ASSET_PAIRS = [
         },
     },
 ];
-const assetPairs = new asset_pairs_1.AssetPairs(ASSET_PAIRS);
+const assetPairsStore = new asset_pairs_store_1.AssetPairsStore(ASSET_PAIRS);
+// TODO(leo): Set proper json headers
+// TODO(leo): Perform JSON schema validation on both request and response
 exports.handlers = {
     assetPairs: (req, res) => {
-        const assetPairsResponse = assetPairs.get(req.query.assetDataA, req.query.assetDataB);
-        res.status(HttpStatus.OK).send(assetPairsResponse);
+        const assetPairs = assetPairsStore.get(req.query.assetDataA, req.query.assetDataB);
+        const paginatedAssetPairs = paginator_1.paginate(assetPairs);
+        res.status(HttpStatus.OK).send(paginatedAssetPairs);
     },
     orders: (_req, res) => {
-        res.status(HttpStatus.NOT_IMPLEMENTED).send();
+        const orders = orderbook_1.orderBook.getOrders();
+        const paginatedOrders = paginator_1.paginate(orders);
+        res.status(HttpStatus.OK).send(paginatedOrders);
     },
     feeRecipients: (_req, res) => {
-        res.status(HttpStatus.NOT_IMPLEMENTED).send();
+        const paginatedFeeRecipients = paginator_1.paginate(FEE_RECIPIENTS);
+        res.status(HttpStatus.OK).send(paginatedFeeRecipients);
     },
     orderbook: (req, res) => {
-        utils_1.utils.log('HTTP: GET orderbook');
         const baseAssetData = req.query.baseAssetData;
         const quoteAssetData = req.query.quoteAssetData;
         const networkId = parseNetworkId(req.query.networkId);
         if (networkId !== GANACHE_NETWORK_ID) {
             utils_1.utils.log(`Incorrect Network ID: ${networkId}`);
-            res.status(HttpStatus.BAD_REQUEST);
+            res.status(HttpStatus.BAD_REQUEST).send();
         }
         else {
-            const orderbookResponse = orderbook_1.orderBook.get(baseAssetData, quoteAssetData);
+            const orderbookResponse = orderbook_1.orderBook.getOrderBook(baseAssetData, quoteAssetData);
             res.status(HttpStatus.OK).send(orderbookResponse);
         }
     },
     orderConfig: (req, res) => {
-        utils_1.utils.log('HTTP: GET order config');
         const networkId = parseNetworkId(req.query.networkId);
         if (networkId !== GANACHE_NETWORK_ID) {
             utils_1.utils.log(`Incorrect Network ID: ${networkId}`);
-            res.status(HttpStatus.BAD_REQUEST);
+            res.status(HttpStatus.BAD_REQUEST).send();
         }
         else {
             const orderConfigResponse = {
@@ -67,20 +79,29 @@ exports.handlers = {
             res.status(HttpStatus.OK).send(orderConfigResponse);
         }
     },
-    order: (req, res) => {
-        utils_1.utils.log('HTTP: POST order');
+    postOrder: (req, res) => {
         const networkId = parseNetworkId(req.query.networkId);
         if (networkId !== GANACHE_NETWORK_ID) {
             utils_1.utils.log(`Incorrect Network ID: ${networkId}`);
-            res.status(HttpStatus.BAD_REQUEST);
+            res.status(HttpStatus.BAD_REQUEST).send();
         }
         else {
             const signedOrder = unmarshallOrder(req.body);
             orderbook_1.orderBook.addOrder(signedOrder);
-            res.status(HttpStatus.OK);
+            res.status(HttpStatus.OK).send();
+        }
+    },
+    getOrderByHash: (_req, res) => {
+        const orderIfExists = orderbook_1.orderBook.getOrderByHashIfExists(_req.params.orderHash);
+        if (_.isUndefined(orderIfExists)) {
+            res.status(HttpStatus.NOT_FOUND).send();
+        }
+        else {
+            res.status(HttpStatus.OK).send(orderIfExists);
         }
     },
 };
+// TODO(leo): Throw if networkId is unsupported
 function parseNetworkId(networkIdStrIfExists) {
     if (_.isUndefined(networkIdStrIfExists)) {
         return GANACHE_NETWORK_ID;
