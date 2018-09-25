@@ -11,6 +11,7 @@
         "prettier:js": "prettier --write 'js/**/*.js' --config .prettierrc",
         "start:js": "node js/index.js",
         "build:ts": "tsc -p ts/tsconfig.json",
+        "watch:ts": "tsc -w -p ts/tsconfig.json",
         "prettier:ts": "prettier --write 'ts/**/*.ts' --config .prettierrc",
         "start:ts": "node ts/lib/index.js",
         "lint:ts": "tslint --project ts --format stylish"
