@@ -1,10 +1,10 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const bodyParser = require("body-parser");
-const express = require("express");
-const config_1 = require("./config");
-const handlers_1 = require("./handlers");
-const utils_1 = require("./utils");
+'use strict';
+Object.defineProperty(exports, '__esModule', { value: true });
+const bodyParser = require('body-parser');
+const express = require('express');
+const config_1 = require('./config');
+const handlers_1 = require('./handlers');
+const utils_1 = require('./utils');
 const app = express();
 app.use(bodyParser.json());
 /**
@@ -42,4 +42,6 @@ app.post('/v2/order', handlers_1.handlers.postOrder);
  * http://sra-spec.s3-website-us-east-1.amazonaws.com/#operation/getOrder
  */
 app.get('/v2/order/:orderHash', handlers_1.handlers.getOrderByHash);
-app.listen(config_1.HTTP_PORT, () => utils_1.utils.log(`Standard relayer API (HTTP) listening on port ${config_1.HTTP_PORT}!`));
+app.listen(config_1.HTTP_PORT, () =>
+    utils_1.utils.log(`Standard relayer API (HTTP) listening on port ${config_1.HTTP_PORT}!`),
+);
