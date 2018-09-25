@@ -1,10 +1,9 @@
 import * as bodyParser from 'body-parser';
 import * as express from 'express';
 
+import { HTTP_PORT } from './config';
 import { handlers } from './handlers';
 import { utils } from './utils';
-
-const HTTP_PORT = 3000;
 
 const app = express();
 app.use(bodyParser.json());

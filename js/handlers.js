@@ -4,35 +4,12 @@ const _0x_js_1 = require("0x.js");
 const HttpStatus = require("http-status-codes");
 const _ = require("lodash");
 const asset_pairs_store_1 = require("./asset_pairs_store");
+const config_1 = require("./config");
+const constants_1 = require("./constants");
 const orderbook_1 = require("./orderbook");
 const paginator_1 = require("./paginator");
 const utils_1 = require("./utils");
-const GANACHE_NETWORK_ID = 50;
-const NULL_ADDRESS = '0x0000000000000000000000000000000000000000';
-// TODO(leo): Load those from config.
-const FEE_RECIPIENTS = [
-    '0x6eC92694ea172ebC430C30fa31De87620967A082',
-    '0x9e56625509c2f60af937f23b7b532600390e8c8b',
-    '0xa2b31dacf30a9c50ca473337c01d8a201ae33e32',
-];
-// TODO(leo): Load those from config.
-const ASSET_PAIRS = [
-    {
-        assetDataA: {
-            minAmount: new _0x_js_1.BigNumber(0),
-            maxAmount: new _0x_js_1.BigNumber(0),
-            precision: 5,
-            assetData: '0xf47261b04c32345ced77393b3530b1eed0f346429d',
-        },
-        assetDataB: {
-            minAmount: new _0x_js_1.BigNumber(0),
-            maxAmount: new _0x_js_1.BigNumber(0),
-            precision: 5,
-            assetData: '0x0257179264389b814a946f3e92105513705ca6b990',
-        },
-    },
-];
-const assetPairsStore = new asset_pairs_store_1.AssetPairsStore(ASSET_PAIRS);
+const assetPairsStore = new asset_pairs_store_1.AssetPairsStore(config_1.ASSET_PAIRS);
 // TODO(leo): Set proper json headers
 // TODO(leo): Perform JSON schema validation on both request and response
 exports.handlers = {
@@ -47,14 +24,14 @@ exports.handlers = {
         res.status(HttpStatus.OK).send(paginatedOrders);
     },
     feeRecipients: (_req, res) => {
-        const paginatedFeeRecipients = paginator_1.paginate(FEE_RECIPIENTS);
+        const paginatedFeeRecipients = paginator_1.paginate(config_1.FEE_RECIPIENTS);
         res.status(HttpStatus.OK).send(paginatedFeeRecipients);
     },
     orderbook: (req, res) => {
         const baseAssetData = req.query.baseAssetData;
         const quoteAssetData = req.query.quoteAssetData;
         const networkId = parseNetworkId(req.query.networkId);
-        if (networkId !== GANACHE_NETWORK_ID) {
+        if (networkId !== config_1.NETWORK_ID) {
             utils_1.utils.log(`Incorrect Network ID: ${networkId}`);
             res.status(HttpStatus.BAD_REQUEST).send();
         }
@@ -65,14 +42,14 @@ exports.handlers = {
     },
     orderConfig: (req, res) => {
         const networkId = parseNetworkId(req.query.networkId);
-        if (networkId !== GANACHE_NETWORK_ID) {
+        if (networkId !== config_1.NETWORK_ID) {
             utils_1.utils.log(`Incorrect Network ID: ${networkId}`);
             res.status(HttpStatus.BAD_REQUEST).send();
         }
         else {
             const orderConfigResponse = {
-                senderAddress: NULL_ADDRESS,
-                feeRecipientAddress: NULL_ADDRESS,
+                senderAddress: constants_1.NULL_ADDRESS,
+                feeRecipientAddress: constants_1.NULL_ADDRESS,
                 makerFee: 0,
                 takerFee: '1000',
             };
@@ -81,7 +58,7 @@ exports.handlers = {
     },
     postOrder: (req, res) => {
         const networkId = parseNetworkId(req.query.networkId);
-        if (networkId !== GANACHE_NETWORK_ID) {
+        if (networkId !== config_1.NETWORK_ID) {
             utils_1.utils.log(`Incorrect Network ID: ${networkId}`);
             res.status(HttpStatus.BAD_REQUEST).send();
         }
@@ -104,11 +81,10 @@ exports.handlers = {
 // TODO(leo): Throw if networkId is unsupported
 function parseNetworkId(networkIdStrIfExists) {
     if (_.isUndefined(networkIdStrIfExists)) {
-        return GANACHE_NETWORK_ID;
+        return config_1.NETWORK_ID;
     }
     else {
-        // tslint:disable-next-line:custom-no-magic-numbers
-        const networkId = parseInt(networkIdStrIfExists, 10);
+        const networkId = _.parseInt(networkIdStrIfExists);
         return networkId;
     }
 }

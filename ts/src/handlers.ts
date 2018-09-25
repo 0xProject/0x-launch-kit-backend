@@ -4,36 +4,11 @@ import * as HttpStatus from 'http-status-codes';
 import * as _ from 'lodash';
 
 import { AssetPairsStore } from './asset_pairs_store';
+import { ASSET_PAIRS, FEE_RECIPIENTS, NETWORK_ID } from './config';
+import { NULL_ADDRESS } from './constants';
 import { orderBook } from './orderbook';
 import { paginate } from './paginator';
 import { utils } from './utils';
-
-const GANACHE_NETWORK_ID = 50;
-const NULL_ADDRESS = '0x0000000000000000000000000000000000000000';
-
-// TODO(leo): Load those from config.
-const FEE_RECIPIENTS = [
-    '0x6eC92694ea172ebC430C30fa31De87620967A082',
-    '0x9e56625509c2f60af937f23b7b532600390e8c8b',
-    '0xa2b31dacf30a9c50ca473337c01d8a201ae33e32',
-];
-// TODO(leo): Load those from config.
-const ASSET_PAIRS = [
-    {
-        assetDataA: {
-            minAmount: new BigNumber(0),
-            maxAmount: new BigNumber(0),
-            precision: 5,
-            assetData: '0xf47261b04c32345ced77393b3530b1eed0f346429d',
-        },
-        assetDataB: {
-            minAmount: new BigNumber(0),
-            maxAmount: new BigNumber(0),
-            precision: 5,
-            assetData: '0x0257179264389b814a946f3e92105513705ca6b990',
-        },
-    },
-];
 
 const assetPairsStore = new AssetPairsStore(ASSET_PAIRS);
 
@@ -58,7 +33,7 @@ export const handlers = {
         const baseAssetData = req.query.baseAssetData;
         const quoteAssetData = req.query.quoteAssetData;
         const networkId = parseNetworkId(req.query.networkId);
-        if (networkId !== GANACHE_NETWORK_ID) {
+        if (networkId !== NETWORK_ID) {
             utils.log(`Incorrect Network ID: ${networkId}`);
             res.status(HttpStatus.BAD_REQUEST).send();
         } else {
@@ -68,7 +43,7 @@ export const handlers = {
     },
     orderConfig: (req: express.Request, res: express.Response) => {
         const networkId = parseNetworkId(req.query.networkId);
-        if (networkId !== GANACHE_NETWORK_ID) {
+        if (networkId !== NETWORK_ID) {
             utils.log(`Incorrect Network ID: ${networkId}`);
             res.status(HttpStatus.BAD_REQUEST).send();
         } else {
@@ -83,7 +58,7 @@ export const handlers = {
     },
     postOrder: (req: express.Request, res: express.Response) => {
         const networkId = parseNetworkId(req.query.networkId);
-        if (networkId !== GANACHE_NETWORK_ID) {
+        if (networkId !== NETWORK_ID) {
             utils.log(`Incorrect Network ID: ${networkId}`);
             res.status(HttpStatus.BAD_REQUEST).send();
         } else {
@@ -105,7 +80,7 @@ export const handlers = {
 // TODO(leo): Throw if networkId is unsupported
 function parseNetworkId(networkIdStrIfExists?: string): number {
     if (_.isUndefined(networkIdStrIfExists)) {
-        return GANACHE_NETWORK_ID;
+        return NETWORK_ID;
     } else {
         const networkId = _.parseInt(networkIdStrIfExists);
         return networkId;
