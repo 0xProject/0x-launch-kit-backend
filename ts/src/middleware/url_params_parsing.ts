@@ -4,6 +4,9 @@ import * as _ from 'lodash';
 import { NETWORK_ID } from '../config';
 import { ValidationError } from '../errors';
 
+/**
+ * Parses URL params and stores them on the request object
+ */
 export function urlParamsParsing(req: express.Request, _res: express.Response, next: express.NextFunction): void {
     const networkId = parseNetworkId(req.query.networkId);
     req.networkId = networkId;

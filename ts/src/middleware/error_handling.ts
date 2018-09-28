@@ -9,6 +9,9 @@ import {
     ValidationError,
 } from '../errors';
 
+/**
+ * Catches errors thrown by our code and serialies them
+ */
 export function errorHandler(
     err: Error,
     _req: express.Request,
