@@ -1,12 +1,12 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const bodyParser = require("body-parser");
-const express = require("express");
-const config_1 = require("./config");
-const handlers_1 = require("./handlers");
-const error_handling_1 = require("./middleware/error_handling");
-const url_params_parsing_1 = require("./middleware/url_params_parsing");
-const utils_1 = require("./utils");
+'use strict';
+Object.defineProperty(exports, '__esModule', { value: true });
+const bodyParser = require('body-parser');
+const express = require('express');
+const config_1 = require('./config');
+const handlers_1 = require('./handlers');
+const error_handling_1 = require('./middleware/error_handling');
+const url_params_parsing_1 = require('./middleware/url_params_parsing');
+const utils_1 = require('./utils');
 const app = express();
 app.use(bodyParser.json());
 app.use(url_params_parsing_1.urlParamsParsing);
@@ -46,4 +46,6 @@ app.post('/v2/order', handlers_1.handlers.postOrder);
  */
 app.get('/v2/order/:orderHash', handlers_1.handlers.getOrderByHash);
 app.use(error_handling_1.errorHandler);
-app.listen(config_1.HTTP_PORT, () => utils_1.utils.log(`Standard relayer API (HTTP) listening on port ${config_1.HTTP_PORT}!`));
+app.listen(config_1.HTTP_PORT, () =>
+    utils_1.utils.log(`Standard relayer API (HTTP) listening on port ${config_1.HTTP_PORT}!`),
+);

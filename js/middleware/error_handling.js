@@ -1,7 +1,7 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const HttpStatus = require("http-status-codes");
-const errors_1 = require("../errors");
+'use strict';
+Object.defineProperty(exports, '__esModule', { value: true });
+const HttpStatus = require('http-status-codes');
+const errors_1 = require('../errors');
 function errorHandler(err, _req, res, next) {
     // If you call next() with an error after you have started writing the response
     // (for example, if you encounter an error while streaming the response to the client)
@@ -21,23 +21,20 @@ function errorHandler(err, _req, res, next) {
                     validationErrors: validationError.validationErrors,
                 };
                 res.status(relayerError.statusCode).send(errorBody);
-            }
-            else if (badRequestError.generalErrorCode === errors_1.GeneralErrorCodes.MALFORMED_JSON) {
+            } else if (badRequestError.generalErrorCode === errors_1.GeneralErrorCodes.MALFORMED_JSON) {
                 const errorBody = {
                     code: badRequestError.generalErrorCode,
                     reason: errors_1.generalErrorCodesReasons[badRequestError.generalErrorCode],
                 };
                 res.status(relayerError.statusCode).send(errorBody);
             }
-        }
-        else {
+        } else {
             const errorBody = {
                 reason: HttpStatus.getStatusText(relayerError.statusCode),
             };
             res.status(relayerError.statusCode).send(errorBody);
         }
-    }
-    else {
+    } else {
         return next(err);
     }
 }

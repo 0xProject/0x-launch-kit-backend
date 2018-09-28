@@ -1,5 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+'use strict';
+Object.defineProperty(exports, '__esModule', { value: true });
 // TODO(leo) Parse request query params and do proper pagination
 /**
  * Paginates the collection and returns the paginated response
