@@ -3,10 +3,13 @@ import * as express from 'express';
 
 import { HTTP_PORT } from './config';
 import { handlers } from './handlers';
+import { errorHandler } from './middleware/error_handling';
+import { urlParamsParsing } from './middleware/url_params_parsing';
 import { utils } from './utils';
 
 const app = express();
 app.use(bodyParser.json());
+app.use(urlParamsParsing);
 /**
  * GET AssetPairs endpoint retrieves a list of available asset pairs and the information required to trade them.
  * http://sra-spec.s3-website-us-east-1.amazonaws.com/#operation/getAssetPairs
@@ -42,4 +45,7 @@ app.post('/v2/order', handlers.postOrder);
  * http://sra-spec.s3-website-us-east-1.amazonaws.com/#operation/getOrder
  */
 app.get('/v2/order/:orderHash', handlers.getOrderByHash);
+
+app.use(errorHandler);
+
 app.listen(HTTP_PORT, () => utils.log(`Standard relayer API (HTTP) listening on port ${HTTP_PORT}!`));
