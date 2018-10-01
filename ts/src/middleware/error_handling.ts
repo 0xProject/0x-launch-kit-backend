@@ -36,18 +36,21 @@ export function errorHandler(
                     validationErrors: validationError.validationErrors,
                 };
                 res.status(relayerError.statusCode).send(errorBody);
+                return;
             } else if (badRequestError.generalErrorCode === GeneralErrorCodes.malformedJson) {
                 const errorBody = {
                     code: badRequestError.generalErrorCode,
                     reason: generalErrorCodeToReason[badRequestError.generalErrorCode],
                 };
                 res.status(relayerError.statusCode).send(errorBody);
+                return;
             }
         } else {
             const errorBody = {
                 reason: HttpStatus.getStatusText(relayerError.statusCode),
             };
             res.status(relayerError.statusCode).send(errorBody);
+            return;
         }
     } else {
         return next(err);
