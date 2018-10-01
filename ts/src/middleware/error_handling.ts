@@ -4,7 +4,7 @@ import * as HttpStatus from 'http-status-codes';
 import {
     BadRequestError,
     GeneralErrorCodes,
-    generalErrorCodesReasons,
+    generalErrorCodeToReason,
     RelayerBaseError,
     ValidationError,
 } from '../errors';
@@ -32,14 +32,14 @@ export function errorHandler(
                 const validationError = badRequestError as ValidationError;
                 const errorBody = {
                     code: badRequestError.generalErrorCode,
-                    reason: generalErrorCodesReasons[badRequestError.generalErrorCode],
+                    reason: generalErrorCodeToReason[badRequestError.generalErrorCode],
                     validationErrors: validationError.validationErrors,
                 };
                 res.status(relayerError.statusCode).send(errorBody);
             } else if (badRequestError.generalErrorCode === GeneralErrorCodes.MALFORMED_JSON) {
                 const errorBody = {
                     code: badRequestError.generalErrorCode,
-                    reason: generalErrorCodesReasons[badRequestError.generalErrorCode],
+                    reason: generalErrorCodeToReason[badRequestError.generalErrorCode],
                 };
                 res.status(relayerError.statusCode).send(errorBody);
             }

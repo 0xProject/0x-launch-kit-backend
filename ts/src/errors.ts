@@ -52,7 +52,7 @@ export enum GeneralErrorCodes {
     THROTTLED = 103,
 }
 
-export const generalErrorCodesReasons: { [key in GeneralErrorCodes]: string } = {
+export const generalErrorCodeToReason: { [key in GeneralErrorCodes]: string } = {
     [GeneralErrorCodes.VALIDATION_ERROR]: 'Validation Failed',
     [GeneralErrorCodes.MALFORMED_JSON]: 'Malformed JSON',
     [GeneralErrorCodes.ORDER_SUBMISSION_DISABLED]: 'Order submission disabled',
