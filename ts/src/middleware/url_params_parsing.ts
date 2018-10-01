@@ -19,12 +19,12 @@ function parseNetworkId(networkIdStrIfExists?: string): number {
     } else {
         const networkId = _.parseInt(networkIdStrIfExists);
         if (networkId !== DEFAULT_NETWORK_ID) {
-            const validationErroItem = {
+            const validationErrorItem = {
                 field: 'networkId',
                 code: 1004,
                 reason: `Incorrect Network ID: ${networkIdStrIfExists}`,
             };
-            throw new ValidationError([validationErroItem]);
+            throw new ValidationError([validationErrorItem]);
         }
         return networkId;
     }
