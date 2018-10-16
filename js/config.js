@@ -4,7 +4,7 @@ const _0x_js_1 = require('0x.js');
 const DEFAULT_HTTP_PORT = 3000;
 exports.HTTP_PORT = process.env.PORT || DEFAULT_HTTP_PORT;
 const GANACHE_NETWORK_ID = 50;
-exports.NETWORK_ID = GANACHE_NETWORK_ID;
+exports.DEFAULT_NETWORK_ID = GANACHE_NETWORK_ID;
 // TODO(leo): Load those from config.
 exports.FEE_RECIPIENTS = [
     '0x6eC92694ea172ebC430C30fa31De87620967A082',
@@ -28,3 +28,4 @@ exports.ASSET_PAIRS = [
         },
     },
 ];
+//# sourceMappingURL=config.js.map

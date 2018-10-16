@@ -62,3 +62,6 @@ typings/
 
 # compiled ts sources
 typescript/lib
+
+# sqlite DB
+database.sqlite

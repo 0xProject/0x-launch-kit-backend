@@ -22,3 +22,4 @@ class AssetPairsStore {
     }
 }
 exports.AssetPairsStore = AssetPairsStore;
+//# sourceMappingURL=asset_pairs_store.js.map

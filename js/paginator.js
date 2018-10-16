@@ -9,3 +9,4 @@ function paginate(records) {
     return { total: records.length, records, page: 1, perPage: 100 };
 }
 exports.paginate = paginate;
+//# sourceMappingURL=paginator.js.map
