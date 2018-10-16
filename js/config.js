@@ -1,6 +1,6 @@
-'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
-const _0x_js_1 = require('0x.js');
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const _0x_js_1 = require("0x.js");
 const DEFAULT_HTTP_PORT = 3000;
 exports.HTTP_PORT = process.env.PORT || DEFAULT_HTTP_PORT;
 const GANACHE_NETWORK_ID = 50;
@@ -28,4 +28,3 @@ exports.ASSET_PAIRS = [
         },
     },
 ];
-//# sourceMappingURL=config.js.map

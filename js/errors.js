@@ -1,5 +1,5 @@
-'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 // tslint:disable:max-classes-per-file
 class RelayerBaseError extends Error {
     constructor() {
@@ -60,12 +60,12 @@ class NotImplementedError extends RelayerBaseError {
 }
 exports.NotImplementedError = NotImplementedError;
 var GeneralErrorCodes;
-(function(GeneralErrorCodes) {
-    GeneralErrorCodes[(GeneralErrorCodes['validationError'] = 100)] = 'validationError';
-    GeneralErrorCodes[(GeneralErrorCodes['malformedJson'] = 101)] = 'malformedJson';
-    GeneralErrorCodes[(GeneralErrorCodes['orderSubmittionDisabled'] = 102)] = 'orderSubmittionDisabled';
-    GeneralErrorCodes[(GeneralErrorCodes['throttled'] = 103)] = 'throttled';
-})((GeneralErrorCodes = exports.GeneralErrorCodes || (exports.GeneralErrorCodes = {})));
+(function (GeneralErrorCodes) {
+    GeneralErrorCodes[GeneralErrorCodes["validationError"] = 100] = "validationError";
+    GeneralErrorCodes[GeneralErrorCodes["malformedJson"] = 101] = "malformedJson";
+    GeneralErrorCodes[GeneralErrorCodes["orderSubmittionDisabled"] = 102] = "orderSubmittionDisabled";
+    GeneralErrorCodes[GeneralErrorCodes["throttled"] = 103] = "throttled";
+})(GeneralErrorCodes = exports.GeneralErrorCodes || (exports.GeneralErrorCodes = {}));
 exports.generalErrorCodeToReason = {
     [GeneralErrorCodes.validationError]: 'Validation Failed',
     [GeneralErrorCodes.malformedJson]: 'Malformed JSON',
@@ -73,13 +73,12 @@ exports.generalErrorCodeToReason = {
     [GeneralErrorCodes.throttled]: 'Throttled',
 };
 var ValidationErrorCodes;
-(function(ValidationErrorCodes) {
-    ValidationErrorCodes[(ValidationErrorCodes['requiredField'] = 1000)] = 'requiredField';
-    ValidationErrorCodes[(ValidationErrorCodes['incorrectFormat'] = 1001)] = 'incorrectFormat';
-    ValidationErrorCodes[(ValidationErrorCodes['invalidAddress'] = 1002)] = 'invalidAddress';
-    ValidationErrorCodes[(ValidationErrorCodes['addressNotSupported'] = 1003)] = 'addressNotSupported';
-    ValidationErrorCodes[(ValidationErrorCodes['valueOutOfRange'] = 1004)] = 'valueOutOfRange';
-    ValidationErrorCodes[(ValidationErrorCodes['invalidSignatureOrHash'] = 1005)] = 'invalidSignatureOrHash';
-    ValidationErrorCodes[(ValidationErrorCodes['unsupportedOption'] = 1006)] = 'unsupportedOption';
-})((ValidationErrorCodes = exports.ValidationErrorCodes || (exports.ValidationErrorCodes = {})));
-//# sourceMappingURL=errors.js.map
+(function (ValidationErrorCodes) {
+    ValidationErrorCodes[ValidationErrorCodes["requiredField"] = 1000] = "requiredField";
+    ValidationErrorCodes[ValidationErrorCodes["incorrectFormat"] = 1001] = "incorrectFormat";
+    ValidationErrorCodes[ValidationErrorCodes["invalidAddress"] = 1002] = "invalidAddress";
+    ValidationErrorCodes[ValidationErrorCodes["addressNotSupported"] = 1003] = "addressNotSupported";
+    ValidationErrorCodes[ValidationErrorCodes["valueOutOfRange"] = 1004] = "valueOutOfRange";
+    ValidationErrorCodes[ValidationErrorCodes["invalidSignatureOrHash"] = 1005] = "invalidSignatureOrHash";
+    ValidationErrorCodes[ValidationErrorCodes["unsupportedOption"] = 1006] = "unsupportedOption";
+})(ValidationErrorCodes = exports.ValidationErrorCodes || (exports.ValidationErrorCodes = {}));

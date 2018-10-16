@@ -3,7 +3,7 @@ import { APIOrder, OrderbookResponse } from '@0xproject/connect';
 import * as _ from 'lodash';
 
 import { getDBConnection } from './db_connection';
-import { SignedOrderModel } from './entity/SignedOrderModel';
+import { SignedOrderModel } from './models/SignedOrderModel';
 import { paginate } from './paginator';
 
 export const orderBook = {
@@ -14,12 +14,12 @@ export const orderBook = {
     },
     getOrderBookAsync: async (baseAssetData: string, quoteAssetData: string): Promise<OrderbookResponse> => {
         const connection = getDBConnection();
-        const bidSignedOrderModels = await connection.manager.find(SignedOrderModel, {
+        const bidSignedOrderModels = (await connection.manager.find(SignedOrderModel, {
             where: { takerAssetData: baseAssetData, makerAssetData: quoteAssetData },
-        });
-        const askSignedOrderModels = await connection.manager.find(SignedOrderModel, {
+        })) as Array<Required<SignedOrderModel>>;
+        const askSignedOrderModels = (await connection.manager.find(SignedOrderModel, {
             where: { takerAssetData: quoteAssetData, makerAssetData: baseAssetData },
-        });
+        })) as Array<Required<SignedOrderModel>>;
         const bidApiOrders: APIOrder[] = bidSignedOrderModels
             .map(deserializeOrder)
             .map(signedOrder => ({ metaData: {}, order: signedOrder }));
@@ -34,7 +34,9 @@ export const orderBook = {
     },
     getOrdersAsync: async (): Promise<APIOrder[]> => {
         const connection = getDBConnection();
-        const signedOrderModels = await connection.manager.find(SignedOrderModel);
+        const signedOrderModels = (await connection.manager.find(SignedOrderModel)) as Array<
+            Required<SignedOrderModel>
+        >;
         const signedOrders = _.map(signedOrderModels, deserializeOrder);
         const apiOrders: APIOrder[] = signedOrders.map(signedOrder => ({ metaData: {}, order: signedOrder }));
         return apiOrders;
@@ -45,12 +47,12 @@ export const orderBook = {
         if (_.isUndefined(signedOrderModelIfExists)) {
             return undefined;
         } else {
-            return deserializeOrder(signedOrderModelIfExists);
+            return deserializeOrder(signedOrderModelIfExists as Required<SignedOrderModel>);
         }
     },
 };
 
-const deserializeOrder = (signedOrderModel: SignedOrderModel): SignedOrder => {
+const deserializeOrder = (signedOrderModel: Required<SignedOrderModel>): SignedOrder => {
     const signedOrder: SignedOrder = {
         signature: signedOrderModel.signature,
         senderAddress: signedOrderModel.senderAddress,
@@ -71,21 +73,22 @@ const deserializeOrder = (signedOrderModel: SignedOrderModel): SignedOrder => {
 };
 
 const serializeOrder = (signedOrder: SignedOrder): SignedOrderModel => {
-    const signedOrderModel = new SignedOrderModel();
-    signedOrderModel.signature = signedOrder.signature;
-    signedOrderModel.senderAddress = signedOrder.senderAddress;
-    signedOrderModel.makerAddress = signedOrder.makerAddress;
-    signedOrderModel.takerAddress = signedOrder.takerAddress;
-    signedOrderModel.makerFee = signedOrder.makerFee.toString();
-    signedOrderModel.takerFee = signedOrder.takerFee.toString();
-    signedOrderModel.makerAssetAmount = signedOrder.makerAssetAmount.toString();
-    signedOrderModel.takerAssetAmount = signedOrder.takerAssetAmount.toString();
-    signedOrderModel.makerAssetData = signedOrder.makerAssetData;
-    signedOrderModel.takerAssetData = signedOrder.takerAssetData;
-    signedOrderModel.salt = signedOrder.salt.toString();
-    signedOrderModel.exchangeAddress = signedOrder.exchangeAddress;
-    signedOrderModel.feeRecipientAddress = signedOrder.feeRecipientAddress;
-    signedOrderModel.expirationTimeSeconds = signedOrder.expirationTimeSeconds.toNumber();
-    signedOrderModel.hash = orderHashUtils.getOrderHashHex(signedOrder);
+    const signedOrderModel = new SignedOrderModel({
+        signature: signedOrder.signature,
+        senderAddress: signedOrder.senderAddress,
+        makerAddress: signedOrder.makerAddress,
+        takerAddress: signedOrder.takerAddress,
+        makerFee: signedOrder.makerFee.toString(),
+        takerFee: signedOrder.takerFee.toString(),
+        makerAssetAmount: signedOrder.makerAssetAmount.toString(),
+        takerAssetAmount: signedOrder.takerAssetAmount.toString(),
+        makerAssetData: signedOrder.makerAssetData,
+        takerAssetData: signedOrder.takerAssetData,
+        salt: signedOrder.salt.toString(),
+        exchangeAddress: signedOrder.exchangeAddress,
+        feeRecipientAddress: signedOrder.feeRecipientAddress,
+        expirationTimeSeconds: signedOrder.expirationTimeSeconds.toNumber(),
+        hash: orderHashUtils.getOrderHashHex(signedOrder),
+    });
     return signedOrderModel;
 };

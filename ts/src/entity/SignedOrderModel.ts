@@ -1,49 +1,56 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { EntitySchema } from 'typeorm';
 
-@Entity()
-export class SignedOrderModel {
-    @PrimaryColumn()
-    public hash!: string;
+import { SignedOrderModel } from '../models/SignedOrderModel';
 
-    @Column()
-    public senderAddress!: string;
-
-    @Column()
-    public makerAddress!: string;
-
-    @Column()
-    public takerAddress!: string;
-
-    @Column()
-    public makerAssetData!: string;
-
-    @Column()
-    public takerAssetData!: string;
-
-    @Column()
-    public exchangeAddress!: string;
-
-    @Column()
-    public feeRecipientAddress!: string;
-
-    @Column()
-    public expirationTimeSeconds!: number;
-
-    @Column()
-    public makerFee!: string;
-
-    @Column()
-    public takerFee!: string;
-
-    @Column()
-    public makerAssetAmount!: string;
-
-    @Column()
-    public takerAssetAmount!: string;
-
-    @Column()
-    public salt!: string;
-
-    @Column()
-    public signature!: string;
-}
+module.exports = new EntitySchema({
+    name: 'SignedOrder',
+    target: SignedOrderModel,
+    columns: {
+        hash: {
+            primary: true,
+            type: 'varchar',
+        },
+        senderAddress: {
+            type: 'varchar',
+        },
+        makerAddress: {
+            type: 'varchar',
+        },
+        takerAddress: {
+            type: 'varchar',
+        },
+        makerAssetData: {
+            type: 'varchar',
+        },
+        takerAssetData: {
+            type: 'varchar',
+        },
+        exchangeAddress: {
+            type: 'varchar',
+        },
+        feeRecipientAddress: {
+            type: 'varchar',
+        },
+        expirationTimeSeconds: {
+            type: 'int',
+        },
+        makerFee: {
+            type: 'varchar',
+        },
+        takerFee: {
+            type: 'varchar',
+        },
+        makerAssetAmount: {
+            type: 'varchar',
+        },
+        takerAssetAmount: {
+            type: 'varchar',
+        },
+        salt: {
+            type: 'varchar',
+        },
+        signature: {
+            type: 'varchar',
+        },
+    },
+});
