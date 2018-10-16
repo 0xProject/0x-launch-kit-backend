@@ -26,10 +26,10 @@ app.get('/v2/orders', handlers.orders);
  */
 app.get('/v2/orderbook', handlers.orderbook);
 /**
- * GET Order config endpoint retrives the values for order fields that the relayer requires.
+ * POST Order config endpoint retrives the values for order fields that the relayer requires.
  * http://sra-spec.s3-website-us-east-1.amazonaws.com/#operation/getOrderConfig
  */
-app.get('/v2/order_config', handlers.orderConfig);
+app.post('/v2/order_config', handlers.orderConfig);
 /**
  * GET FeeRecepients endpoint retrieves a collection of all fee recipient addresses for a relayer.
  * http://sra-spec.s3-website-us-east-1.amazonaws.com/v2/fee_recipients

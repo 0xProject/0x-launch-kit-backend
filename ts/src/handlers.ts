@@ -1,4 +1,5 @@
 import { BigNumber, SignedOrder } from '0x.js';
+import { schemas } from '@0xproject/json-schemas';
 import * as express from 'express';
 import * as HttpStatus from 'http-status-codes';
 import * as _ from 'lodash';
@@ -9,6 +10,7 @@ import { NULL_ADDRESS } from './constants';
 import { NotFoundError } from './errors';
 import { orderBook } from './orderbook';
 import { paginate } from './paginator';
+import { utils } from './utils';
 
 const assetPairsStore = new AssetPairsStore(ASSET_PAIRS);
 
@@ -35,7 +37,8 @@ export const handlers = {
         const orderbookResponse = orderBook.getOrderBook(baseAssetData, quoteAssetData);
         res.status(HttpStatus.OK).send(orderbookResponse);
     },
-    orderConfig: (_req: express.Request, res: express.Response) => {
+    orderConfig: (req: express.Request, res: express.Response) => {
+        utils.validateSchema(req.body, schemas.relayerApiOrderConfigPayloadSchema);
         const orderConfigResponse = {
             senderAddress: NULL_ADDRESS,
             feeRecipientAddress: NULL_ADDRESS,

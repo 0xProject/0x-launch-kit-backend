@@ -167,6 +167,15 @@
     jsonschema "^1.2.0"
     lodash.values "^4.3.0"
 
+"@0xproject/json-schemas@^1.0.5":
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/@0xproject/json-schemas/-/json-schemas-1.0.5.tgz#b233cc46d3cebc142c72f772126ada1a1e10df31"
+  dependencies:
+    "@0xproject/typescript-typings" "^3.0.0"
+    "@types/node" "*"
+    jsonschema "^1.2.0"
+    lodash.values "^4.3.0"
+
 "@0xproject/order-utils@^1.0.3":
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/@0xproject/order-utils/-/order-utils-1.0.3.tgz#7a9c32bcc96cd244456093bac59fa05587f1fa26"
@@ -326,6 +335,16 @@
     "@types/react" "*"
     bignumber.js "~4.1.0"
     ethereum-types "^1.0.8"
+    popper.js "1.14.3"
+
+"@0xproject/typescript-typings@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@0xproject/typescript-typings/-/typescript-typings-3.0.0.tgz#b1ed196670cdf5c01a290e820556473bc09421a8"
+  dependencies:
+    "@types/bn.js" "^4.11.0"
+    "@types/react" "*"
+    bignumber.js "~4.1.0"
+    ethereum-types "^1.0.9"
     popper.js "1.14.3"
 
 "@0xproject/utils@^1.0.11":
@@ -2221,6 +2240,13 @@ ethereum-types@^1.0.8:
     "@types/node" "*"
     bignumber.js "~4.1.0"
 
+ethereum-types@^1.0.9:
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/ethereum-types/-/ethereum-types-1.0.9.tgz#3e61b6ae32868836b9a3feee390b7cb1fdd71882"
+  dependencies:
+    "@types/node" "*"
+    bignumber.js "~4.1.0"
+
 ethereumjs-abi@0.6.5:
   version "0.6.5"
   resolved "https://registry.yarnpkg.com/ethereumjs-abi/-/ethereumjs-abi-0.6.5.tgz#5a637ef16ab43473fa72a29ad90871405b3f5241"
@@ -3190,7 +3216,7 @@ jsonify@~0.0.0:
   version "0.0.0"
   resolved "https://registry.yarnpkg.com/jsonify/-/jsonify-0.0.0.tgz#2c74b6ee41d93ca51b7b5aaee8f503631d252a73"
 
-jsonschema@^1.2.0:
+jsonschema@^1.2.0, jsonschema@^1.2.4:
   version "1.2.4"
   resolved "https://registry.yarnpkg.com/jsonschema/-/jsonschema-1.2.4.tgz#a46bac5d3506a254465bc548876e267c6d0d6464"
 
