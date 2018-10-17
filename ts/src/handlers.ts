@@ -22,8 +22,8 @@ export const handlers = {
         const paginatedAssetPairs = paginate(assetPairs);
         res.status(HttpStatus.OK).send(paginatedAssetPairs);
     },
-    orders: (_req: express.Request, res: express.Response) => {
-        const orders = orderBook.getOrders();
+    ordersAsync: async (_req: express.Request, res: express.Response) => {
+        const orders = await orderBook.getOrdersAsync();
         const paginatedOrders = paginate(orders);
         res.status(HttpStatus.OK).send(paginatedOrders);
     },
@@ -31,10 +31,10 @@ export const handlers = {
         const paginatedFeeRecipients = paginate(FEE_RECIPIENTS);
         res.status(HttpStatus.OK).send(paginatedFeeRecipients);
     },
-    orderbook: (req: express.Request, res: express.Response) => {
+    orderbookAsync: async (req: express.Request, res: express.Response) => {
         const baseAssetData = req.query.baseAssetData;
         const quoteAssetData = req.query.quoteAssetData;
-        const orderbookResponse = orderBook.getOrderBook(baseAssetData, quoteAssetData);
+        const orderbookResponse = await orderBook.getOrderBookAsync(baseAssetData, quoteAssetData);
         res.status(HttpStatus.OK).send(orderbookResponse);
     },
     orderConfig: (req: express.Request, res: express.Response) => {
@@ -47,13 +47,14 @@ export const handlers = {
         };
         res.status(HttpStatus.OK).send(orderConfigResponse);
     },
-    postOrder: (req: express.Request, res: express.Response) => {
+    postOrderAsync: async (req: express.Request, res: express.Response) => {
+        utils.validateSchema(req.body, schemas.signedOrderSchema);
         const signedOrder = unmarshallOrder(req.body);
-        orderBook.addOrder(signedOrder);
+        await orderBook.addOrderAsync(signedOrder);
         res.status(HttpStatus.OK).send();
     },
-    getOrderByHash: (_req: express.Request, res: express.Response) => {
-        const orderIfExists = orderBook.getOrderByHashIfExists(_req.params.orderHash);
+    getOrderByHashAsync: async (_req: express.Request, res: express.Response) => {
+        const orderIfExists = await orderBook.getOrderByHashIfExistsAsync(_req.params.orderHash);
         if (_.isUndefined(orderIfExists)) {
             throw new NotFoundError();
         } else {

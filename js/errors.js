@@ -1,5 +1,5 @@
-'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 // tslint:disable:max-classes-per-file
 class RelayerBaseError extends Error {
     constructor() {
@@ -18,7 +18,7 @@ exports.BadRequestError = BadRequestError;
 class ValidationError extends BadRequestError {
     constructor(validationErrors) {
         super();
-        this.generalErrorCode = GeneralErrorCodes.VALIDATION_ERROR;
+        this.generalErrorCode = GeneralErrorCodes.validationError;
         this.validationErrors = validationErrors;
     }
 }
@@ -26,7 +26,7 @@ exports.ValidationError = ValidationError;
 class MalformedJSONError extends BadRequestError {
     constructor() {
         super(...arguments);
-        this.generalErrorCode = GeneralErrorCodes.MALFORMED_JSON;
+        this.generalErrorCode = GeneralErrorCodes.malformedJson;
     }
 }
 exports.MalformedJSONError = MalformedJSONError;
@@ -41,7 +41,7 @@ class TooManyRequestsError extends RelayerBaseError {
     constructor() {
         super(...arguments);
         this.statusCode = 429;
-        this.generalErrorCode = GeneralErrorCodes.THROTTLED;
+        this.generalErrorCode = GeneralErrorCodes.throttled;
     }
 }
 exports.TooManyRequestsError = TooManyRequestsError;
@@ -60,25 +60,25 @@ class NotImplementedError extends RelayerBaseError {
 }
 exports.NotImplementedError = NotImplementedError;
 var GeneralErrorCodes;
-(function(GeneralErrorCodes) {
-    GeneralErrorCodes[(GeneralErrorCodes['VALIDATION_ERROR'] = 100)] = 'VALIDATION_ERROR';
-    GeneralErrorCodes[(GeneralErrorCodes['MALFORMED_JSON'] = 101)] = 'MALFORMED_JSON';
-    GeneralErrorCodes[(GeneralErrorCodes['ORDER_SUBMISSION_DISABLED'] = 102)] = 'ORDER_SUBMISSION_DISABLED';
-    GeneralErrorCodes[(GeneralErrorCodes['THROTTLED'] = 103)] = 'THROTTLED';
-})((GeneralErrorCodes = exports.GeneralErrorCodes || (exports.GeneralErrorCodes = {})));
-exports.generalErrorCodesReasons = {
-    [GeneralErrorCodes.VALIDATION_ERROR]: 'Validation Failed',
-    [GeneralErrorCodes.MALFORMED_JSON]: 'Malformed JSON',
-    [GeneralErrorCodes.ORDER_SUBMISSION_DISABLED]: 'Order submission disabled',
-    [GeneralErrorCodes.THROTTLED]: 'Throttled',
+(function (GeneralErrorCodes) {
+    GeneralErrorCodes[GeneralErrorCodes["validationError"] = 100] = "validationError";
+    GeneralErrorCodes[GeneralErrorCodes["malformedJson"] = 101] = "malformedJson";
+    GeneralErrorCodes[GeneralErrorCodes["orderSubmittionDisabled"] = 102] = "orderSubmittionDisabled";
+    GeneralErrorCodes[GeneralErrorCodes["throttled"] = 103] = "throttled";
+})(GeneralErrorCodes = exports.GeneralErrorCodes || (exports.GeneralErrorCodes = {}));
+exports.generalErrorCodeToReason = {
+    [GeneralErrorCodes.validationError]: 'Validation Failed',
+    [GeneralErrorCodes.malformedJson]: 'Malformed JSON',
+    [GeneralErrorCodes.orderSubmittionDisabled]: 'Order submission disabled',
+    [GeneralErrorCodes.throttled]: 'Throttled',
 };
 var ValidationErrorCodes;
-(function(ValidationErrorCodes) {
-    ValidationErrorCodes[(ValidationErrorCodes['REQUIRED_FIELD'] = 1000)] = 'REQUIRED_FIELD';
-    ValidationErrorCodes[(ValidationErrorCodes['INCORRECT_FORMAT'] = 1001)] = 'INCORRECT_FORMAT';
-    ValidationErrorCodes[(ValidationErrorCodes['INVALID_ADDRESS'] = 1002)] = 'INVALID_ADDRESS';
-    ValidationErrorCodes[(ValidationErrorCodes['ADDRESS_NOT_SUPPORTED'] = 1003)] = 'ADDRESS_NOT_SUPPORTED';
-    ValidationErrorCodes[(ValidationErrorCodes['VALUE_OUT_OF_RANGE'] = 1004)] = 'VALUE_OUT_OF_RANGE';
-    ValidationErrorCodes[(ValidationErrorCodes['INVALID_SIGNATURE_OR_HASH'] = 1005)] = 'INVALID_SIGNATURE_OR_HASH';
-    ValidationErrorCodes[(ValidationErrorCodes['UNSUPPORTED_OPTION'] = 1006)] = 'UNSUPPORTED_OPTION';
-})((ValidationErrorCodes = exports.ValidationErrorCodes || (exports.ValidationErrorCodes = {})));
+(function (ValidationErrorCodes) {
+    ValidationErrorCodes[ValidationErrorCodes["requiredField"] = 1000] = "requiredField";
+    ValidationErrorCodes[ValidationErrorCodes["incorrectFormat"] = 1001] = "incorrectFormat";
+    ValidationErrorCodes[ValidationErrorCodes["invalidAddress"] = 1002] = "invalidAddress";
+    ValidationErrorCodes[ValidationErrorCodes["addressNotSupported"] = 1003] = "addressNotSupported";
+    ValidationErrorCodes[ValidationErrorCodes["valueOutOfRange"] = 1004] = "valueOutOfRange";
+    ValidationErrorCodes[ValidationErrorCodes["invalidSignatureOrHash"] = 1005] = "invalidSignatureOrHash";
+    ValidationErrorCodes[ValidationErrorCodes["unsupportedOption"] = 1006] = "unsupportedOption";
+})(ValidationErrorCodes = exports.ValidationErrorCodes || (exports.ValidationErrorCodes = {}));

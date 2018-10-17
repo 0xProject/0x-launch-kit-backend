@@ -1,10 +1,13 @@
 {
     "compilerOptions": {
         "module": "commonjs",
-        "target": "es2017",
+        "target": "esnext",
         "outDir": "lib",
         "strict": true,
         "noUnusedLocals": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "sourceMap": false,
         "typeRoots": ["../node_modules/@0xproject/typescript-typings/types", "../node_modules/@types"],
         "noUnusedParameters": true
     },

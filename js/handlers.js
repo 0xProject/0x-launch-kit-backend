@@ -1,14 +1,16 @@
-'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
-const _0x_js_1 = require('0x.js');
-const HttpStatus = require('http-status-codes');
-const _ = require('lodash');
-const asset_pairs_store_1 = require('./asset_pairs_store');
-const config_1 = require('./config');
-const constants_1 = require('./constants');
-const errors_1 = require('./errors');
-const orderbook_1 = require('./orderbook');
-const paginator_1 = require('./paginator');
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const _0x_js_1 = require("0x.js");
+const json_schemas_1 = require("@0xproject/json-schemas");
+const HttpStatus = require("http-status-codes");
+const _ = require("lodash");
+const asset_pairs_store_1 = require("./asset_pairs_store");
+const config_1 = require("./config");
+const constants_1 = require("./constants");
+const errors_1 = require("./errors");
+const orderbook_1 = require("./orderbook");
+const paginator_1 = require("./paginator");
+const utils_1 = require("./utils");
 const assetPairsStore = new asset_pairs_store_1.AssetPairsStore(config_1.ASSET_PAIRS);
 // TODO(leo): Set proper json headers
 // TODO(leo): Perform JSON schema validation on both request and response
@@ -18,8 +20,8 @@ exports.handlers = {
         const paginatedAssetPairs = paginator_1.paginate(assetPairs);
         res.status(HttpStatus.OK).send(paginatedAssetPairs);
     },
-    orders: (_req, res) => {
-        const orders = orderbook_1.orderBook.getOrders();
+    ordersAsync: async (_req, res) => {
+        const orders = await orderbook_1.orderBook.getOrdersAsync();
         const paginatedOrders = paginator_1.paginate(orders);
         res.status(HttpStatus.OK).send(paginatedOrders);
     },
@@ -27,13 +29,14 @@ exports.handlers = {
         const paginatedFeeRecipients = paginator_1.paginate(config_1.FEE_RECIPIENTS);
         res.status(HttpStatus.OK).send(paginatedFeeRecipients);
     },
-    orderbook: (req, res) => {
+    orderbookAsync: async (req, res) => {
         const baseAssetData = req.query.baseAssetData;
         const quoteAssetData = req.query.quoteAssetData;
-        const orderbookResponse = orderbook_1.orderBook.getOrderBook(baseAssetData, quoteAssetData);
+        const orderbookResponse = await orderbook_1.orderBook.getOrderBookAsync(baseAssetData, quoteAssetData);
         res.status(HttpStatus.OK).send(orderbookResponse);
     },
-    orderConfig: (_req, res) => {
+    orderConfig: (req, res) => {
+        utils_1.utils.validateSchema(req.body, json_schemas_1.schemas.relayerApiOrderConfigPayloadSchema);
         const orderConfigResponse = {
             senderAddress: constants_1.NULL_ADDRESS,
             feeRecipientAddress: constants_1.NULL_ADDRESS,
@@ -42,29 +45,32 @@ exports.handlers = {
         };
         res.status(HttpStatus.OK).send(orderConfigResponse);
     },
-    postOrder: (req, res) => {
+    postOrderAsync: async (req, res) => {
+        utils_1.utils.validateSchema(req.body, json_schemas_1.schemas.signedOrderSchema);
         const signedOrder = unmarshallOrder(req.body);
-        orderbook_1.orderBook.addOrder(signedOrder);
+        await orderbook_1.orderBook.addOrderAsync(signedOrder);
         res.status(HttpStatus.OK).send();
     },
-    getOrderByHash: (_req, res) => {
-        const orderIfExists = orderbook_1.orderBook.getOrderByHashIfExists(_req.params.orderHash);
+    getOrderByHashAsync: async (_req, res) => {
+        const orderIfExists = await orderbook_1.orderBook.getOrderByHashIfExistsAsync(_req.params.orderHash);
         if (_.isUndefined(orderIfExists)) {
             throw new errors_1.NotFoundError();
-        } else {
+        }
+        else {
             res.status(HttpStatus.OK).send(orderIfExists);
         }
     },
 };
 // As the orders come in as JSON they need to be turned into the correct types such as BigNumber
 function unmarshallOrder(signedOrderRaw) {
-    const signedOrder = Object.assign({}, signedOrderRaw, {
+    const signedOrder = {
+        ...signedOrderRaw,
         salt: new _0x_js_1.BigNumber(signedOrderRaw.salt),
         makerAssetAmount: new _0x_js_1.BigNumber(signedOrderRaw.makerAssetAmount),
         takerAssetAmount: new _0x_js_1.BigNumber(signedOrderRaw.takerAssetAmount),
         makerFee: new _0x_js_1.BigNumber(signedOrderRaw.makerFee),
         takerFee: new _0x_js_1.BigNumber(signedOrderRaw.takerFee),
         expirationTimeSeconds: new _0x_js_1.BigNumber(signedOrderRaw.expirationTimeSeconds),
-    });
+    };
     return signedOrder;
 }
