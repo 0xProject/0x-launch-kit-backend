@@ -16,8 +16,6 @@ const assetPairsStore = new AssetPairsStore(ASSET_PAIRS);
 const DEFAULT_PAGE = 0;
 const DEFAULT_PER_PAGE = 20;
 
-// TODO(leo): Set proper json headers
-// TODO(leo): Perform JSON schema validation on both request and response
 export const handlers = {
     assetPairs: (req: express.Request, res: express.Response) => {
         utils.validateSchema(req.query, schemas.assetPairsRequestOptsSchema);
