@@ -7,7 +7,7 @@ WORKDIR /usr/src/app
 COPY package.json ./
 COPY yarn.lock ./
 
-RUN yarn
+RUN yarn --frozen-lockfile
 
 # Bundle app source
 COPY . .

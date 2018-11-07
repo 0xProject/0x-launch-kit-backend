@@ -13,25 +13,25 @@ export class AssetPairsStore {
         assetDataA?: string,
         assetDataB?: string,
     ): PaginatedCollection<AssetPairsItem> {
-        let unpaged: AssetPairsItem[];
+        let nonPaginatedAssetPairs: AssetPairsItem[];
         if (_.isUndefined(assetDataA) && _.isUndefined(assetDataB)) {
-            unpaged = this._assetPairs;
+            nonPaginatedAssetPairs = this._assetPairs;
         } else if (!_.isUndefined(assetDataA) && !_.isUndefined(assetDataB)) {
             const containsAssetDataAAndAssetDataB = (assetPair: AssetPairsItem) =>
                 (assetPair.assetDataA.assetData === assetDataA && assetPair.assetDataB.assetData === assetDataB) ||
                 (assetPair.assetDataA.assetData === assetDataB && assetPair.assetDataB.assetData === assetDataA);
-            unpaged = this._assetPairs.filter(containsAssetDataAAndAssetDataB);
+            nonPaginatedAssetPairs = this._assetPairs.filter(containsAssetDataAAndAssetDataB);
         } else {
             const assetData = assetDataA || assetDataB;
             const containsAssetData = (assetPair: AssetPairsItem) =>
                 assetPair.assetDataA.assetData === assetData || assetPair.assetDataB.assetData === assetData;
-            unpaged = this._assetPairs.filter(containsAssetData);
+            nonPaginatedAssetPairs = this._assetPairs.filter(containsAssetData);
         }
         const paginatedAssetPairs = {
             total: this._assetPairs.length,
             page,
             perPage,
-            records: unpaged.slice(page * perPage, (page + 1) * perPage),
+            records: nonPaginatedAssetPairs.slice(page * perPage, (page + 1) * perPage),
         };
         return paginatedAssetPairs;
     }
