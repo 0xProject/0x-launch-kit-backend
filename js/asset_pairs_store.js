@@ -5,20 +5,28 @@ class AssetPairsStore {
     constructor(assetPairs) {
         this._assetPairs = assetPairs;
     }
-    get(assetDataA, assetDataB) {
+    get(page, perPage, assetDataA, assetDataB) {
+        let unpaged;
         if (_.isUndefined(assetDataA) && _.isUndefined(assetDataB)) {
-            return this._assetPairs;
+            unpaged = this._assetPairs;
         }
         else if (!_.isUndefined(assetDataA) && !_.isUndefined(assetDataB)) {
             const containsAssetDataAAndAssetDataB = (assetPair) => (assetPair.assetDataA.assetData === assetDataA && assetPair.assetDataB.assetData === assetDataB) ||
                 (assetPair.assetDataA.assetData === assetDataB && assetPair.assetDataB.assetData === assetDataA);
-            return this._assetPairs.filter(containsAssetDataAAndAssetDataB);
+            unpaged = this._assetPairs.filter(containsAssetDataAAndAssetDataB);
         }
         else {
             const assetData = assetDataA || assetDataB;
             const containsAssetData = (assetPair) => assetPair.assetDataA.assetData === assetData || assetPair.assetDataB.assetData === assetData;
-            return this._assetPairs.filter(containsAssetData);
+            unpaged = this._assetPairs.filter(containsAssetData);
         }
+        const paginatedAssetPairs = {
+            total: this._assetPairs.length,
+            page,
+            perPage,
+            records: unpaged.slice(page * perPage, (page + 1) * perPage),
+        };
+        return paginatedAssetPairs;
     }
 }
 exports.AssetPairsStore = AssetPairsStore;
