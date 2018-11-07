@@ -1,4 +1,4 @@
-import { Schema, SchemaValidator } from '@0xproject/json-schemas';
+import { Schema, SchemaValidator } from '@0x/json-schemas';
 import { ValidationError as SchemaValidationError } from 'jsonschema';
 import * as _ from 'lodash';
 

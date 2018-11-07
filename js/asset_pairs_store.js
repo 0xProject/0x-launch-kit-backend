@@ -1,6 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const _ = require("lodash");
+'use strict';
+Object.defineProperty(exports, '__esModule', { value: true });
+const _ = require('lodash');
 class AssetPairsStore {
     constructor(assetPairs) {
         this._assetPairs = assetPairs;
@@ -9,15 +9,15 @@ class AssetPairsStore {
         let unpaged;
         if (_.isUndefined(assetDataA) && _.isUndefined(assetDataB)) {
             unpaged = this._assetPairs;
-        }
-        else if (!_.isUndefined(assetDataA) && !_.isUndefined(assetDataB)) {
-            const containsAssetDataAAndAssetDataB = (assetPair) => (assetPair.assetDataA.assetData === assetDataA && assetPair.assetDataB.assetData === assetDataB) ||
+        } else if (!_.isUndefined(assetDataA) && !_.isUndefined(assetDataB)) {
+            const containsAssetDataAAndAssetDataB = assetPair =>
+                (assetPair.assetDataA.assetData === assetDataA && assetPair.assetDataB.assetData === assetDataB) ||
                 (assetPair.assetDataA.assetData === assetDataB && assetPair.assetDataB.assetData === assetDataA);
             unpaged = this._assetPairs.filter(containsAssetDataAAndAssetDataB);
-        }
-        else {
+        } else {
             const assetData = assetDataA || assetDataB;
-            const containsAssetData = (assetPair) => assetPair.assetDataA.assetData === assetData || assetPair.assetDataB.assetData === assetData;
+            const containsAssetData = assetPair =>
+                assetPair.assetDataA.assetData === assetData || assetPair.assetDataB.assetData === assetData;
             unpaged = this._assetPairs.filter(containsAssetData);
         }
         const paginatedAssetPairs = {

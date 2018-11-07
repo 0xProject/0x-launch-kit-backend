@@ -1,4 +1,4 @@
-import { schemas as jsonSchemas } from '@0xproject/json-schemas';
+import { schemas as jsonSchemas } from '@0x/json-schemas';
 
 import { assetPairsRequestOptsSchema } from './asset_pairs_request_opts_schema';
 import { orderConfigRequestSchema } from './order_config_request_schema';
