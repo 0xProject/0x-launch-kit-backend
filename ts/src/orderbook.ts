@@ -1,6 +1,6 @@
 import { BigNumber, orderHashUtils, SignedOrder } from '0x.js';
-import { assetDataUtils } from '@0x/order-utils';
 import { APIOrder, OrderbookResponse, PaginatedCollection } from '@0x/connect';
+import { assetDataUtils } from '@0x/order-utils';
 import { OrdersRequestOpts } from '@0x/types';
 import * as _ from 'lodash';
 
