@@ -2,7 +2,7 @@ import { EntitySchema } from 'typeorm';
 
 import { SignedOrderModel } from '../models/SignedOrderModel';
 
-module.exports = new EntitySchema({
+export const signedOrderEntity = new EntitySchema<SignedOrderModel>({
     name: 'SignedOrder',
     target: SignedOrderModel,
     columns: {

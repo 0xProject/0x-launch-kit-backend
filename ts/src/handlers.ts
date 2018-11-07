@@ -1,5 +1,4 @@
 import { BigNumber, SignedOrder } from '0x.js';
-import { schemas } from '@0xproject/json-schemas';
 import * as express from 'express';
 import * as HttpStatus from 'http-status-codes';
 import * as _ from 'lodash';
@@ -9,36 +8,53 @@ import { ASSET_PAIRS, FEE_RECIPIENTS } from './config';
 import { NULL_ADDRESS } from './constants';
 import { NotFoundError } from './errors';
 import { orderBook } from './orderbook';
-import { paginate } from './paginator';
+import { schemas } from './schemas/schemas';
 import { utils } from './utils';
 
 const assetPairsStore = new AssetPairsStore(ASSET_PAIRS);
+
+const DEFAULT_PAGE = 0;
+const DEFAULT_PER_PAGE = 20;
 
 // TODO(leo): Set proper json headers
 // TODO(leo): Perform JSON schema validation on both request and response
 export const handlers = {
     assetPairs: (req: express.Request, res: express.Response) => {
-        const assetPairs = assetPairsStore.get(req.query.assetDataA, req.query.assetDataB);
-        const paginatedAssetPairs = paginate(assetPairs);
-        res.status(HttpStatus.OK).send(paginatedAssetPairs);
+        utils.validateSchema(req.query, schemas.assetPairsRequestOptsSchema);
+        const page = _.isUndefined(req.query.page) ? DEFAULT_PAGE : Number(req.query.page);
+        const perPage = _.isUndefined(req.query.perPage) ? DEFAULT_PER_PAGE : Number(req.query.perPage);
+        const assetPairs = assetPairsStore.get(page, perPage, req.query.assetDataA, req.query.assetDataB);
+        res.status(HttpStatus.OK).send(assetPairs);
     },
-    ordersAsync: async (_req: express.Request, res: express.Response) => {
-        const orders = await orderBook.getOrdersAsync();
-        const paginatedOrders = paginate(orders);
+    ordersAsync: async (req: express.Request, res: express.Response) => {
+        utils.validateSchema(req.query, schemas.ordersRequestOptsSchema);
+        const page = _.isUndefined(req.query.page) ? DEFAULT_PAGE : Number(req.query.page);
+        const perPage = _.isUndefined(req.query.perPage) ? DEFAULT_PER_PAGE : Number(req.query.perPage);
+        const paginatedOrders = await orderBook.getOrdersAsync(page, perPage, req.query);
         res.status(HttpStatus.OK).send(paginatedOrders);
     },
-    feeRecipients: (_req: express.Request, res: express.Response) => {
-        const paginatedFeeRecipients = paginate(FEE_RECIPIENTS);
+    feeRecipients: (req: express.Request, res: express.Response) => {
+        const page = _.isUndefined(req.query.page) ? DEFAULT_PAGE : Number(req.query.page);
+        const perPage = _.isUndefined(req.query.perPage) ? DEFAULT_PER_PAGE : Number(req.query.perPage);
+        const paginatedFeeRecipients = {
+            total: FEE_RECIPIENTS.length,
+            page,
+            perPage,
+            records: FEE_RECIPIENTS.slice(page * perPage, (page + 1) * perPage),
+        };
         res.status(HttpStatus.OK).send(paginatedFeeRecipients);
     },
     orderbookAsync: async (req: express.Request, res: express.Response) => {
+        utils.validateSchema(req.query, schemas.orderBookRequestSchema);
+        const page = _.isUndefined(req.query.page) ? DEFAULT_PAGE : Number(req.query.page);
+        const perPage = _.isUndefined(req.query.perPage) ? DEFAULT_PER_PAGE : Number(req.query.perPage);
         const baseAssetData = req.query.baseAssetData;
         const quoteAssetData = req.query.quoteAssetData;
-        const orderbookResponse = await orderBook.getOrderBookAsync(baseAssetData, quoteAssetData);
+        const orderbookResponse = await orderBook.getOrderBookAsync(page, perPage, baseAssetData, quoteAssetData);
         res.status(HttpStatus.OK).send(orderbookResponse);
     },
     orderConfig: (req: express.Request, res: express.Response) => {
-        utils.validateSchema(req.body, schemas.relayerApiOrderConfigPayloadSchema);
+        utils.validateSchema(req.body, schemas.orderConfigRequestSchema);
         const orderConfigResponse = {
             senderAddress: NULL_ADDRESS,
             feeRecipientAddress: NULL_ADDRESS,
@@ -53,8 +69,8 @@ export const handlers = {
         await orderBook.addOrderAsync(signedOrder);
         res.status(HttpStatus.OK).send();
     },
-    getOrderByHashAsync: async (_req: express.Request, res: express.Response) => {
-        const orderIfExists = await orderBook.getOrderByHashIfExistsAsync(_req.params.orderHash);
+    getOrderByHashAsync: async (req: express.Request, res: express.Response) => {
+        const orderIfExists = await orderBook.getOrderByHashIfExistsAsync(req.params.orderHash);
         if (_.isUndefined(orderIfExists)) {
             throw new NotFoundError();
         } else {

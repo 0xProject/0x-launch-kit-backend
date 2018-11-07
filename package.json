@@ -17,7 +17,7 @@
         "lint:ts": "tslint --project ts --format stylish"
     },
     "devDependencies": {
-        "@0xproject/tslint-config": "^1.0.7",
+        "@0x/tslint-config": "^1.0.7",
         "@types/express": "^4.16.0",
         "@types/lodash": "^4.14.116",
         "@types/web3-provider-engine": "^14.0.0",
@@ -27,11 +27,12 @@
     },
     "dependencies": {
         "0x.js": "^1.0.4",
-        "@0xproject/connect": "^2.0.2",
-        "@0xproject/json-schemas": "^1.0.5",
-        "@0xproject/order-watcher": "^2.0.0",
-        "@0xproject/types": "^1.1.0",
-        "@0xproject/typescript-typings": "^2.0.1",
+        "@0x/connect": "^3.0.2",
+        "@0x/json-schemas": "^2.0.0",
+        "@0x/order-utils": "^2.0.0",
+        "@0x/order-watcher": "^2.2.0",
+        "@0x/types": "^1.2.0",
+        "@0x/typescript-typings": "^3.0.3",
         "body-parser": "^1.18.3",
         "express": "^4.16.3",
         "express-async-handler": "^1.1.4",
