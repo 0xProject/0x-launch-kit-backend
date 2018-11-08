@@ -7,6 +7,12 @@ export class AssetPairsStore {
     constructor(assetPairs: AssetPairsItem[]) {
         this._assetPairs = assetPairs;
     }
+    public contains(assetDataA: string, assetDataB: string): boolean {
+        const containsAssetDataAAndAssetDataB = (assetPair: AssetPairsItem) =>
+            (assetPair.assetDataA.assetData === assetDataA && assetPair.assetDataB.assetData === assetDataB) ||
+            (assetPair.assetDataA.assetData === assetDataB && assetPair.assetDataB.assetData === assetDataA);
+        return !_.isUndefined(this._assetPairs.find(containsAssetDataAAndAssetDataB));
+    }
     public get(
         page: number,
         perPage: number,

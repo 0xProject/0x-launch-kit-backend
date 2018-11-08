@@ -6,7 +6,7 @@ import * as _ from 'lodash';
 import { AssetPairsStore } from './asset_pairs_store';
 import { ASSET_PAIRS, FEE_RECIPIENTS } from './config';
 import { NULL_ADDRESS } from './constants';
-import { NotFoundError } from './errors';
+import { NotFoundError, ValidationError, ValidationErrorCodes } from './errors';
 import { orderBook } from './orderbook';
 import { schemas } from './schemas/schemas';
 import { utils } from './utils';
@@ -64,6 +64,15 @@ export const handlers = {
     postOrderAsync: async (req: express.Request, res: express.Response) => {
         utils.validateSchema(req.body, schemas.signedOrderSchema);
         const signedOrder = unmarshallOrder(req.body);
+        if (assetPairsStore.contains(signedOrder.makerAssetData, signedOrder.takerAssetData)) {
+            throw new ValidationError([
+                {
+                    field: 'assetPair',
+                    code: ValidationErrorCodes.valueOutOfRange,
+                    reason: 'Asset pair not supported',
+                },
+            ]);
+        }
         await orderBook.addOrderAsync(signedOrder);
         res.status(HttpStatus.OK).send();
     },
