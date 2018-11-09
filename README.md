@@ -12,7 +12,7 @@ If you want to work on it as a JS project:
 
 If you want to work on it as a TS project:
 
--   delete the JS directory
+-   delete the `js` directory
 -   all the scripts from package.json that end with :js
 
 ## Database
