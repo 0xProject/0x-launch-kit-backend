@@ -4,7 +4,9 @@ const DEFAULT_HTTP_PORT = 3000;
 export const HTTP_PORT = process.env.PORT || DEFAULT_HTTP_PORT;
 
 const GANACHE_NETWORK_ID = 50;
-export const DEFAULT_NETWORK_ID = GANACHE_NETWORK_ID;
+const DEFAULT_NETWORK_ID = GANACHE_NETWORK_ID;
+
+export const NETWORK_ID = Number(process.env.NETWORK_ID) || DEFAULT_NETWORK_ID;
 
 // TODO(leo): Load those from config.
 export const FEE_RECIPIENTS = [
@@ -30,3 +32,5 @@ export const ASSET_PAIRS = [
         },
     },
 ];
+
+export const RPC_URL = 'https://mainnet.infura.io';

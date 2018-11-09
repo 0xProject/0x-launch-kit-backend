@@ -1,14 +1,32 @@
-import { BigNumber, orderHashUtils, SignedOrder } from '0x.js';
+import { BigNumber, orderHashUtils, RPCSubprovider, SignedOrder, Web3ProviderEngine } from '0x.js';
 import { APIOrder, OrderbookResponse, PaginatedCollection } from '@0x/connect';
 import { assetDataUtils } from '@0x/order-utils';
+import { OrderState, OrderWatcher } from '@0x/order-watcher';
 import { OrdersRequestOpts } from '@0x/types';
 import * as _ from 'lodash';
 
+import { NETWORK_ID, RPC_URL } from './config';
 import { getDBConnection } from './db_connection';
 import { SignedOrderModel } from './models/SignedOrderModel';
+import { utils } from './utils';
+
+const shadowedOrders: Set<string> = new Set();
 
 export const orderBook = {
+    onOrderStateChangeCallback: (err: Error | null, orderState?: OrderState) => {
+        if (!_.isUndefined(err)) {
+            utils.log(err);
+        } else {
+            const state = orderState as OrderState;
+            if (!state.isValid) {
+                shadowedOrders.add(state.orderHash);
+            } else {
+                shadowedOrders.delete(state.orderHash);
+            }
+        }
+    },
     addOrderAsync: async (signedOrder: SignedOrder) => {
+        orderWatcher.addOrderAsync(signedOrder);
         const signedOrderModel = serializeOrder(signedOrder);
         const connection = getDBConnection();
         await connection.manager.save(signedOrderModel);
@@ -28,9 +46,11 @@ export const orderBook = {
         })) as Array<Required<SignedOrderModel>>;
         const bidApiOrders: APIOrder[] = bidSignedOrderModels
             .map(deserializeOrder)
+            .filter(order => !shadowedOrders.has(orderHashUtils.getOrderHashHex(order)))
             .map(signedOrder => ({ metaData: {}, order: signedOrder }));
         const askApiOrders: APIOrder[] = askSignedOrderModels
             .map(deserializeOrder)
+            .filter(order => !shadowedOrders.has(orderHashUtils.getOrderHashHex(order)))
             .map(signedOrder => ({ metaData: {}, order: signedOrder }));
         const paginatedBidApiOrders = {
             total: bidApiOrders.length,
@@ -73,6 +93,7 @@ export const orderBook = {
         let signedOrders = _.map(signedOrderModels, deserializeOrder);
         // Post-filters
         signedOrders = signedOrders
+            .filter(order => !shadowedOrders.has(orderHashUtils.getOrderHashHex(order)))
             .filter(
                 // traderAddress
                 signedOrder =>
@@ -168,3 +189,9 @@ const serializeOrder = (signedOrder: SignedOrder): SignedOrderModel => {
     });
     return signedOrderModel;
 };
+
+const provider = new Web3ProviderEngine();
+provider.addProvider(new RPCSubprovider(RPC_URL));
+provider.start();
+const orderWatcher = new OrderWatcher(provider, NETWORK_ID);
+orderWatcher.subscribe(orderBook.onOrderStateChangeCallback);
