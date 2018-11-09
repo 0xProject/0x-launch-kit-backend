@@ -23,7 +23,7 @@ Because we support both JS and TS code we don't use decorators. TypeORM shines w
 
 ## Deploying
 
-`0x-launch-kit` ships as a docker container. To build the image run:
+`0x-launch-kit` ships as a docker container.  First, install Docker ([mac](https://docs.docker.com/docker-for-mac/install/), [windows](https://docs.docker.com/docker-for-windows/install/)). To build the image run:
 
 ```sh
 docker build -t 0x-launch-kit .
