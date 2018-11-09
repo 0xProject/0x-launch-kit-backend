@@ -41,7 +41,7 @@ And launch it with
 docker run -p 3000:3000 -d 0x-launch-kit
 ```
 
-Chack that it's working by running
+Check that it's working by running
 
 ```
 curl http://localhost:3000/v2/asset_pairs
