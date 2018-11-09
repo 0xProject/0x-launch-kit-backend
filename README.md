@@ -6,7 +6,7 @@ It ships as both a typescript and javascript module. TS sources are in the `ts` 
 
 If you want to work on it as a JS project:
 
--   delete the TS directory
+-   delete the `ts` directory
 -   delete all scripts from package.json that end with :ts
 -   Look through the JS code and start modifying it. It was auto-generated from TS code so it might not be pretty, but it should be pretty easy to get it into good shape
 
