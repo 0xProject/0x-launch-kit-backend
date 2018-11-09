@@ -17,7 +17,7 @@ If you want to work on it as a TS project:
 
 ## Database
 
-We use [typeorm](https://github.com/typeorm/typeorm) as an ORM. It allows us to migrate to other data sources later and makes the code cleaner.
+This project uses [typeorm](https://github.com/typeorm/typeorm). It makes it easier for anyone to switch out the backing database that this project uses.
 As for now this project uses sqlite backend.
 Because we support both JS and TS code we don't use decorators. TypeORM shines with decorators, so you might want to use them if you're going to use the TS version.
 
