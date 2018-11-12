@@ -1,6 +1,6 @@
 {
     "HTTP_PORT": 3000,
-    "NETWORK_ID": 50,
+    "NETWORK_ID": 1,
     "FEE_RECIPIENTS": ["0x0000000000000000000000000000000000000000"],
     "RPC_URL": "https://mainnet.infura.io",
     "ASSET_PAIRS": [
