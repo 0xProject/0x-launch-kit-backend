@@ -2,6 +2,8 @@ import { PaginatedCollection } from '@0x/connect';
 import { AssetPairsItem } from '@0x/types';
 import * as _ from 'lodash';
 
+import { paginate } from './paginator';
+
 export class AssetPairsStore {
     private readonly _assetPairs: AssetPairsItem[];
     constructor(assetPairs: AssetPairsItem[]) {
@@ -33,12 +35,7 @@ export class AssetPairsStore {
                 assetPair.assetDataA.assetData === assetData || assetPair.assetDataB.assetData === assetData;
             nonPaginatedAssetPairs = this._assetPairs.filter(containsAssetData);
         }
-        const paginatedAssetPairs = {
-            total: this._assetPairs.length,
-            page,
-            perPage,
-            records: nonPaginatedAssetPairs.slice(page * perPage, (page + 1) * perPage),
-        };
+        const paginatedAssetPairs = paginate(nonPaginatedAssetPairs, page, perPage);
         return paginatedAssetPairs;
     }
 }

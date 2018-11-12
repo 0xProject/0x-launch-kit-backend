@@ -8,6 +8,7 @@ import * as _ from 'lodash';
 import { NETWORK_ID, RPC_URL } from './config';
 import { getDBConnection } from './db_connection';
 import { SignedOrderModel } from './models/SignedOrderModel';
+import { paginate } from './paginator';
 import { utils } from './utils';
 
 const shadowedOrders: Set<string> = new Set();
@@ -52,18 +53,8 @@ export const orderBook = {
             .map(deserializeOrder)
             .filter(order => !shadowedOrders.has(orderHashUtils.getOrderHashHex(order)))
             .map(signedOrder => ({ metaData: {}, order: signedOrder }));
-        const paginatedBidApiOrders = {
-            total: bidApiOrders.length,
-            page,
-            perPage,
-            records: bidApiOrders.slice(page * perPage, (page + 1) * perPage),
-        };
-        const paginatedAskApiOrders = {
-            total: askApiOrders.length,
-            page,
-            perPage,
-            records: askApiOrders.slice(page * perPage, (page + 1) * perPage),
-        };
+        const paginatedBidApiOrders = paginate(bidApiOrders, page, perPage);
+        const paginatedAskApiOrders = paginate(askApiOrders, page, perPage);
         return {
             bids: paginatedBidApiOrders,
             asks: paginatedAskApiOrders,
@@ -130,12 +121,7 @@ export const orderBook = {
                         ordersFilterParams.takerAssetProxyId,
             );
         const apiOrders: APIOrder[] = signedOrders.map(signedOrder => ({ metaData: {}, order: signedOrder }));
-        const paginatedApiOrders = {
-            total: apiOrders.length,
-            page,
-            perPage,
-            records: apiOrders.slice(page * perPage, (page + 1) * perPage),
-        };
+        const paginatedApiOrders = paginate(apiOrders, page, perPage);
         return paginatedApiOrders;
     },
     getOrderByHashIfExistsAsync: async (orderHash: string): Promise<SignedOrder | undefined> => {
