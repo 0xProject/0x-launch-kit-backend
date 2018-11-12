@@ -8,9 +8,10 @@ COPY package.json ./
 COPY yarn.lock ./
 
 RUN yarn --frozen-lockfile
+RUN yarn add forever -g
 
 # Bundle app source
 COPY . .
 
 EXPOSE 3000
-CMD [ "yarn", "start:ts" ]
+CMD [ "forever", "ts/lib/index.js" ]
