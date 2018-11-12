@@ -4,11 +4,12 @@
         "target": "esnext",
         "outDir": "lib",
         "strict": true,
+        "allowJs": true,
         "noUnusedLocals": true,
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
         "sourceMap": false,
-        "typeRoots": ["../node_modules/@0xproject/typescript-typings/types", "../node_modules/@types"],
+        "typeRoots": ["../node_modules/@0x/typescript-typings/types", "../node_modules/@types"],
         "noUnusedParameters": true
     },
     "include": ["src"]

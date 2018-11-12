@@ -1,7 +1,64 @@
-# 0x-relayer-template
+# 0x-launch-kit
 
-This is a template 0x relayer. It's customizable, open source and completely free to use. You can just fork it and start modifying it for your own needs.
+This is a template 0x relayer. It's customizable, open-source and completely free to use. You can fork it and customize it to fix your own needs.
 
-It ships as both a typescript and javascript module. TS sources are in the `ts` directory while auto-generated JS sources are in the `js` directory.
+It ships as both a typescript and javascript module. Typescript sources are in the `ts` directory while auto-generated Javascript sources are in the `js` directory.
 
-TODO:(leo) Add instructions for deleting ts/js directories
+If you want to work on it in Javascript:
+
+-   delete the `ts` directory
+-   delete all scripts from package.json that end with :ts
+-   Look through the Javascript code and start modifying it. It was auto-generated from Typescript code and we tried our best to make it readable. It might require some improving and should provide a good starting point.
+
+If you want to work on it in Typescript:
+
+-   delete the `js` directory
+-   all the scripts from package.json that end with :js
+
+## Commands
+
+-   build - Builds `TS` code and copies the build version over in place of `JS` code (**Warning**: Overrides the JS code)
+-   prettier - Prettifies both `JS` and `TS` code
+
+-   lint:ts - Lints `TS` code
+-   start:ts - Starts `TS` code
+-   build:ts - Builds `TS` code
+-   watch:ts - Watches `TS` code and rebuilds on changes
+-   prettier:ts - Prettifies `TS` code
+
+-   start:js - Starts `JS` code
+-   prettier:js - Prettifies `JS` code
+
+## Database
+
+This project uses [typeorm](https://github.com/typeorm/typeorm). It makes it easier for anyone to switch out the backing database that this project uses. As for now this project uses an [SQLite](https://sqlite.org/docs.html) backend. Because we support both Javascript and Typescript codebases, we don't use decorators. TypeORM shines with decorators, so you might want to use them if you're going to be working in Typescript.
+
+## Configuration
+
+0x Launch kit can be configured by changing the config variables in the [config.json](config.json) file.
+
+## Deploying
+
+`0x-launch-kit` ships as a docker container. First, install Docker ([mac](https://docs.docker.com/docker-for-mac/install/), [windows](https://docs.docker.com/docker-for-windows/install/)). To build the image run:
+
+```sh
+docker build -t 0x-launch-kit .
+```
+
+You can check that the image was built by running:
+
+```sh
+docker images
+```
+
+And launch it with
+
+```sh
+docker run -p 3000:3000 -d 0x-launch-kit
+```
+
+Check that it's working by running
+
+```
+curl http://localhost:3000/v2/asset_pairs
+```
