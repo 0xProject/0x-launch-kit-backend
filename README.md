@@ -19,6 +19,10 @@ If you want to work on it as a TS project:
 
 This project uses [typeorm](https://github.com/typeorm/typeorm). It makes it easier for anyone to switch out the backing database that this project uses. As for now this project uses sqlite backend. Because we support both JS and TS code we don't use decorators. TypeORM shines with decorators, so you might want to use them if you're going to use the TS version.
 
+## Configuration
+
+Launch kit can be configured by changing the config variables in the [config.json](config.json) file.
+
 ## Deploying
 
 `0x-launch-kit` ships as a docker container. First, install Docker ([mac](https://docs.docker.com/docker-for-mac/install/), [windows](https://docs.docker.com/docker-for-windows/install/)). To build the image run:
