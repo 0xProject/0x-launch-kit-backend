@@ -17,15 +17,17 @@ If you want to work on it in Typescript:
 
 ## Commands
 
+-   build - Builds `TS` code and copies the build version over in place of `JS` code (**Warning**: Overrides the JS code)
+-   prettier - Prettifies both `JS` and `TS` code
+
 -   lint:ts - Lints `TS` code
 -   start:ts - Starts `TS` code
--   start:js - Starts `JS` code
 -   build:ts - Builds `TS` code
--   build - Builds `TS` code and copies the build version over in place of `JS` code (**Warning**: Overrides the JS code)
 -   watch:ts - Watches `TS` code and rebuilds on changes
--   prettier - Prettifies both `JS` and `TS` code
--   prettier:js - Prettifies `JS` code
 -   prettier:ts - Prettifies `TS` code
+
+-   start:js - Starts `JS` code
+-   prettier:js - Prettifies `JS` code
 
 ## Database
 
