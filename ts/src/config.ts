@@ -4,6 +4,8 @@ import * as _ from 'lodash';
 import * as config from '../../config.json';
 
 export const HTTP_PORT = config.HTTP_PORT;
+export const ORDER_SHADOWING_MARGIN = config.ORDER_SHADOWING_MARGIN;
+export const PERMANENT_CLEANUP_INTERVAL = config.PERMANENT_CLEANUP_INTERVAL;
 export const MAX_PER_PAGE = config.MAX_PER_PAGE;
 export const NETWORK_ID = config.NETWORK_ID;
 export const FEE_RECIPIENTS = config.FEE_RECIPIENTS;

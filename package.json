@@ -34,6 +34,7 @@
         "@0x/subproviders": "^2.1.0",
         "@0x/types": "^1.2.0",
         "@0x/typescript-typings": "^3.0.3",
+        "@0x/utils": "^2.0.4",
         "body-parser": "^1.18.3",
         "express": "^4.16.3",
         "express-async-handler": "^1.1.4",

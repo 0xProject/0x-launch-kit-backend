@@ -3,15 +3,18 @@ import { APIOrder, OrderbookResponse, PaginatedCollection } from '@0x/connect';
 import { assetDataUtils } from '@0x/order-utils';
 import { OrderState, OrderWatcher } from '@0x/order-watcher';
 import { OrdersRequestOpts } from '@0x/types';
+import { intervalUtils } from '@0xproject/utils';
 import * as _ from 'lodash';
 
-import { NETWORK_ID, RPC_URL } from './config';
+import { NETWORK_ID, ORDER_SHADOWING_MARGIN, PERMANENT_CLEANUP_INTERVAL, RPC_URL } from './config';
+
 import { getDBConnection } from './db_connection';
 import { SignedOrderModel } from './models/SignedOrderModel';
 import { paginate } from './paginator';
 import { utils } from './utils';
 
-const shadowedOrders: Set<string> = new Set();
+// Mapping from an order hash to the timestamp when it was shadowed
+const shadowedOrders: Map<string, number> = new Map();
 
 export const orderBook = {
     onOrderStateChangeCallback: (err: Error | null, orderState?: OrderState) => {
@@ -20,11 +23,22 @@ export const orderBook = {
         } else {
             const state = orderState as OrderState;
             if (!state.isValid) {
-                shadowedOrders.add(state.orderHash);
+                shadowedOrders.set(state.orderHash, Date.now());
             } else {
                 shadowedOrders.delete(state.orderHash);
             }
         }
+    },
+    onCleanUpInvalidOrdersAsync: async () => {
+        const permanentlyExpiredOrders: string[] = [];
+        for (const [orderHash, shadowedAt] of shadowedOrders) {
+            const now = Date.now();
+            if (shadowedAt + ORDER_SHADOWING_MARGIN < now) {
+                permanentlyExpiredOrders.push(orderHash);
+            }
+        }
+        const connection = getDBConnection();
+        await connection.manager.delete(SignedOrderModel, permanentlyExpiredOrders);
     },
     addOrderAsync: async (signedOrder: SignedOrder) => {
         await orderWatcher.addOrderAsync(signedOrder);
@@ -181,3 +195,8 @@ provider.addProvider(new RPCSubprovider(RPC_URL));
 provider.start();
 const orderWatcher = new OrderWatcher(provider, NETWORK_ID);
 orderWatcher.subscribe(orderBook.onOrderStateChangeCallback);
+intervalUtils.setAsyncExcludingInterval(
+    orderBook.onCleanUpInvalidOrdersAsync.bind(orderBook),
+    PERMANENT_CLEANUP_INTERVAL,
+    utils.log,
+);

@@ -223,6 +223,14 @@
     bignumber.js "~4.1.0"
     ethereum-types "^1.1.1"
 
+"@0x/types@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@0x/types/-/types-1.2.1.tgz#fabd390b28a41ee92899ae4efb361a78f000356a"
+  dependencies:
+    "@types/node" "*"
+    bignumber.js "~4.1.0"
+    ethereum-types "^1.1.2"
+
 "@0x/typescript-typings@^3.0.3":
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/@0x/typescript-typings/-/typescript-typings-3.0.3.tgz#0b0c8ce5cbfdfda14e0c4226052165878da99f1e"
@@ -254,6 +262,23 @@
     bignumber.js "~4.1.0"
     detect-node "2.0.3"
     ethereum-types "^1.1.1"
+    ethereumjs-util "^5.1.1"
+    ethers "~4.0.4"
+    isomorphic-fetch "^2.2.1"
+    js-sha3 "^0.7.0"
+    lodash "^4.17.5"
+
+"@0x/utils@^2.0.4":
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/@0x/utils/-/utils-2.0.4.tgz#47b2e71416127b7c39ddd1e2692421b6d8763ffd"
+  dependencies:
+    "@0x/types" "^1.2.1"
+    "@0x/typescript-typings" "^3.0.4"
+    "@types/node" "*"
+    abortcontroller-polyfill "^1.1.9"
+    bignumber.js "~4.1.0"
+    detect-node "2.0.3"
+    ethereum-types "^1.1.2"
     ethereumjs-util "^5.1.1"
     ethers "~4.0.4"
     isomorphic-fetch "^2.2.1"
