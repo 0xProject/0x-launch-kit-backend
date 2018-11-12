@@ -4,6 +4,7 @@
         "target": "esnext",
         "outDir": "lib",
         "strict": true,
+        "resolveJsonModule": true,
         "noUnusedLocals": true,
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
@@ -11,5 +12,6 @@
         "typeRoots": ["../node_modules/@0x/typescript-typings/types", "../node_modules/@types"],
         "noUnusedParameters": true
     },
-    "include": ["src"]
+    "include": ["src"],
+    "files": ["../config.json"]
 }
