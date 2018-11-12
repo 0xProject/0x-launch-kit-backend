@@ -15,6 +15,18 @@ If you want to work on it as a TS project:
 -   delete the `js` directory
 -   all the scripts from package.json that end with :js
 
+## Commands
+
+-   lint:ts - Lints `TS` code
+-   start:ts - Starts `TS` code
+-   start:js - Starts `JS` code
+-   build:ts - Builds `TS` code
+-   build - Builds `TS` code and copies the build version over in place of `JS` code (**Warning**: Overrides the JS code)
+-   watch:ts - Watches `TS` code and rebuilds on changes
+-   prettier - Prettifies both `JS` and `TS` code
+-   prettier:js - Prettifies `JS` code
+-   prettier:ts - Prettifies `TS` code
+
 ## Database
 
 This project uses [typeorm](https://github.com/typeorm/typeorm). It makes it easier for anyone to switch out the backing database that this project uses. As for now this project uses sqlite backend. Because we support both JS and TS code we don't use decorators. TypeORM shines with decorators, so you might want to use them if you're going to use the TS version.
