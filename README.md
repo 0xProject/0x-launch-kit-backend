@@ -10,7 +10,7 @@ If you want to work on it in Javascript:
 -   delete all scripts from package.json that end with :ts
 -   Look through the Javascript code and start modifying it. It was auto-generated from Typescript code and we tried our best to make it readable. It might require some improving and should provide a good starting point.
 
-If you want to work on it as a TS project:
+If you want to work on it in Typescript:
 
 -   delete the `js` directory
 -   all the scripts from package.json that end with :js
