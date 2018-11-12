@@ -1,125 +1,54 @@
-'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
-const _0x_js_1 = require('0x.js');
-const order_utils_1 = require('@0x/order-utils');
-const _ = require('lodash');
-const db_connection_1 = require('./db_connection');
-const SignedOrderModel_1 = require('./models/SignedOrderModel');
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const _0x_js_1 = require("0x.js");
+const _ = require("lodash");
+const db_connection_1 = require("./db_connection");
+const SignedOrderModel_1 = require("./models/SignedOrderModel");
+const paginator_1 = require("./paginator");
 exports.orderBook = {
-    addOrderAsync: async signedOrder => {
+    addOrderAsync: async (signedOrder) => {
         const signedOrderModel = serializeOrder(signedOrder);
         const connection = db_connection_1.getDBConnection();
         await connection.manager.save(signedOrderModel);
     },
-    getOrderBookAsync: async (page, perPage, baseAssetData, quoteAssetData) => {
+    getOrderBookAsync: async (baseAssetData, quoteAssetData) => {
         const connection = db_connection_1.getDBConnection();
-        const bidSignedOrderModels = await connection.manager.find(SignedOrderModel_1.SignedOrderModel, {
+        const bidSignedOrderModels = (await connection.manager.find(SignedOrderModel_1.SignedOrderModel, {
             where: { takerAssetData: baseAssetData, makerAssetData: quoteAssetData },
-        });
-        const askSignedOrderModels = await connection.manager.find(SignedOrderModel_1.SignedOrderModel, {
+        }));
+        const askSignedOrderModels = (await connection.manager.find(SignedOrderModel_1.SignedOrderModel, {
             where: { takerAssetData: quoteAssetData, makerAssetData: baseAssetData },
-        });
+        }));
         const bidApiOrders = bidSignedOrderModels
             .map(deserializeOrder)
             .map(signedOrder => ({ metaData: {}, order: signedOrder }));
         const askApiOrders = askSignedOrderModels
             .map(deserializeOrder)
             .map(signedOrder => ({ metaData: {}, order: signedOrder }));
-        const paginatedBidApiOrders = {
-            total: bidApiOrders.length,
-            page,
-            perPage,
-            records: bidApiOrders.slice(page * perPage, (page + 1) * perPage),
-        };
-        const paginatedAskApiOrders = {
-            total: askApiOrders.length,
-            page,
-            perPage,
-            records: askApiOrders.slice(page * perPage, (page + 1) * perPage),
-        };
         return {
-            bids: paginatedBidApiOrders,
-            asks: paginatedAskApiOrders,
+            bids: paginator_1.paginate(bidApiOrders),
+            asks: paginator_1.paginate(askApiOrders),
         };
     },
-    // TODO:(leo) Do all filtering and pagination in a DB (requires stored procedures or redundant fields)
-    getOrdersAsync: async (page, perPage, ordersFilterParams) => {
+    getOrdersAsync: async () => {
         const connection = db_connection_1.getDBConnection();
-        // Pre-filters
-        const filterObjectWithValuesIfExist = {
-            exchangeAddress: ordersFilterParams.exchangeAddress,
-            senderAddress: ordersFilterParams.senderAddress,
-            makerAssetData: ordersFilterParams.makerAssetData,
-            takerAssetData: ordersFilterParams.takerAssetData,
-            makerAddress: ordersFilterParams.makerAddress,
-            takerAddress: ordersFilterParams.takerAddress,
-            feeRecipientAddress: ordersFilterParams.feeRecipientAddress,
-        };
-        const filterObject = _.pickBy(filterObjectWithValuesIfExist, _.identity.bind(_));
-        const signedOrderModels = await connection.manager.find(SignedOrderModel_1.SignedOrderModel, {
-            where: filterObject,
-        });
-        let signedOrders = _.map(signedOrderModels, deserializeOrder);
-        // Post-filters
-        signedOrders = signedOrders
-            .filter(
-                // traderAddress
-                signedOrder =>
-                    _.isUndefined(ordersFilterParams.traderAddress) ||
-                    signedOrder.makerAddress === ordersFilterParams.traderAddress ||
-                    signedOrder.takerAddress === ordersFilterParams.traderAddress,
-            )
-            .filter(
-                // makerAssetAddress
-                signedOrder =>
-                    _.isUndefined(ordersFilterParams.makerAssetAddress) ||
-                    order_utils_1.assetDataUtils.decodeAssetDataOrThrow(signedOrder.makerAssetData).tokenAddress ===
-                        ordersFilterParams.makerAssetAddress,
-            )
-            .filter(
-                // takerAssetAddress
-                signedOrder =>
-                    _.isUndefined(ordersFilterParams.takerAssetAddress) ||
-                    order_utils_1.assetDataUtils.decodeAssetDataOrThrow(signedOrder.takerAssetData).tokenAddress ===
-                        ordersFilterParams.takerAssetAddress,
-            )
-            .filter(
-                // makerAssetProxyId
-                signedOrder =>
-                    _.isUndefined(ordersFilterParams.makerAssetProxyId) ||
-                    order_utils_1.assetDataUtils.decodeAssetDataOrThrow(signedOrder.makerAssetData).assetProxyId ===
-                        ordersFilterParams.makerAssetProxyId,
-            )
-            .filter(
-                // makerAssetProxyId
-                signedOrder =>
-                    _.isUndefined(ordersFilterParams.takerAssetProxyId) ||
-                    order_utils_1.assetDataUtils.decodeAssetDataOrThrow(signedOrder.takerAssetData).assetProxyId ===
-                        ordersFilterParams.takerAssetProxyId,
-            );
+        const signedOrderModels = (await connection.manager.find(SignedOrderModel_1.SignedOrderModel));
+        const signedOrders = _.map(signedOrderModels, deserializeOrder);
         const apiOrders = signedOrders.map(signedOrder => ({ metaData: {}, order: signedOrder }));
-        const paginatedApiOrders = {
-            total: apiOrders.length,
-            page,
-            perPage,
-            records: apiOrders.slice(page * perPage, (page + 1) * perPage),
-        };
-        return paginatedApiOrders;
+        return apiOrders;
     },
-    getOrderByHashIfExistsAsync: async orderHash => {
+    getOrderByHashIfExistsAsync: async (orderHash) => {
         const connection = db_connection_1.getDBConnection();
-        const signedOrderModelIfExists = await connection.manager.findOne(
-            SignedOrderModel_1.SignedOrderModel,
-            orderHash,
-        );
+        const signedOrderModelIfExists = await connection.manager.findOne(SignedOrderModel_1.SignedOrderModel, orderHash);
         if (_.isUndefined(signedOrderModelIfExists)) {
             return undefined;
-        } else {
+        }
+        else {
             return deserializeOrder(signedOrderModelIfExists);
         }
     },
 };
-const deserializeOrder = signedOrderModel => {
+const deserializeOrder = (signedOrderModel) => {
     const signedOrder = {
         signature: signedOrderModel.signature,
         senderAddress: signedOrderModel.senderAddress,
@@ -138,7 +67,7 @@ const deserializeOrder = signedOrderModel => {
     };
     return signedOrder;
 };
-const serializeOrder = signedOrder => {
+const serializeOrder = (signedOrder) => {
     const signedOrderModel = new SignedOrderModel_1.SignedOrderModel({
         signature: signedOrder.signature,
         senderAddress: signedOrder.senderAddress,

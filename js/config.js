@@ -1,30 +1,35 @@
-'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
-const _0x_js_1 = require('0x.js');
-const DEFAULT_HTTP_PORT = 3000;
-exports.HTTP_PORT = process.env.PORT || DEFAULT_HTTP_PORT;
-const GANACHE_NETWORK_ID = 50;
-exports.DEFAULT_NETWORK_ID = GANACHE_NETWORK_ID;
-// TODO(leo): Load those from config.
-exports.FEE_RECIPIENTS = [
-    '0x6eC92694ea172ebC430C30fa31De87620967A082',
-    '0x9e56625509c2f60af937f23b7b532600390e8c8b',
-    '0xa2b31dacf30a9c50ca473337c01d8a201ae33e32',
-];
-// TODO(leo): Load those from config.
-exports.ASSET_PAIRS = [
-    {
-        assetDataA: {
-            minAmount: new _0x_js_1.BigNumber(0),
-            maxAmount: new _0x_js_1.BigNumber(0),
-            precision: 5,
-            assetData: '0xf47261b04c32345ced77393b3530b1eed0f346429d',
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.config = {
+    // Network port to listen on
+    HTTP_PORT: 3000,
+    // Default network id to use when not specified
+    NETWORK_ID: 1,
+    // An array of fee recipients
+    FEE_RECIPIENTS: ['0x0000000000000000000000000000000000000000'],
+    // Ethereum RPC url
+    RPC_URL: 'https://mainnet.infura.io',
+    // Tradable asset pairs
+    ASSET_PAIRS: [
+        {
+            assetDataA: {
+                minAmount: '0',
+                maxAmount: '0',
+                precision: 5,
+                assetData: '0xf47261b04c32345ced77393b3530b1eed0f346429d',
+            },
+            assetDataB: {
+                minAmount: '0',
+                maxAmount: '0',
+                precision: 5,
+                assetData: '0x0257179264389b814a946f3e92105513705ca6b990',
+            },
         },
-        assetDataB: {
-            minAmount: new _0x_js_1.BigNumber(0),
-            maxAmount: new _0x_js_1.BigNumber(0),
-            precision: 5,
-            assetData: '0x0257179264389b814a946f3e92105513705ca6b990',
-        },
-    },
-];
+    ],
+    // A time window after which the order is considered permanently expired
+    ORDER_SHADOWING_MARGIN_MS: 100000,
+    // Frequency of checks for permanently expired orders
+    PERMANENT_CLEANUP_INTERVAL_MS: 10000,
+    // Max number of entities per page
+    MAX_PER_PAGE: 100,
+};
