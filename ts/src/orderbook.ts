@@ -3,7 +3,7 @@ import { APIOrder, OrderbookResponse, PaginatedCollection } from '@0x/connect';
 import { assetDataUtils } from '@0x/order-utils';
 import { OrderState, OrderWatcher } from '@0x/order-watcher';
 import { OrdersRequestOpts } from '@0x/types';
-import { intervalUtils } from '@0xproject/utils';
+import { intervalUtils } from '@0x/utils';
 import * as _ from 'lodash';
 
 import { NETWORK_ID, ORDER_SHADOWING_MARGIN, PERMANENT_CLEANUP_INTERVAL, RPC_URL } from './config';
