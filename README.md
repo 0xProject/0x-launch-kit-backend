@@ -43,7 +43,7 @@ Launch kit can be configured by changing the config variables in the [config.jso
 docker build -t 0x-launch-kit .
 ```
 
-You can check that the image is built running
+You can check that the image was built by running:
 
 ```sh
 docker images
