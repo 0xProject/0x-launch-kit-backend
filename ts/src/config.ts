@@ -1,7 +1,7 @@
 import { BigNumber } from '0x.js';
 import * as _ from 'lodash';
 
-import * as config from '../../config.json';
+import { config } from '../../config';
 
 export const HTTP_PORT = config.HTTP_PORT;
 export const ORDER_SHADOWING_MARGIN_MS = config.ORDER_SHADOWING_MARGIN_MS;
