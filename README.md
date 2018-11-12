@@ -33,7 +33,7 @@ This project uses [typeorm](https://github.com/typeorm/typeorm). It makes it eas
 
 ## Configuration
 
-Launch kit can be configured by changing the config variables in the [config.json](config.json) file.
+0x Launch kit can be configured by changing the config variables in the [config.json](config.json) file.
 
 ## Deploying
 
