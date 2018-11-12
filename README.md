@@ -8,7 +8,7 @@ If you want to work on it in Javascript:
 
 -   delete the `ts` directory
 -   delete all scripts from package.json that end with :ts
--   Look through the JS code and start modifying it. It was auto-generated from TS code and we tried our best to make it readable. It might require some improving and should provide a good starting point.
+-   Look through the Javascript code and start modifying it. It was auto-generated from Typescript code and we tried our best to make it readable. It might require some improving and should provide a good starting point.
 
 If you want to work on it as a TS project:
 
