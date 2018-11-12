@@ -27,7 +27,7 @@ export const orderBook = {
         }
     },
     addOrderAsync: async (signedOrder: SignedOrder) => {
-        orderWatcher.addOrderAsync(signedOrder);
+        await orderWatcher.addOrderAsync(signedOrder);
         const signedOrderModel = serializeOrder(signedOrder);
         const connection = getDBConnection();
         await connection.manager.save(signedOrderModel);
