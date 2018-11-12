@@ -6,7 +6,7 @@ import { OrdersRequestOpts } from '@0x/types';
 import { intervalUtils } from '@0x/utils';
 import * as _ from 'lodash';
 
-import { NETWORK_ID, ORDER_SHADOWING_MARGIN, PERMANENT_CLEANUP_INTERVAL, RPC_URL } from './config';
+import { NETWORK_ID, ORDER_SHADOWING_MARGIN_MS, PERMANENT_CLEANUP_INTERVAL_MS, RPC_URL } from './config';
 
 import { getDBConnection } from './db_connection';
 import { SignedOrderModel } from './models/SignedOrderModel';
@@ -33,7 +33,7 @@ export const orderBook = {
         const permanentlyExpiredOrders: string[] = [];
         for (const [orderHash, shadowedAt] of shadowedOrders) {
             const now = Date.now();
-            if (shadowedAt + ORDER_SHADOWING_MARGIN < now) {
+            if (shadowedAt + ORDER_SHADOWING_MARGIN_MS < now) {
                 permanentlyExpiredOrders.push(orderHash);
             }
         }
@@ -197,6 +197,6 @@ const orderWatcher = new OrderWatcher(provider, NETWORK_ID);
 orderWatcher.subscribe(orderBook.onOrderStateChangeCallback);
 intervalUtils.setAsyncExcludingInterval(
     orderBook.onCleanUpInvalidOrdersAsync.bind(orderBook),
-    PERMANENT_CLEANUP_INTERVAL,
+    PERMANENT_CLEANUP_INTERVAL_MS,
     utils.log,
 );
