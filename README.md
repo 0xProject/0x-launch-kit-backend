@@ -29,7 +29,7 @@ If you want to work on it in Typescript:
 
 ## Database
 
-This project uses [typeorm](https://github.com/typeorm/typeorm). It makes it easier for anyone to switch out the backing database that this project uses. As for now this project uses sqlite backend. Because we support both JS and TS code we don't use decorators. TypeORM shines with decorators, so you might want to use them if you're going to use the TS version.
+This project uses [typeorm](https://github.com/typeorm/typeorm). It makes it easier for anyone to switch out the backing database that this project uses. As for now this project uses an [SQLite](https://sqlite.org/docs.html) backend. Because we support both Javascript and Typescript codebases, we don't use decorators. TypeORM shines with decorators, so you might want to use them if you're going to be working in Typescript.
 
 ## Configuration
 
