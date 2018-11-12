@@ -2,6 +2,7 @@ import { BigNumber } from '0x.js';
 
 const DEFAULT_HTTP_PORT = 3000;
 export const HTTP_PORT = process.env.PORT || DEFAULT_HTTP_PORT;
+export const MAX_PER_PAGE = 100;
 
 const GANACHE_NETWORK_ID = 50;
 const DEFAULT_NETWORK_ID = GANACHE_NETWORK_ID;
