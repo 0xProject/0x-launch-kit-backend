@@ -2,7 +2,7 @@
 
 This is a template 0x relayer. It's customizable, open source and completely free to use. You can just fork it and start modifying it for your own needs.
 
-It ships as both a typescript and javascript module. TS sources are in the `ts` directory while auto-generated JS sources are in the `js` directory.
+It ships as both a typescript and javascript module. Typescript sources are in the `ts` directory while auto-generated Javascript sources are in the `js` directory.
 
 If you want to work on it as a JS project:
 
