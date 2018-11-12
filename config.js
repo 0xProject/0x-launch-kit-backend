@@ -9,20 +9,20 @@ export const config = {
     RPC_URL: 'https://mainnet.infura.io',
     // Tradable asset pairs
     ASSET_PAIRS: [
-        // {
-        //     assetDataA: {
-        //         minAmount: '0',
-        //         maxAmount: '0',
-        //         precision: 5,
-        //         assetData: '0xf47261b04c32345ced77393b3530b1eed0f346429d',
-        //     },
-        //     assetDataB: {
-        //         minAmount: '0',
-        //         maxAmount: '0',
-        //         precision: 5,
-        //         assetData: '0x0257179264389b814a946f3e92105513705ca6b990',
-        //     },
-        // },
+        {
+            assetDataA: {
+                minAmount: '0',
+                maxAmount: '0',
+                precision: 5,
+                assetData: '0xf47261b04c32345ced77393b3530b1eed0f346429d',
+            },
+            assetDataB: {
+                minAmount: '0',
+                maxAmount: '0',
+                precision: 5,
+                assetData: '0x0257179264389b814a946f3e92105513705ca6b990',
+            },
+        },
     ],
     // A time window after which the order is considered permanently expired
     ORDER_SHADOWING_MARGIN_MS: 100000,
