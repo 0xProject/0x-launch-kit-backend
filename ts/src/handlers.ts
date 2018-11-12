@@ -1,4 +1,5 @@
 import { BigNumber, SignedOrder } from '0x.js';
+import { schemas } from '@0x/json-schemas';
 import * as express from 'express';
 import * as HttpStatus from 'http-status-codes';
 import * as _ from 'lodash';
@@ -8,7 +9,6 @@ import { ASSET_PAIRS, FEE_RECIPIENTS } from './config';
 import { NULL_ADDRESS } from './constants';
 import { NotFoundError, ValidationError, ValidationErrorCodes } from './errors';
 import { orderBook } from './orderbook';
-import { schemas } from './schemas/schemas';
 import { utils } from './utils';
 
 const assetPairsStore = new AssetPairsStore(ASSET_PAIRS);
