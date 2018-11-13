@@ -15,6 +15,55 @@ If you want to work on it in Typescript:
 -   delete the `js` directory
 -   all the scripts from package.json that end with :js
 
+## Getting started
+
+If you want to just run the code - check out the Deploying section bellow on instructions about how to run a docker container.
+If you want to develop on top of `0x-launch-kit`:
+
+-   Fork the repo
+-   Clone your version
+-   Install the dependencies
+
+    ```sh
+    yarn
+    ```
+
+-   Build the code
+
+    ```sh
+    yarn build:ts
+    ```
+
+    or
+
+    ```sh
+    yarn watch:ts
+    ```
+
+-   Run the code
+
+    ```sh
+    yarn start:ts
+    ```
+
+Alternatively if you prefer to work with Javascript code
+
+-   Fork the repo
+-   Clone your version
+-   Install the dependencies
+
+    ```sh
+    yarn
+    ```
+
+-   Run the code
+
+    ```sh
+    yarn start:js
+    ```
+
+    We don't have the build step for Javascript code for now, but if you want to use some modern syntax not supported by your current environment - you can add it.
+
 ## Commands
 
 -   build - Builds `TS` code and copies the build version over in place of `JS` code (**Warning**: Overrides the JS code)
