@@ -20,13 +20,13 @@ export const ASSET_PAIRS = [
             minAmount: new BigNumber(0),
             maxAmount: new BigNumber(0),
             precision: 5,
-            assetData: '0xf47261b04c32345ced77393b3530b1eed0f346429d',
+            assetData: '0xf47261b0f47261b04c32345ced77393b3530b1eed0f346429d',
         },
         assetDataB: {
             minAmount: new BigNumber(0),
             maxAmount: new BigNumber(0),
             precision: 5,
-            assetData: '0x0257179264389b814a946f3e92105513705ca6b990',
+            assetData: '0xf47261b00257179264389b814a946f3e92105513705ca6b990',
         },
     },
     {
