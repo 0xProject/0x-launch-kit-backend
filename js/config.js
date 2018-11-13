@@ -20,13 +20,13 @@ exports.ASSET_PAIRS = [
             minAmount: new _0x_js_1.BigNumber(0),
             maxAmount: new _0x_js_1.BigNumber(0),
             precision: 5,
-            assetData: '0xf47261b04c32345ced77393b3530b1eed0f346429d',
+            assetData: '0xf47261b0f47261b04c32345ced77393b3530b1eed0f346429d',
         },
         assetDataB: {
             minAmount: new _0x_js_1.BigNumber(0),
             maxAmount: new _0x_js_1.BigNumber(0),
             precision: 5,
-            assetData: '0x0257179264389b814a946f3e92105513705ca6b990',
+            assetData: '0xf47261b00257179264389b814a946f3e92105513705ca6b990',
         },
     },
     {
