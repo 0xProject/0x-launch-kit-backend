@@ -15,11 +15,11 @@ function urlParamsParsing(req, _res, next) {
 exports.urlParamsParsing = urlParamsParsing;
 function parseNetworkId(networkIdStrIfExists) {
     if (_.isUndefined(networkIdStrIfExists)) {
-        return config_1.DEFAULT_NETWORK_ID;
+        return config_1.NETWORK_ID;
     }
     else {
         const networkId = _.parseInt(networkIdStrIfExists);
-        if (networkId !== config_1.DEFAULT_NETWORK_ID) {
+        if (networkId !== config_1.NETWORK_ID) {
             const validationErrorItem = {
                 field: 'networkId',
                 code: 1004,

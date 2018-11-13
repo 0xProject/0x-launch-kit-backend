@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const json_schemas_1 = require("@0xproject/json-schemas");
+const json_schemas_1 = require("@0x/json-schemas");
 const _ = require("lodash");
 const errors_1 = require("./errors");
 const schemaValidator = new json_schemas_1.SchemaValidator();

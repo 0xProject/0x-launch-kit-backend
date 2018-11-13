@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-// TODO(leo) Parse request query params and do proper pagination
-/**
- * Paginates the collection and returns the paginated response
- * @param records Collection to paginate
- */
-function paginate(records) {
-    return { total: records.length, records, page: 1, perPage: 100 };
-}
-exports.paginate = paginate;
+exports.paginate = (collection, page, perPage) => {
+    const paginatedCollection = {
+        total: collection.length,
+        page,
+        perPage,
+        records: collection.slice(page * perPage, (page + 1) * perPage),
+    };
+    return paginatedCollection;
+};

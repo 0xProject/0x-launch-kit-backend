@@ -1,27 +1,34 @@
 import { BigNumber } from '0x.js';
 import * as _ from 'lodash';
 
-import { config } from '../../config';
-
-export const HTTP_PORT = config.HTTP_PORT;
-export const ORDER_SHADOWING_MARGIN_MS = config.ORDER_SHADOWING_MARGIN_MS;
-export const PERMANENT_CLEANUP_INTERVAL_MS = config.PERMANENT_CLEANUP_INTERVAL_MS;
-export const MAX_PER_PAGE = config.MAX_PER_PAGE;
-export const NETWORK_ID = config.NETWORK_ID;
-export const FEE_RECIPIENTS = config.FEE_RECIPIENTS;
-export const ASSET_PAIRS = _.map(config.ASSET_PAIRS, assetPair => ({
-    assetDataA: {
-        precision: assetPair.assetDataA.precision,
-        assetData: assetPair.assetDataA.assetData,
-        minAmount: new BigNumber(assetPair.assetDataA.minAmount),
-        maxAmount: new BigNumber(assetPair.assetDataA.maxAmount),
+// Network port to listen on
+export const HTTP_PORT = 3000;
+// A time window after which the order is considered permanently expired
+export const ORDER_SHADOWING_MARGIN_MS = 100 * 1000; // tslint:disable-line custom-no-magic-numbers
+// Frequency of checks for permanently expired orders
+export const PERMANENT_CLEANUP_INTERVAL_MS = 10 * 1000; // tslint:disable-line custom-no-magic-numbers
+// Max number of entities per page
+export const MAX_PER_PAGE = 100;
+// Default network id to use when not specified
+export const NETWORK_ID = 1;
+// An array of fee recipients
+export const FEE_RECIPIENTS = ['0x0000000000000000000000000000000000000000'];
+// Tradable asset pairs
+export const ASSET_PAIRS = [
+    {
+        assetDataA: {
+            minAmount: new BigNumber(0),
+            maxAmount: new BigNumber(0),
+            precision: 5,
+            assetData: '0xf47261b04c32345ced77393b3530b1eed0f346429d',
+        },
+        assetDataB: {
+            minAmount: new BigNumber(0),
+            maxAmount: new BigNumber(0),
+            precision: 5,
+            assetData: '0x0257179264389b814a946f3e92105513705ca6b990',
+        },
     },
-    assetDataB: {
-        precision: assetPair.assetDataB.precision,
-        assetData: assetPair.assetDataB.assetData,
-        minAmount: new BigNumber(assetPair.assetDataB.minAmount),
-        maxAmount: new BigNumber(assetPair.assetDataB.maxAmount),
-    },
-}));
-
-export const RPC_URL = config.RPC_URL;
+];
+// Ethereum RPC url
+export const RPC_URL = 'https://mainnet.infura.io';

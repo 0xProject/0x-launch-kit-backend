@@ -4,7 +4,6 @@
         "target": "esnext",
         "outDir": "lib",
         "strict": true,
-        "allowJs": true,
         "noUnusedLocals": true,
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
