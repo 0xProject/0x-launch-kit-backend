@@ -64,6 +64,10 @@ Alternatively if you prefer to work with Javascript code
 
     We don't have the build step for Javascript code for now, but if you want to use some modern syntax not supported by your current environment - you can add it.
 
+## Running some basic SRA queries
+
+If you want to check that it's working
+
 ## Commands
 
 -   build - Builds `TS` code and copies the build version over in place of `JS` code (**Warning**: Overrides the JS code)
@@ -84,7 +88,7 @@ This project uses [typeorm](https://github.com/typeorm/typeorm). It makes it eas
 
 ## Configuration
 
-0x Launch kit can be configured by changing the config variables in the [config.json](config.json) file.
+0x Launch kit can be configured by changing the config variables in the [config.ts](ts/src/config.ts) or [config.js](js/config.js) file depending on your language of choice.
 
 ## Deploying
 

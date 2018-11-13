@@ -29,6 +29,20 @@ export const ASSET_PAIRS = [
             assetData: '0x0257179264389b814a946f3e92105513705ca6b990',
         },
     },
+    {
+        assetDataA: {
+            minAmount: new BigNumber(0),
+            maxAmount: new BigNumber(1),
+            precision: 1,
+            assetData: '0xf47261b0000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+        },
+        assetDataB: {
+            minAmount: new BigNumber(0),
+            maxAmount: new BigNumber(1),
+            precision: 1,
+            assetData: '0xf47261b000000000000000000000000024cebc1548e698feffb5553b8ac8043b51069faa',
+        },
+    },
 ];
 // Ethereum RPC url
 export const RPC_URL = 'https://mainnet.infura.io';

@@ -7,9 +7,12 @@ class AssetPairsStore {
         this._assetPairs = assetPairs;
     }
     includes(assetDataA, assetDataB) {
+        return !_.isUndefined(this.getIfExists(assetDataA, assetDataB));
+    }
+    getIfExists(assetDataA, assetDataB) {
         const includesAssetDataAAndAssetDataB = (assetPair) => (assetPair.assetDataA.assetData === assetDataA && assetPair.assetDataB.assetData === assetDataB) ||
             (assetPair.assetDataA.assetData === assetDataB && assetPair.assetDataB.assetData === assetDataA);
-        return !_.isUndefined(this._assetPairs.find(includesAssetDataAAndAssetDataB));
+        return this._assetPairs.find(includesAssetDataAAndAssetDataB);
     }
     get(page, perPage, assetDataA, assetDataB) {
         let nonPaginatedAssetPairs;

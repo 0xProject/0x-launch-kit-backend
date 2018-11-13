@@ -71,7 +71,7 @@ exports.handlers = {
     postOrderAsync: async (req, res) => {
         utils_1.utils.validateSchema(req.body, json_schemas_1.schemas.signedOrderSchema);
         const signedOrder = unmarshallOrder(req.body);
-        if (assetPairsStore.includes(signedOrder.makerAssetData, signedOrder.takerAssetData)) {
+        if (!assetPairsStore.includes(signedOrder.makerAssetData, signedOrder.takerAssetData)) {
             throw new errors_1.ValidationError([
                 {
                     field: 'assetPair',

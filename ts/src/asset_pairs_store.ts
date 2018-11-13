@@ -10,10 +10,13 @@ export class AssetPairsStore {
         this._assetPairs = assetPairs;
     }
     public includes(assetDataA: string, assetDataB: string): boolean {
+        return !_.isUndefined(this.getIfExists(assetDataA, assetDataB));
+    }
+    public getIfExists(assetDataA: string, assetDataB: string): AssetPairsItem | undefined {
         const includesAssetDataAAndAssetDataB = (assetPair: AssetPairsItem) =>
             (assetPair.assetDataA.assetData === assetDataA && assetPair.assetDataB.assetData === assetDataB) ||
             (assetPair.assetDataA.assetData === assetDataB && assetPair.assetDataB.assetData === assetDataA);
-        return !_.isUndefined(this._assetPairs.find(includesAssetDataAAndAssetDataB));
+        return this._assetPairs.find(includesAssetDataAAndAssetDataB);
     }
     public get(
         page: number,

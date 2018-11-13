@@ -35,8 +35,10 @@ exports.orderBook = {
                 permanentlyExpiredOrders.push(orderHash);
             }
         }
-        const connection = db_connection_1.getDBConnection();
-        await connection.manager.delete(SignedOrderModel_1.SignedOrderModel, permanentlyExpiredOrders);
+        if (!_.isEmpty(permanentlyExpiredOrders)) {
+            const connection = db_connection_1.getDBConnection();
+            await connection.manager.delete(SignedOrderModel_1.SignedOrderModel, permanentlyExpiredOrders);
+        }
     },
     addOrderAsync: async (signedOrder) => {
         await orderWatcher.addOrderAsync(signedOrder);
