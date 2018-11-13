@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+require("@babel/polyfill");
 const bodyParser = require("body-parser");
 const express = require("express");
 const asyncHandler = require("express-async-handler");

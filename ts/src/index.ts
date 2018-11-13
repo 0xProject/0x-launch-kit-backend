@@ -1,3 +1,4 @@
+import '@babel/polyfill';
 import * as bodyParser from 'body-parser';
 import * as express from 'express';
 import * as asyncHandler from 'express-async-handler';
