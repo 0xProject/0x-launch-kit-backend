@@ -1,96 +1,119 @@
 # 0x-launch-kit
 
-This is a template 0x relayer. It's customizable, open-source and completely free to use. You can fork it and customize it to fix your own needs.
+## Table of contents
 
-It ships as both a typescript and javascript module. Typescript sources are in the `ts` directory while auto-generated Javascript sources are in the `js` directory.
+* [Introduction](#introduction)
+* [Language choice](#language-choice)
+* [Getting started](#getting-started)
+* [Client for your relayers API](#lient-for-your-relayers-api)
+* [Commands](#commands)
+* [Database](#database)
+* [Deployment](#deployment)
 
-If you want to work on it in Javascript:
+## Introduction
+
+Launch a 0x relayer in under a minute with Launch Kit. This repository contains an open-source, free-to-use  0x relayer template that you can use as a starting point for your own project.
+
+- Quickly launch a market for your community token
+- Seemlessly create an in-game marketplace for digital items and collectibles
+- Enable trading of any ERC-20 or ERC-721 asset
+
+Fork this repository to get started!
+
+### [Learn more](https://0xproject.com/launch-kit)
+
+[TODO: legal disclaimer]
+
+## Language choice
+
+0x-launch-kit ships with 2 codebases, one in Typescript and another in Javascript. Although the Javascript is auto-generated from the Typescript, we made sure the Javascript generated is readable.
+
+Before you start using 0x-launch-kit, choose whether you want your codebase to be in Typescript or Javascript.
+
+**If you want to work on it in Javascript:**
 
 -   delete the `ts` directory
--   delete all scripts from package.json that end with :ts
--   Look through the Javascript code and start modifying it. It was auto-generated from Typescript code and we tried our best to make it readable. It might require some improving and should provide a good starting point.
+-   delete all scripts from `package.json` that end with `:ts`
 
-If you want to work on it in Typescript:
+**If you want to work on it in Typescript:**
 
 -   delete the `js` directory
--   all the scripts from package.json that end with :js
+-   delete all scripts from `package.json` that end with `:js`
 
 ## Getting started
 
-If you want to just run the code - check out the Deploying section bellow on instructions about how to run a docker container.
-If you want to develop on top of `0x-launch-kit`:
+If you want to just run the code - check out `Deployment` section below for instructions on how to generate and host the docker container. 
 
--   Fork the repo
--   Clone your version
--   Install the dependencies
+If you want to develop on top of `0x-launch-kit`, follow these instructions:
 
-    ```sh
-    yarn
-    ```
+1. Fork this repository
+2. Clone your fork of this repository
+3. Open the `config.ts`/`config.js` (depending on the language you've chosen above) file and edit the following:
+- `NETWORK_ID` -- the network you'd like your relayer to run on (`1` corresponds to mainnet)
+- `ASSET_PAIRS` -- Which asset pairs you would like to host orderbooks for.
+- `FEE_RECIPIENTS` -- The Ethereum addresses which should be specified as the fee recipient in orders your relayer accepts.
+4. Make sure you have [Yarn](https://yarnpkg.com/en/) installed.
+5. Install the dependencies
 
--   Build the code
+```sh
+yarn
+```
+ 
+6. Build the project [NOTE: Typescript projects only]
 
-    ```sh
-    yarn build:ts
-    ```
+```sh
+yarn build:ts
+```
 
-    or
+or build & watch:
 
-    ```sh
-    yarn watch:ts
-    ```
+```sh
+yarn watch:ts
+```
 
--   Run the code
+**Note:** There isn't currently a build step when working on the Javascript codebase because we assume 0x-launch-kit will be running on Node.js > v8.0. If you want this project to work in an environment that doesn't support all the latest Javascript features, you will need to add a transpiler (e.g [Babel](https://babeljs.io/)).
 
-    ```sh
-    yarn start:ts
-    ```
+7.   Start the relayer
 
-Alternatively if you prefer to work with Javascript code
+```sh
+yarn start:ts
+```
 
--   Fork the repo
--   Clone your version
--   Install the dependencies
+OR
 
-    ```sh
-    yarn
-    ```
+```sh
+yarn start:js
+```
 
--   Run the code
+##  Client for your relayers API
 
-    ```sh
-    yarn start:js
-    ```
+Since your relayer complies with version 2 of the [Standard Relayer API Specification](https://github.com/0xProject/standard-relayer-api/), you can use [0x Connect](https://0xproject.com/docs/connect) (an HTTP and websocket client for the SRA API) to make calls to your relayer (e.g submit an order, get all orders, etc...).
 
-    We don't have the build step for Javascript code for now, but if you want to use some modern syntax not supported by your current environment - you can add it.
+[TODO: Add more in-line examples]
 
-## Running some basic SRA queries
-
-If you want to check that it's working
 
 ## Commands
 
--   build - Builds `TS` code and copies the build version over in place of `JS` code (**Warning**: Overrides the JS code)
--   prettier - Prettifies both `JS` and `TS` code
+Typescript project commands: 
 
--   lint:ts - Lints `TS` code
--   start:ts - Starts `TS` code
--   build:ts - Builds `TS` code
--   watch:ts - Watches `TS` code and rebuilds on changes
--   prettier:ts - Prettifies `TS` code
+- `yarn build:ts` - Builds the code
+- `yarn lint:ts` - Lints the code
+- `yarn start:ts` - Starts the relayer
+- `yarn watch:ts` - Watches the code and rebuilds on change
+- `yarn prettier:ts` - Prettifies the code
 
--   start:js - Starts `JS` code
--   prettier:js - Prettifies `JS` code
+Javascript project commands:
+
+- `yarn start:js` - Starts the relayer
+- `yarn prettier:js` - Prettifies the code
 
 ## Database
 
-This project uses [typeorm](https://github.com/typeorm/typeorm). It makes it easier for anyone to switch out the backing database that this project uses. As for now this project uses an [SQLite](https://sqlite.org/docs.html) backend. Because we support both Javascript and Typescript codebases, we don't use decorators. TypeORM shines with decorators, so you might want to use them if you're going to be working in Typescript.
+This project uses [TypeORM](https://github.com/typeorm/typeorm). It makes it easier for anyone to switch out the backing database used by this project. By default, this project uses an [SQLite](https://sqlite.org/docs.html) database. 
 
-## Configuration
+Because we want to support both Javascript and Typescript codebases, we don't use `TypeORM`'s [decorators](https://github.com/typeorm/typeorm/blob/master/docs/decorator-reference.md) (They don't transpile nicely into readable Javascript). TypeORM shines with decorators however, so you might want to use them if you're going to be working in Typescript.
 
-0x Launch kit can be configured by changing the config variables in the [config.ts](ts/src/config.ts) or [config.js](js/config.js) file depending on your language of choice.
-
-## Deploying
+## Deployment
 
 `0x-launch-kit` ships as a docker container. First, install Docker ([mac](https://docs.docker.com/docker-for-mac/install/), [windows](https://docs.docker.com/docker-for-windows/install/)). To build the image run:
 
