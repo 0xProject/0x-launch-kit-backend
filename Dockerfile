@@ -7,8 +7,8 @@ WORKDIR /usr/src/app
 COPY package.json ./
 COPY yarn.lock ./
 
-RUN yarn --frozen-lockfile
-RUN yarn add forever -g
+RUN yarn --frozen-lockfile --ignore-optional
+RUN yarn global add forever
 
 # Bundle app source
 COPY . .

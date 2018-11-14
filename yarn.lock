@@ -43,6 +43,16 @@
     lodash "^4.17.5"
     valid-url "^1.0.9"
 
+"@0x/assert@^1.0.17":
+  version "1.0.17"
+  resolved "https://registry.yarnpkg.com/@0x/assert/-/assert-1.0.17.tgz#02816dfd4ca14d1c7a0f79b18d5ec794d939c0b7"
+  dependencies:
+    "@0x/json-schemas" "^2.1.1"
+    "@0x/typescript-typings" "^3.0.4"
+    "@0x/utils" "^2.0.5"
+    lodash "^4.17.5"
+    valid-url "^1.0.9"
+
 "@0x/base-contract@^3.0.4":
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/@0x/base-contract/-/base-contract-3.0.4.tgz#bec3d647c32e49db6af4f3b06f2b19820cf89a8c"
@@ -133,6 +143,15 @@
 "@0x/json-schemas@^2.1.0":
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/@0x/json-schemas/-/json-schemas-2.1.0.tgz#ecaee6a14ee3a612f4647abbd825bab7bd919cf4"
+  dependencies:
+    "@0x/typescript-typings" "^3.0.4"
+    "@types/node" "*"
+    jsonschema "^1.2.0"
+    lodash.values "^4.3.0"
+
+"@0x/json-schemas@^2.1.1":
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/@0x/json-schemas/-/json-schemas-2.1.1.tgz#0e04e7b50c42ac2968e0c50100f5882fc5bc673b"
   dependencies:
     "@0x/typescript-typings" "^3.0.4"
     "@types/node" "*"
@@ -279,6 +298,23 @@
     js-sha3 "^0.7.0"
     lodash "^4.17.5"
 
+"@0x/utils@^2.0.5":
+  version "2.0.5"
+  resolved "https://registry.yarnpkg.com/@0x/utils/-/utils-2.0.5.tgz#80fe04d5194157e84a2178977b11ecc12163de0f"
+  dependencies:
+    "@0x/types" "^1.2.1"
+    "@0x/typescript-typings" "^3.0.4"
+    "@types/node" "*"
+    abortcontroller-polyfill "^1.1.9"
+    bignumber.js "~4.1.0"
+    detect-node "2.0.3"
+    ethereum-types "^1.1.2"
+    ethereumjs-util "^5.1.1"
+    ethers "~4.0.4"
+    isomorphic-fetch "^2.2.1"
+    js-sha3 "^0.7.0"
+    lodash "^4.17.5"
+
 "@0x/web3-wrapper@^3.1.2":
   version "3.1.2"
   resolved "https://registry.yarnpkg.com/@0x/web3-wrapper/-/web3-wrapper-3.1.2.tgz#73312f63c425e6e562b420cdc2e163bfb1cfa402"
@@ -300,6 +336,19 @@
     "@0x/json-schemas" "^2.1.0"
     "@0x/typescript-typings" "^3.0.4"
     "@0x/utils" "^2.0.4"
+    ethereum-types "^1.1.2"
+    ethereumjs-util "^5.1.1"
+    ethers "~4.0.4"
+    lodash "^4.17.5"
+
+"@0x/web3-wrapper@^3.1.4":
+  version "3.1.4"
+  resolved "https://registry.yarnpkg.com/@0x/web3-wrapper/-/web3-wrapper-3.1.4.tgz#3a5aeb874e4d19dce8fd1abb6e9f58da72ef9a6c"
+  dependencies:
+    "@0x/assert" "^1.0.17"
+    "@0x/json-schemas" "^2.1.1"
+    "@0x/typescript-typings" "^3.0.4"
+    "@0x/utils" "^2.0.5"
     ethereum-types "^1.1.2"
     ethereumjs-util "^5.1.1"
     ethers "~4.0.4"
