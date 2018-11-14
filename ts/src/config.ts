@@ -13,9 +13,9 @@ export const MAX_PER_PAGE = 100;
 export const NETWORK_ID = 1;
 // An array of fee recipients
 export const FEE_RECIPIENT = '0x0000000000000000000000000000000000000000';
-// An array of fee recipients
+// A flat fee in ZRX that should be charged to the order maker
 export const MAKER_FEE_ZRX_UNIT_AMOUNT = new BigNumber(0);
-// An array of fee recipients
+// A flat fee in ZRX that should be charged to the order taker
 export const TAKER_FEE_ZRX_UNIT_AMOUNT = new BigNumber(0);
 // Tradable asset pairs
 export const ASSET_PAIRS = [
