@@ -1,8 +1,8 @@
 {
-    "name": "0x-relayer-template",
+    "name": "0x-launch-kit",
     "version": "0.0.1",
     "description": "Template 0x relayer",
-    "repository": "git@github.com:0xProject/0x-relayer-template.git",
+    "repository": "git@github.com:0xProject/0x-launch-kit.git",
     "author": "Leonid Logvinov <logvinov.leon@gmail.com>",
     "license": "Apache-2.0",
     "scripts": {
