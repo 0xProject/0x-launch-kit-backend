@@ -49,7 +49,9 @@ To develop ontop of `0x-launch-kit`, follow the following instructions:
 3. Open the `config.ts`/`config.js` file (depending on the language you've chosen above) and edit the following:
 - `NETWORK_ID` -- the network you'd like your relayer to run on (`1` corresponds to mainnet)
 - `ASSET_PAIRS` -- Which asset pairs you would like to host orderbooks for.
-- `FEE_RECIPIENTS` -- The Ethereum addresses which should be specified as the fee recipient in orders your relayer accepts.
+- `FEE_RECIPIENT` -- The Ethereum address which should be specified as the fee recipient in orders your relayer accepts.
+- `MAKER_FEE_ZRX_UNIT_AMOUNT` -- The flat maker fee you'd like to receive for filled orders hosted by you.
+- `TAKER_FEE_ZRX_UNIT_AMOUNT` -- The flat taker fee you'd like to receive for filled orders hosted by you.
 4. Make sure you have [Yarn](https://yarnpkg.com/en/) installed.
 5. Install the dependencies
 
