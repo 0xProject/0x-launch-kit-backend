@@ -26,7 +26,7 @@ Fork this repository to get started!
 
 ## Language choice
 
-0x-launch-kit ships with 2 codebases, one in Typescript and another in Javascript. Although the Javascript is auto-generated from the Typescript, we made sure the Javascript generated is readable.
+`0x-launch-kit` ships with 2 codebases, one in Typescript and another in Javascript. Although the Javascript is auto-generated from the Typescript, we made sure the Javascript generated is readable.
 
 Before you start using 0x-launch-kit, choose whether you want your codebase to be in Typescript or Javascript.
 
@@ -42,13 +42,11 @@ Before you start using 0x-launch-kit, choose whether you want your codebase to b
 
 ## Getting started
 
-If you want to just run the code - check out `Deployment` section below for instructions on how to generate and host the docker container. 
-
-If you want to develop on top of `0x-launch-kit`, follow these instructions:
+To develop ontop of `0x-launch-kit`, follow the following instructions:
 
 1. Fork this repository
 2. Clone your fork of this repository
-3. Open the `config.ts`/`config.js` (depending on the language you've chosen above) file and edit the following:
+3. Open the `config.ts`/`config.js` file (depending on the language you've chosen above) and edit the following:
 - `NETWORK_ID` -- the network you'd like your relayer to run on (`1` corresponds to mainnet)
 - `ASSET_PAIRS` -- Which asset pairs you would like to host orderbooks for.
 - `FEE_RECIPIENTS` -- The Ethereum addresses which should be specified as the fee recipient in orders your relayer accepts.
@@ -59,7 +57,7 @@ If you want to develop on top of `0x-launch-kit`, follow these instructions:
 yarn
 ```
  
-6. Build the project [NOTE: Typescript projects only]
+6. Build the project [NOTE: For Typescript users only]
 
 ```sh
 yarn build:ts
@@ -71,7 +69,7 @@ or build & watch:
 yarn watch:ts
 ```
 
-**Note:** There isn't currently a build step when working on the Javascript codebase because we assume 0x-launch-kit will be running on Node.js > v8.0. If you want this project to work in an environment that doesn't support all the latest Javascript features, you will need to add a transpiler (e.g [Babel](https://babeljs.io/)).
+**Note:** There isn't currently a build step when working on the Javascript codebase because we assume `0x-launch-kit` will be running on Node.js > v8.0. If you want this project to work in an environment that doesn't support all the latest Javascript features, you will need to add a transpiler (e.g [Babel](https://babeljs.io/)).
 
 7.   Start the relayer
 
@@ -85,9 +83,9 @@ OR
 yarn start:js
 ```
 
-##  Client for your relayers API
+##  Client for your relayer's API
 
-Since your relayer complies with version 2 of the [Standard Relayer API Specification](https://github.com/0xProject/standard-relayer-api/), you can use [0x Connect](https://0xproject.com/docs/connect) (an HTTP and websocket client for the SRA API) to make calls to your relayer (e.g submit an order, get all orders, etc...).
+Since your relayer adheres to V2 of the [Standard Relayer API Specification](https://github.com/0xProject/standard-relayer-api/), you can use [0x Connect](https://0xproject.com/docs/connect) (an HTTP/Websocket client for the SRA API) to make calls to your relayer (e.g submit an order, get all orders, etc...).
 
 [TODO: Add more in-line examples]
 
@@ -100,12 +98,12 @@ Typescript project commands:
 - `yarn lint:ts` - Lints the code
 - `yarn start:ts` - Starts the relayer
 - `yarn watch:ts` - Watches the code and rebuilds on change
-- `yarn prettier:ts` - Prettifies the code
+- `yarn prettier:ts` - Auto-formats the code
 
 Javascript project commands:
 
 - `yarn start:js` - Starts the relayer
-- `yarn prettier:js` - Prettifies the code
+- `yarn prettier:js` - Auto-formats the code
 
 ## Database
 
