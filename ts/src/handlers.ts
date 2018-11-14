@@ -1,20 +1,25 @@
 import { BigNumber, SignedOrder } from '0x.js';
 import { schemas } from '@0x/json-schemas';
+import { Web3Wrapper } from '@0x/web3-wrapper';
 import * as express from 'express';
 import * as HttpStatus from 'http-status-codes';
 import * as _ from 'lodash';
 
 import { AssetPairsStore } from './asset_pairs_store';
-import { ASSET_PAIRS, FEE_RECIPIENTS, MAX_PER_PAGE } from './config';
-import { NULL_ADDRESS } from './constants';
+import {
+    ASSET_PAIRS,
+    FEE_RECIPIENT,
+    MAKER_FEE_ZRX_UNIT_AMOUNT,
+    MAX_PER_PAGE,
+    TAKER_FEE_ZRX_UNIT_AMOUNT,
+} from './config';
+import { DEFAULT_PAGE, DEFAULT_PER_PAGE, NULL_ADDRESS, ZRX_DECIMALS } from './constants';
 import { NotFoundError, ValidationError, ValidationErrorCodes } from './errors';
 import { orderBook } from './orderbook';
+import { paginate } from './paginator';
 import { utils } from './utils';
 
 const assetPairsStore = new AssetPairsStore(ASSET_PAIRS);
-
-const DEFAULT_PAGE = 0;
-const DEFAULT_PER_PAGE = 20;
 
 const parsePaginationConfig = (req: express.Request): { page: number; perPage: number } => {
     const page = _.isUndefined(req.query.page) ? DEFAULT_PAGE : Number(req.query.page);
@@ -46,12 +51,8 @@ export const handlers = {
     },
     feeRecipients: (req: express.Request, res: express.Response) => {
         const { page, perPage } = parsePaginationConfig(req);
-        const paginatedFeeRecipients = {
-            total: FEE_RECIPIENTS.length,
-            page,
-            perPage,
-            records: FEE_RECIPIENTS.slice(page * perPage, (page + 1) * perPage),
-        };
+        const FEE_RECIPIENTS = [FEE_RECIPIENT];
+        const paginatedFeeRecipients = paginate(FEE_RECIPIENTS, page, perPage);
         res.status(HttpStatus.OK).send(paginatedFeeRecipients);
     },
     orderbookAsync: async (req: express.Request, res: express.Response) => {
@@ -66,9 +67,9 @@ export const handlers = {
         utils.validateSchema(req.body, schemas.orderConfigRequestSchema);
         const orderConfigResponse = {
             senderAddress: NULL_ADDRESS,
-            feeRecipientAddress: NULL_ADDRESS,
-            makerFee: 0,
-            takerFee: '1000',
+            feeRecipientAddress: FEE_RECIPIENT,
+            makerFee: Web3Wrapper.toBaseUnitAmount(MAKER_FEE_ZRX_UNIT_AMOUNT, ZRX_DECIMALS).toString(),
+            takerFee: Web3Wrapper.toBaseUnitAmount(TAKER_FEE_ZRX_UNIT_AMOUNT, ZRX_DECIMALS).toString(),
         };
         res.status(HttpStatus.OK).send(orderConfigResponse);
     },

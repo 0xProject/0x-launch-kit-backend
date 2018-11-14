@@ -12,7 +12,11 @@ export const MAX_PER_PAGE = 100;
 // Default network id to use when not specified
 export const NETWORK_ID = 1;
 // An array of fee recipients
-export const FEE_RECIPIENTS = ['0x0000000000000000000000000000000000000000'];
+export const FEE_RECIPIENT = '0x0000000000000000000000000000000000000000';
+// An array of fee recipients
+export const MAKER_FEE_ZRX_UNIT_AMOUNT = new BigNumber(0);
+// An array of fee recipients
+export const TAKER_FEE_ZRX_UNIT_AMOUNT = new BigNumber(0);
 // Tradable asset pairs
 export const ASSET_PAIRS = [
     {
