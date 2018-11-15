@@ -20,7 +20,7 @@ const utils_1 = require("./utils");
      * GET AssetPairs endpoint retrieves a list of available asset pairs and the information required to trade them.
      * http://sra-spec.s3-website-us-east-1.amazonaws.com/#operation/getAssetPairs
      */
-    app.get('/v2/asset_pairs', handlers_1.handlers.assetPairs);
+    app.get('/v2/asset_pairs', asyncHandler(handlers_1.handlers.assetPairsAsync));
     /**
      * GET Orders endpoint retrieves a list of orders given query parameters.
      * http://sra-spec.s3-website-us-east-1.amazonaws.com/#operation/getOrders

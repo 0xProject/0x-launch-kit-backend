@@ -37,10 +37,15 @@ const parsePaginationConfig = (req: express.Request): { page: number; perPage: n
 };
 
 export const handlers = {
-    assetPairs: (req: express.Request, res: express.Response) => {
+    assetPairsAsync: async (req: express.Request, res: express.Response) => {
         utils.validateSchema(req.query, schemas.assetPairsRequestOptsSchema);
         const { page, perPage } = parsePaginationConfig(req);
-        const assetPairs = assetPairsStore.get(page, perPage, req.query.assetDataA, req.query.assetDataB);
+        const assetPairs = await orderBook.getAssetPairsAsync(
+            page,
+            perPage,
+            req.query.assetDataA,
+            req.query.assetDataB,
+        );
         res.status(HttpStatus.OK).send(assetPairs);
     },
     ordersAsync: async (req: express.Request, res: express.Response) => {

@@ -63,13 +63,13 @@ var GeneralErrorCodes;
 (function (GeneralErrorCodes) {
     GeneralErrorCodes[GeneralErrorCodes["validationError"] = 100] = "validationError";
     GeneralErrorCodes[GeneralErrorCodes["malformedJson"] = 101] = "malformedJson";
-    GeneralErrorCodes[GeneralErrorCodes["orderSubmittionDisabled"] = 102] = "orderSubmittionDisabled";
+    GeneralErrorCodes[GeneralErrorCodes["orderSubmissionDisabled"] = 102] = "orderSubmissionDisabled";
     GeneralErrorCodes[GeneralErrorCodes["throttled"] = 103] = "throttled";
 })(GeneralErrorCodes = exports.GeneralErrorCodes || (exports.GeneralErrorCodes = {}));
 exports.generalErrorCodeToReason = {
     [GeneralErrorCodes.validationError]: 'Validation Failed',
     [GeneralErrorCodes.malformedJson]: 'Malformed JSON',
-    [GeneralErrorCodes.orderSubmittionDisabled]: 'Order submission disabled',
+    [GeneralErrorCodes.orderSubmissionDisabled]: 'Order submission disabled',
     [GeneralErrorCodes.throttled]: 'Throttled',
 };
 var ValidationErrorCodes;

@@ -50,3 +50,5 @@ export const ASSET_PAIRS = [
 ];
 // Ethereum RPC url
 export const RPC_URL = 'https://mainnet.infura.io';
+// Default ERC20 token precision
+export const DEFAULT_ERC20_TOKEN_PRECISION = 18;

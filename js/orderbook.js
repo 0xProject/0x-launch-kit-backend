@@ -3,9 +3,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const _0x_js_1 = require("0x.js");
 const order_utils_1 = require("@0x/order-utils");
 const order_watcher_1 = require("@0x/order-watcher");
+const types_1 = require("@0x/types");
 const utils_1 = require("@0x/utils");
 const _ = require("lodash");
 const config_1 = require("./config");
+const constants_1 = require("./constants");
 const db_connection_1 = require("./db_connection");
 const SignedOrderModel_1 = require("./models/SignedOrderModel");
 const paginator_1 = require("./paginator");
@@ -45,6 +47,58 @@ exports.orderBook = {
         const signedOrderModel = serializeOrder(signedOrder);
         const connection = db_connection_1.getDBConnection();
         await connection.manager.save(signedOrderModel);
+    },
+    getAssetPairsAsync: async (page, perPage, assetDataA, assetDataB) => {
+        const connection = db_connection_1.getDBConnection();
+        const signedOrderModels = (await connection.manager.find(SignedOrderModel_1.SignedOrderModel));
+        const erc721AssetDataToAsset = (assetData) => {
+            const asset = {
+                minAmount: new _0x_js_1.BigNumber(0),
+                maxAmount: new _0x_js_1.BigNumber(1),
+                precision: 0,
+                assetData,
+            };
+            return asset;
+        };
+        const erc20AssetDataToAsset = (assetData) => {
+            const asset = {
+                minAmount: new _0x_js_1.BigNumber(0),
+                maxAmount: constants_1.MAX_TOKEN_SUPPLY_POSSIBLE,
+                precision: config_1.DEFAULT_ERC20_TOKEN_PRECISION,
+                assetData,
+            };
+            return asset;
+        };
+        const assetDataToAsset = (assetData) => {
+            const assetProxyId = order_utils_1.assetDataUtils.decodeAssetProxyId(assetData);
+            const asset = assetProxyId === types_1.AssetProxyId.ERC20
+                ? erc20AssetDataToAsset(assetData)
+                : erc721AssetDataToAsset(assetData);
+            return asset;
+        };
+        const signedOrderToAssetPair = (signedOrder) => {
+            return {
+                assetDataA: assetDataToAsset(signedOrder.makerAssetData),
+                assetDataB: assetDataToAsset(signedOrder.takerAssetData),
+            };
+        };
+        const assetPairsItems = signedOrderModels.map(deserializeOrder).map(signedOrderToAssetPair);
+        let nonPaginatedFilteredAssetPairs;
+        if (_.isUndefined(assetDataA) && _.isUndefined(assetDataB)) {
+            nonPaginatedFilteredAssetPairs = assetPairsItems;
+        }
+        else if (!_.isUndefined(assetDataA) && !_.isUndefined(assetDataB)) {
+            const containsAssetDataAAndAssetDataB = (assetPair) => (assetPair.assetDataA.assetData === assetDataA && assetPair.assetDataB.assetData === assetDataB) ||
+                (assetPair.assetDataA.assetData === assetDataB && assetPair.assetDataB.assetData === assetDataA);
+            nonPaginatedFilteredAssetPairs = assetPairsItems.filter(containsAssetDataAAndAssetDataB);
+        }
+        else {
+            const assetData = assetDataA || assetDataB;
+            const containsAssetData = (assetPair) => assetPair.assetDataA.assetData === assetData || assetPair.assetDataB.assetData === assetData;
+            nonPaginatedFilteredAssetPairs = assetPairsItems.filter(containsAssetData);
+        }
+        const paginatedFilteredAssetPairs = paginator_1.paginate(nonPaginatedFilteredAssetPairs, page, perPage);
+        return paginatedFilteredAssetPairs;
     },
     getOrderBookAsync: async (page, perPage, baseAssetData, quoteAssetData) => {
         const connection = db_connection_1.getDBConnection();

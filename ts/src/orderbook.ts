@@ -2,11 +2,18 @@ import { BigNumber, orderHashUtils, RPCSubprovider, SignedOrder, Web3ProviderEng
 import { APIOrder, OrderbookResponse, PaginatedCollection } from '@0x/connect';
 import { assetDataUtils } from '@0x/order-utils';
 import { OrderState, OrderWatcher } from '@0x/order-watcher';
-import { OrdersRequestOpts } from '@0x/types';
+import { Asset, AssetPairsItem, AssetProxyId, OrdersRequestOpts } from '@0x/types';
 import { intervalUtils } from '@0x/utils';
 import * as _ from 'lodash';
 
-import { NETWORK_ID, ORDER_SHADOWING_MARGIN_MS, PERMANENT_CLEANUP_INTERVAL_MS, RPC_URL } from './config';
+import {
+    DEFAULT_ERC20_TOKEN_PRECISION,
+    NETWORK_ID,
+    ORDER_SHADOWING_MARGIN_MS,
+    PERMANENT_CLEANUP_INTERVAL_MS,
+    RPC_URL,
+} from './config';
+import { MAX_TOKEN_SUPPLY_POSSIBLE } from './constants';
 
 import { getDBConnection } from './db_connection';
 import { SignedOrderModel } from './models/SignedOrderModel';
@@ -47,6 +54,66 @@ export const orderBook = {
         const signedOrderModel = serializeOrder(signedOrder);
         const connection = getDBConnection();
         await connection.manager.save(signedOrderModel);
+    },
+    getAssetPairsAsync: async (
+        page: number,
+        perPage: number,
+        assetDataA: string,
+        assetDataB: string,
+    ): Promise<PaginatedCollection<AssetPairsItem>> => {
+        const connection = getDBConnection();
+        const signedOrderModels = (await connection.manager.find(SignedOrderModel)) as Array<
+            Required<SignedOrderModel>
+        >;
+        const erc721AssetDataToAsset = (assetData: string): Asset => {
+            const asset: Asset = {
+                minAmount: new BigNumber(0),
+                maxAmount: new BigNumber(1),
+                precision: 0,
+                assetData,
+            };
+            return asset;
+        };
+        const erc20AssetDataToAsset = (assetData: string): Asset => {
+            const asset: Asset = {
+                minAmount: new BigNumber(0),
+                maxAmount: MAX_TOKEN_SUPPLY_POSSIBLE,
+                precision: DEFAULT_ERC20_TOKEN_PRECISION,
+                assetData,
+            };
+            return asset;
+        };
+        const assetDataToAsset = (assetData: string): Asset => {
+            const assetProxyId = assetDataUtils.decodeAssetProxyId(assetData);
+            const asset =
+                assetProxyId === AssetProxyId.ERC20
+                    ? erc20AssetDataToAsset(assetData)
+                    : erc721AssetDataToAsset(assetData);
+            return asset;
+        };
+        const signedOrderToAssetPair = (signedOrder: SignedOrder): AssetPairsItem => {
+            return {
+                assetDataA: assetDataToAsset(signedOrder.makerAssetData),
+                assetDataB: assetDataToAsset(signedOrder.takerAssetData),
+            };
+        };
+        const assetPairsItems: AssetPairsItem[] = signedOrderModels.map(deserializeOrder).map(signedOrderToAssetPair);
+        let nonPaginatedFilteredAssetPairs: AssetPairsItem[];
+        if (_.isUndefined(assetDataA) && _.isUndefined(assetDataB)) {
+            nonPaginatedFilteredAssetPairs = assetPairsItems;
+        } else if (!_.isUndefined(assetDataA) && !_.isUndefined(assetDataB)) {
+            const containsAssetDataAAndAssetDataB = (assetPair: AssetPairsItem) =>
+                (assetPair.assetDataA.assetData === assetDataA && assetPair.assetDataB.assetData === assetDataB) ||
+                (assetPair.assetDataA.assetData === assetDataB && assetPair.assetDataB.assetData === assetDataA);
+            nonPaginatedFilteredAssetPairs = assetPairsItems.filter(containsAssetDataAAndAssetDataB);
+        } else {
+            const assetData = assetDataA || assetDataB;
+            const containsAssetData = (assetPair: AssetPairsItem) =>
+                assetPair.assetDataA.assetData === assetData || assetPair.assetDataB.assetData === assetData;
+            nonPaginatedFilteredAssetPairs = assetPairsItems.filter(containsAssetData);
+        }
+        const paginatedFilteredAssetPairs = paginate(nonPaginatedFilteredAssetPairs, page, perPage);
+        return paginatedFilteredAssetPairs;
     },
     getOrderBookAsync: async (
         page: number,

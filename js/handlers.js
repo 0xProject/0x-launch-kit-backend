@@ -28,10 +28,10 @@ const parsePaginationConfig = (req) => {
     return { page, perPage };
 };
 exports.handlers = {
-    assetPairs: (req, res) => {
+    assetPairsAsync: async (req, res) => {
         utils_1.utils.validateSchema(req.query, json_schemas_1.schemas.assetPairsRequestOptsSchema);
         const { page, perPage } = parsePaginationConfig(req);
-        const assetPairs = assetPairsStore.get(page, perPage, req.query.assetDataA, req.query.assetDataB);
+        const assetPairs = await orderbook_1.orderBook.getAssetPairsAsync(page, perPage, req.query.assetDataA, req.query.assetDataB);
         res.status(HttpStatus.OK).send(assetPairs);
     },
     ordersAsync: async (req, res) => {
