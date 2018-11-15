@@ -21,20 +21,20 @@ Launch a 0x relayer in under a minute with Launch Kit. This repository contains 
 
 Fork this repository to get started!
 
-### [Learn more](https://0xproject.com/launch-kit)
+### [See product website](https://0xproject.com/launch-kit)
 
 ## Language choice
 
 `0x-launch-kit` ships with 2 codebases, one in Typescript and another in Javascript. Although the Javascript is auto-generated from the Typescript, we made sure the Javascript generated is readable.
 
-Before you start using 0x-launch-kit, choose whether you want your codebase to be in Typescript or Javascript.
+Before you start using `0x-launch-kit`, choose whether you want your codebase to be in Typescript or Javascript.
 
-**If you want to work on it in Javascript:**
+**If you want to work in Javascript:**
 
 -   delete the `ts` directory
 -   delete all scripts from `package.json` that end with `:ts`
 
-**If you want to work on it in Typescript:**
+**If you want to work in Typescript:**
 
 -   delete the `js` directory
 -   delete all scripts from `package.json` that end with `:js`
@@ -52,7 +52,7 @@ To develop ontop of `0x-launch-kit`, follow the following instructions:
 2. Clone your fork of this repository
 3. Open the `config.ts`/`config.js` file (depending on the language you've chosen above) and edit the following:
 
--   `NETWORK_ID` -- the network you'd like your relayer to run on (`1` corresponds to mainnet)
+-   `NETWORK_ID` -- the network you'd like your relayer to run on (e.g: `1` -> mainnet, `42` -> Kovan, 3 -> Ropsten, etc...)
 -   `ASSET_PAIRS` -- Which asset pairs you would like to host orderbooks for.
 -   `FEE_RECIPIENT` -- The Ethereum address which should be specified as the fee recipient in orders your relayer accepts.
 -   `MAKER_FEE_ZRX_UNIT_AMOUNT` -- The flat maker fee you'd like to receive for filled orders hosted by you.
@@ -65,7 +65,7 @@ To develop ontop of `0x-launch-kit`, follow the following instructions:
 yarn
 ```
 
-6. Build the project [NOTE: For Typescript users only]
+6. Build the project [This step is for Typescript users only]
 
 ```sh
 yarn build:ts
@@ -77,7 +77,7 @@ or build & watch:
 yarn watch:ts
 ```
 
-**Note:** There isn't currently a build step when working on the Javascript codebase because we assume `0x-launch-kit` will be running on Node.js > v8.0. If you want this project to work in an environment that doesn't support all the latest Javascript features, you will need to add a transpiler (e.g [Babel](https://babeljs.io/)).
+**Note:** There isn't currently a build step when working on the Javascript codebase because we assume `0x-launch-kit` will be running on Node.js > v8.0. If you want this project to work in an environment that doesn't support many of the latest Javascript features, you will need to add a transpiler (e.g [Babel](https://babeljs.io/)) to this project.
 
 7.  Start the relayer
 
@@ -97,7 +97,7 @@ Since the `0x-launch-kit` relayer adheres to V2 of the [Standard Relayer API Spe
 
 Learn how to use 0x Connect to interact with your `0x-launch-kit` relayer in [this tutorial](https://0xproject.com/wiki#Find,-Submit,-Fill-Order-From-Relayer).
 
-To quickly check if your relayer is up-and-running, try running this command from your terminal:
+To quickly check if your relayer is up-and-running, send it this CURL request from the command-line:
 
 ```sh
 curl http://localhost:3000/v2/orders
@@ -114,28 +114,28 @@ If everything is working as expected, you should see this response:
 }
 ```
 
-Since no orders have been added to your relayer yet.
+Since no orders have been added to your relayer yet, the `records` array is empty.
 
 ## Commands
 
 Typescript project commands:
 
--   `yarn build:ts` - Builds the code
--   `yarn lint:ts` - Lints the code
+-   `yarn build:ts` - Build the code
+-   `yarn lint:ts` - Lint the code
 -   `yarn start:ts` - Starts the relayer
--   `yarn watch:ts` - Watches the code and rebuilds on change
--   `yarn prettier:ts` - Auto-formats the code
+-   `yarn watch:ts` - Watch the source code and rebuild on change
+-   `yarn prettier:ts` - Auto-format the code
 
 Javascript project commands:
 
--   `yarn start:js` - Starts the relayer
--   `yarn prettier:js` - Auto-formats the code
+-   `yarn start:js` - Start the relayer
+-   `yarn prettier:js` - Auto-format the code
 
 ## Database
 
 This project uses [TypeORM](https://github.com/typeorm/typeorm). It makes it easier for anyone to switch out the backing database used by this project. By default, this project uses an [SQLite](https://sqlite.org/docs.html) database.
 
-Because we want to support both Javascript and Typescript codebases, we don't use `TypeORM`'s [decorators](https://github.com/typeorm/typeorm/blob/master/docs/decorator-reference.md) (They don't transpile nicely into readable Javascript). TypeORM shines with decorators however, so you might want to use them if you're going to be working in Typescript.
+Because we want to support both Javascript and Typescript codebases, we don't use `TypeORM`'s [decorators](https://github.com/typeorm/typeorm/blob/master/docs/decorator-reference.md) (since they don't transpile nicely into readable Javascript). TypeORM shines with decorators however, so you might want to use them if you're going to be working in Typescript.
 
 ## Deployment
 
