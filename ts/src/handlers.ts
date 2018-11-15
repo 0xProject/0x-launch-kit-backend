@@ -1,25 +1,22 @@
-import { BigNumber, SignedOrder } from '0x.js';
+import { assetDataUtils, BigNumber, SignedOrder } from '0x.js';
 import { schemas } from '@0x/json-schemas';
 import { Web3Wrapper } from '@0x/web3-wrapper';
 import * as express from 'express';
 import * as HttpStatus from 'http-status-codes';
 import * as _ from 'lodash';
 
-import { AssetPairsStore } from './asset_pairs_store';
 import {
-    ASSET_PAIRS,
     FEE_RECIPIENT,
     MAKER_FEE_ZRX_UNIT_AMOUNT,
     MAX_PER_PAGE,
     TAKER_FEE_ZRX_UNIT_AMOUNT,
+    WHITELISTED_TOKENS,
 } from './config';
 import { DEFAULT_PAGE, DEFAULT_PER_PAGE, NULL_ADDRESS, ZRX_DECIMALS } from './constants';
 import { NotFoundError, ValidationError, ValidationErrorCodes } from './errors';
 import { orderBook } from './orderbook';
 import { paginate } from './paginator';
 import { utils } from './utils';
-
-const assetPairsStore = new AssetPairsStore(ASSET_PAIRS);
 
 const parsePaginationConfig = (req: express.Request): { page: number; perPage: number } => {
     const page = _.isUndefined(req.query.page) ? DEFAULT_PAGE : Number(req.query.page);
@@ -81,14 +78,28 @@ export const handlers = {
     postOrderAsync: async (req: express.Request, res: express.Response) => {
         utils.validateSchema(req.body, schemas.signedOrderSchema);
         const signedOrder = unmarshallOrder(req.body);
-        if (!assetPairsStore.includes(signedOrder.makerAssetData, signedOrder.takerAssetData)) {
-            throw new ValidationError([
-                {
-                    field: 'assetPair',
-                    code: ValidationErrorCodes.valueOutOfRange,
-                    reason: 'Asset pair not supported',
-                },
-            ]);
+        if (WHITELISTED_TOKENS !== '*') {
+            const allowedTokens: string[] = WHITELISTED_TOKENS;
+            const decodedMakerAssetData = assetDataUtils.decodeAssetDataOrThrow(signedOrder.makerAssetData);
+            if (!_.includes(allowedTokens, decodedMakerAssetData.tokenAddress)) {
+                throw new ValidationError([
+                    {
+                        field: 'makerAssetData',
+                        code: ValidationErrorCodes.valueOutOfRange,
+                        reason: `${decodedMakerAssetData.tokenAddress} not supported`,
+                    },
+                ]);
+            }
+            const decodedTakerAssetData = assetDataUtils.decodeAssetDataOrThrow(signedOrder.takerAssetData);
+            if (!_.includes(allowedTokens, decodedTakerAssetData.tokenAddress)) {
+                throw new ValidationError([
+                    {
+                        field: 'takerAssetData',
+                        code: ValidationErrorCodes.valueOutOfRange,
+                        reason: `${decodedMakerAssetData.tokenAddress} not supported`,
+                    },
+                ]);
+            }
         }
         await orderBook.addOrderAsync(signedOrder);
         res.status(HttpStatus.OK).send();
