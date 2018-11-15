@@ -10,7 +10,7 @@ export const PERMANENT_CLEANUP_INTERVAL_MS = 10 * 1000; // tslint:disable-line c
 // Max number of entities per page
 export const MAX_PER_PAGE = 100;
 // Default network id to use when not specified
-export const NETWORK_ID = 1;
+export const NETWORK_ID = 42;
 // An array of fee recipients
 export const FEE_RECIPIENT = '0x0000000000000000000000000000000000000000';
 // A flat fee in ZRX that should be charged to the order maker
@@ -18,7 +18,10 @@ export const MAKER_FEE_ZRX_UNIT_AMOUNT = new BigNumber(0);
 // A flat fee in ZRX that should be charged to the order taker
 export const TAKER_FEE_ZRX_UNIT_AMOUNT = new BigNumber(0);
 // Whitelisted token addresses. Set to a '*' instead of an array to allow any token.
-export const WHITELISTED_TOKENS: string[] | '*' = [];
+export const WHITELISTED_TOKENS: string[] | '*' = [
+    '0x2002d3812f58e35f0ea1ffbf80a75a38c32175fa', // ZRX
+    '0xd0a1e359811322d97991e03f863a0c30c2cf029c', // WETH
+];
 // Ethereum RPC url
 export const RPC_URL = 'https://mainnet.infura.io';
 // Default ERC20 token precision
