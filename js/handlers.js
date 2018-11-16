@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const _0x_js_1 = require("0x.js");
 const json_schemas_1 = require("@0x/json-schemas");
+const web3_wrapper_1 = require("@0x/web3-wrapper");
 const HttpStatus = require("http-status-codes");
 const _ = require("lodash");
 const asset_pairs_store_1 = require("./asset_pairs_store");
@@ -9,13 +10,12 @@ const config_1 = require("./config");
 const constants_1 = require("./constants");
 const errors_1 = require("./errors");
 const orderbook_1 = require("./orderbook");
+const paginator_1 = require("./paginator");
 const utils_1 = require("./utils");
 const assetPairsStore = new asset_pairs_store_1.AssetPairsStore(config_1.ASSET_PAIRS);
-const DEFAULT_PAGE = 0;
-const DEFAULT_PER_PAGE = 20;
 const parsePaginationConfig = (req) => {
-    const page = _.isUndefined(req.query.page) ? DEFAULT_PAGE : Number(req.query.page);
-    const perPage = _.isUndefined(req.query.perPage) ? DEFAULT_PER_PAGE : Number(req.query.perPage);
+    const page = _.isUndefined(req.query.page) ? constants_1.DEFAULT_PAGE : Number(req.query.page);
+    const perPage = _.isUndefined(req.query.perPage) ? constants_1.DEFAULT_PER_PAGE : Number(req.query.perPage);
     if (perPage > config_1.MAX_PER_PAGE) {
         throw new errors_1.ValidationError([
             {
@@ -42,12 +42,8 @@ exports.handlers = {
     },
     feeRecipients: (req, res) => {
         const { page, perPage } = parsePaginationConfig(req);
-        const paginatedFeeRecipients = {
-            total: config_1.FEE_RECIPIENTS.length,
-            page,
-            perPage,
-            records: config_1.FEE_RECIPIENTS.slice(page * perPage, (page + 1) * perPage),
-        };
+        const FEE_RECIPIENTS = [config_1.FEE_RECIPIENT];
+        const paginatedFeeRecipients = paginator_1.paginate(FEE_RECIPIENTS, page, perPage);
         res.status(HttpStatus.OK).send(paginatedFeeRecipients);
     },
     orderbookAsync: async (req, res) => {
@@ -62,9 +58,9 @@ exports.handlers = {
         utils_1.utils.validateSchema(req.body, json_schemas_1.schemas.orderConfigRequestSchema);
         const orderConfigResponse = {
             senderAddress: constants_1.NULL_ADDRESS,
-            feeRecipientAddress: constants_1.NULL_ADDRESS,
-            makerFee: 0,
-            takerFee: '1000',
+            feeRecipientAddress: config_1.FEE_RECIPIENT,
+            makerFee: web3_wrapper_1.Web3Wrapper.toBaseUnitAmount(config_1.MAKER_FEE_ZRX_UNIT_AMOUNT, constants_1.ZRX_DECIMALS).toString(),
+            takerFee: web3_wrapper_1.Web3Wrapper.toBaseUnitAmount(config_1.TAKER_FEE_ZRX_UNIT_AMOUNT, constants_1.ZRX_DECIMALS).toString(),
         };
         res.status(HttpStatus.OK).send(orderConfigResponse);
     },

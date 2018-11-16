@@ -12,7 +12,11 @@ exports.MAX_PER_PAGE = 100;
 // Default network id to use when not specified
 exports.NETWORK_ID = 1;
 // An array of fee recipients
-exports.FEE_RECIPIENTS = ['0x0000000000000000000000000000000000000000'];
+exports.FEE_RECIPIENT = '0x0000000000000000000000000000000000000000';
+// A flat fee in ZRX that should be charged to the order maker
+exports.MAKER_FEE_ZRX_UNIT_AMOUNT = new _0x_js_1.BigNumber(0);
+// A flat fee in ZRX that should be charged to the order taker
+exports.TAKER_FEE_ZRX_UNIT_AMOUNT = new _0x_js_1.BigNumber(0);
 // Tradable asset pairs
 exports.ASSET_PAIRS = [
     {

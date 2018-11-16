@@ -7,7 +7,7 @@
     "license": "Apache-2.0",
     "scripts": {
         "prettier": "yarn prettier:js && yarn prettier:ts",
-        "build": "yarn build:ts && rm -rf js && cp -r ts/lib/ js",
+        "build": "yarn build:ts && shx rm -rf js && shx cp -r ts/lib/ js",
         "prettier:js": "prettier --write 'js/**/*.js' --config .prettierrc",
         "start:js": "node js/index.js",
         "build:ts": "tsc -p ts/tsconfig.json",
@@ -22,6 +22,7 @@
         "@types/lodash": "^4.14.116",
         "@types/web3-provider-engine": "^14.0.0",
         "prettier": "^1.14.3",
+        "shx": "^0.3.2",
         "tslint": "^5.11.0",
         "typescript": "^3.0.3"
     },
