@@ -17,36 +17,9 @@ exports.FEE_RECIPIENT = '0x0000000000000000000000000000000000000000';
 exports.MAKER_FEE_ZRX_UNIT_AMOUNT = new _0x_js_1.BigNumber(0);
 // A flat fee in ZRX that should be charged to the order taker
 exports.TAKER_FEE_ZRX_UNIT_AMOUNT = new _0x_js_1.BigNumber(0);
-// Tradable asset pairs
-exports.ASSET_PAIRS = [
-    {
-        assetDataA: {
-            minAmount: new _0x_js_1.BigNumber(0),
-            maxAmount: new _0x_js_1.BigNumber(0),
-            precision: 5,
-            assetData: '0xf47261b0f47261b04c32345ced77393b3530b1eed0f346429d',
-        },
-        assetDataB: {
-            minAmount: new _0x_js_1.BigNumber(0),
-            maxAmount: new _0x_js_1.BigNumber(0),
-            precision: 5,
-            assetData: '0xf47261b00257179264389b814a946f3e92105513705ca6b990',
-        },
-    },
-    {
-        assetDataA: {
-            minAmount: new _0x_js_1.BigNumber(0),
-            maxAmount: new _0x_js_1.BigNumber(1),
-            precision: 1,
-            assetData: '0xf47261b0000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-        },
-        assetDataB: {
-            minAmount: new _0x_js_1.BigNumber(0),
-            maxAmount: new _0x_js_1.BigNumber(1),
-            precision: 1,
-            assetData: '0xf47261b000000000000000000000000024cebc1548e698feffb5553b8ac8043b51069faa',
-        },
-    },
-];
+// Whitelisted token addresses. Set to a '*' instead of an array to allow any token.
+exports.WHITELISTED_TOKENS = [];
 // Ethereum RPC url
 exports.RPC_URL = 'https://mainnet.infura.io';
+// Default ERC20 token precision
+exports.DEFAULT_ERC20_TOKEN_PRECISION = 18;

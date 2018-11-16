@@ -5,14 +5,12 @@ const json_schemas_1 = require("@0x/json-schemas");
 const web3_wrapper_1 = require("@0x/web3-wrapper");
 const HttpStatus = require("http-status-codes");
 const _ = require("lodash");
-const asset_pairs_store_1 = require("./asset_pairs_store");
 const config_1 = require("./config");
 const constants_1 = require("./constants");
 const errors_1 = require("./errors");
 const orderbook_1 = require("./orderbook");
 const paginator_1 = require("./paginator");
 const utils_1 = require("./utils");
-const assetPairsStore = new asset_pairs_store_1.AssetPairsStore(config_1.ASSET_PAIRS);
 const parsePaginationConfig = (req) => {
     const page = _.isUndefined(req.query.page) ? constants_1.DEFAULT_PAGE : Number(req.query.page);
     const perPage = _.isUndefined(req.query.perPage) ? constants_1.DEFAULT_PER_PAGE : Number(req.query.perPage);
@@ -28,10 +26,10 @@ const parsePaginationConfig = (req) => {
     return { page, perPage };
 };
 exports.handlers = {
-    assetPairs: (req, res) => {
+    assetPairsAsync: async (req, res) => {
         utils_1.utils.validateSchema(req.query, json_schemas_1.schemas.assetPairsRequestOptsSchema);
         const { page, perPage } = parsePaginationConfig(req);
-        const assetPairs = assetPairsStore.get(page, perPage, req.query.assetDataA, req.query.assetDataB);
+        const assetPairs = await orderbook_1.orderBook.getAssetPairsAsync(page, perPage, req.query.assetDataA, req.query.assetDataB);
         res.status(HttpStatus.OK).send(assetPairs);
     },
     ordersAsync: async (req, res) => {
@@ -67,14 +65,28 @@ exports.handlers = {
     postOrderAsync: async (req, res) => {
         utils_1.utils.validateSchema(req.body, json_schemas_1.schemas.signedOrderSchema);
         const signedOrder = unmarshallOrder(req.body);
-        if (!assetPairsStore.includes(signedOrder.makerAssetData, signedOrder.takerAssetData)) {
-            throw new errors_1.ValidationError([
-                {
-                    field: 'assetPair',
-                    code: errors_1.ValidationErrorCodes.valueOutOfRange,
-                    reason: 'Asset pair not supported',
-                },
-            ]);
+        if (config_1.WHITELISTED_TOKENS !== '*') {
+            const allowedTokens = config_1.WHITELISTED_TOKENS;
+            const decodedMakerAssetData = _0x_js_1.assetDataUtils.decodeAssetDataOrThrow(signedOrder.makerAssetData);
+            if (!_.includes(allowedTokens, decodedMakerAssetData.tokenAddress)) {
+                throw new errors_1.ValidationError([
+                    {
+                        field: 'makerAssetData',
+                        code: errors_1.ValidationErrorCodes.valueOutOfRange,
+                        reason: `${decodedMakerAssetData.tokenAddress} not supported`,
+                    },
+                ]);
+            }
+            const decodedTakerAssetData = _0x_js_1.assetDataUtils.decodeAssetDataOrThrow(signedOrder.takerAssetData);
+            if (!_.includes(allowedTokens, decodedTakerAssetData.tokenAddress)) {
+                throw new errors_1.ValidationError([
+                    {
+                        field: 'takerAssetData',
+                        code: errors_1.ValidationErrorCodes.valueOutOfRange,
+                        reason: `${decodedMakerAssetData.tokenAddress} not supported`,
+                    },
+                ]);
+            }
         }
         await orderbook_1.orderBook.addOrderAsync(signedOrder);
         res.status(HttpStatus.OK).send();

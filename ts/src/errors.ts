@@ -48,14 +48,14 @@ export class NotImplementedError extends RelayerBaseError {
 export enum GeneralErrorCodes {
     validationError = 100,
     malformedJson = 101,
-    orderSubmittionDisabled = 102,
+    orderSubmissionDisabled = 102,
     throttled = 103,
 }
 
 export const generalErrorCodeToReason: { [key in GeneralErrorCodes]: string } = {
     [GeneralErrorCodes.validationError]: 'Validation Failed',
     [GeneralErrorCodes.malformedJson]: 'Malformed JSON',
-    [GeneralErrorCodes.orderSubmittionDisabled]: 'Order submission disabled',
+    [GeneralErrorCodes.orderSubmissionDisabled]: 'Order submission disabled',
     [GeneralErrorCodes.throttled]: 'Throttled',
 };
 
