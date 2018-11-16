@@ -3,7 +3,7 @@ import { APIOrder, OrderbookResponse, PaginatedCollection } from '@0x/connect';
 import { assetDataUtils } from '@0x/order-utils';
 import { OrderState, OrderWatcher } from '@0x/order-watcher';
 import { Asset, AssetPairsItem, AssetProxyId, OrdersRequestOpts } from '@0x/types';
-import { intervalUtils } from '@0x/utils';
+import { errorUtils, intervalUtils } from '@0x/utils';
 import * as _ from 'lodash';
 
 import {
@@ -85,10 +85,17 @@ export const orderBook = {
         };
         const assetDataToAsset = (assetData: string): Asset => {
             const assetProxyId = assetDataUtils.decodeAssetProxyId(assetData);
-            const asset =
-                assetProxyId === AssetProxyId.ERC20
-                    ? erc20AssetDataToAsset(assetData)
-                    : erc721AssetDataToAsset(assetData);
+            let asset: Asset;
+            switch (assetProxyId) {
+                case AssetProxyId.ERC20:
+                    asset = erc20AssetDataToAsset(assetData);
+                    break;
+                case AssetProxyId.ERC721:
+                    asset = erc721AssetDataToAsset(assetData);
+                    break;
+                default:
+                    throw errorUtils.spawnSwitchErr('assetProxyId', assetProxyId);
+            }
             return asset;
         };
         const signedOrderToAssetPair = (signedOrder: SignedOrder): AssetPairsItem => {
