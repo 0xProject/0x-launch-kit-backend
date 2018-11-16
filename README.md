@@ -21,7 +21,7 @@ Launch a 0x relayer in under a minute with Launch Kit. This repository contains 
 
 Fork this repository to get started!
 
-### [See product website](https://0xproject.com/launch-kit)
+### [See website](https://0xproject.com/launch-kit)
 
 ## Language choice
 
