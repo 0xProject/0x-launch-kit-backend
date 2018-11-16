@@ -1,4 +1,4 @@
-# 0x-launch-kit
+<img src="launch_kit_banner.png">
 
 ## Table of contents
 
