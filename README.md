@@ -91,6 +91,9 @@ OR
 yarn start:js
 ```
 
+#### Server Port
+The default server port is 3000 but when developing sometimes changing the port in the config is not an available option. Defining the environment variable `HTTP_PORT` is another option.
+
 ## Client for your relayer's API
 
 Since the `0x-launch-kit` relayer adheres to V2 of the [Standard Relayer API Specification](https://github.com/0xProject/standard-relayer-api/), you can use [0x Connect](https://0xproject.com/docs/connect) (an HTTP/Websocket client) to make calls to your relayer (e.g submit an order, get all orders, etc...)

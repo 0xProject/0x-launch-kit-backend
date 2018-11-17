@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const _0x_js_1 = require("0x.js");
 // Network port to listen on
-exports.HTTP_PORT = 3000;
+exports.HTTP_PORT = process.env.HTTP_PORT || 3000;
 // A time window after which the order is considered permanently expired
 exports.ORDER_SHADOWING_MARGIN_MS = 100 * 1000; // tslint:disable-line custom-no-magic-numbers
 // Frequency of checks for permanently expired orders

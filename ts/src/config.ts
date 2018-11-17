@@ -2,7 +2,7 @@ import { BigNumber } from '0x.js';
 import * as _ from 'lodash';
 
 // Network port to listen on
-export const HTTP_PORT = 3000;
+export const HTTP_PORT = process.env.HTTP_PORT || 3000;
 // A time window after which the order is considered permanently expired
 export const ORDER_SHADOWING_MARGIN_MS = 100 * 1000; // tslint:disable-line custom-no-magic-numbers
 // Frequency of checks for permanently expired orders
