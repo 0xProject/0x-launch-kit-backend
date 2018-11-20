@@ -1,17 +1,17 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const _0x_js_1 = require("0x.js");
-const json_schemas_1 = require("@0x/json-schemas");
-const web3_wrapper_1 = require("@0x/web3-wrapper");
-const HttpStatus = require("http-status-codes");
-const _ = require("lodash");
-const config_1 = require("./config");
-const constants_1 = require("./constants");
-const errors_1 = require("./errors");
-const orderbook_1 = require("./orderbook");
-const paginator_1 = require("./paginator");
-const utils_1 = require("./utils");
-const parsePaginationConfig = (req) => {
+'use strict';
+Object.defineProperty(exports, '__esModule', { value: true });
+const _0x_js_1 = require('0x.js');
+const json_schemas_1 = require('@0x/json-schemas');
+const web3_wrapper_1 = require('@0x/web3-wrapper');
+const HttpStatus = require('http-status-codes');
+const _ = require('lodash');
+const config_1 = require('./config');
+const constants_1 = require('./constants');
+const errors_1 = require('./errors');
+const orderbook_1 = require('./orderbook');
+const paginator_1 = require('./paginator');
+const utils_1 = require('./utils');
+const parsePaginationConfig = req => {
     const page = _.isUndefined(req.query.page) ? constants_1.DEFAULT_PAGE : Number(req.query.page);
     const perPage = _.isUndefined(req.query.perPage) ? constants_1.DEFAULT_PER_PAGE : Number(req.query.perPage);
     if (perPage > config_1.MAX_PER_PAGE) {
@@ -29,7 +29,12 @@ exports.handlers = {
     assetPairsAsync: async (req, res) => {
         utils_1.utils.validateSchema(req.query, json_schemas_1.schemas.assetPairsRequestOptsSchema);
         const { page, perPage } = parsePaginationConfig(req);
-        const assetPairs = await orderbook_1.orderBook.getAssetPairsAsync(page, perPage, req.query.assetDataA, req.query.assetDataB);
+        const assetPairs = await orderbook_1.orderBook.getAssetPairsAsync(
+            page,
+            perPage,
+            req.query.assetDataA,
+            req.query.assetDataB,
+        );
         res.status(HttpStatus.OK).send(assetPairs);
     },
     ordersAsync: async (req, res) => {
@@ -49,7 +54,12 @@ exports.handlers = {
         const { page, perPage } = parsePaginationConfig(req);
         const baseAssetData = req.query.baseAssetData;
         const quoteAssetData = req.query.quoteAssetData;
-        const orderbookResponse = await orderbook_1.orderBook.getOrderBookAsync(page, perPage, baseAssetData, quoteAssetData);
+        const orderbookResponse = await orderbook_1.orderBook.getOrderBookAsync(
+            page,
+            perPage,
+            baseAssetData,
+            quoteAssetData,
+        );
         res.status(HttpStatus.OK).send(orderbookResponse);
     },
     orderConfig: (req, res) => {
@@ -57,8 +67,14 @@ exports.handlers = {
         const orderConfigResponse = {
             senderAddress: constants_1.NULL_ADDRESS,
             feeRecipientAddress: config_1.FEE_RECIPIENT,
-            makerFee: web3_wrapper_1.Web3Wrapper.toBaseUnitAmount(config_1.MAKER_FEE_ZRX_UNIT_AMOUNT, constants_1.ZRX_DECIMALS).toString(),
-            takerFee: web3_wrapper_1.Web3Wrapper.toBaseUnitAmount(config_1.TAKER_FEE_ZRX_UNIT_AMOUNT, constants_1.ZRX_DECIMALS).toString(),
+            makerFee: web3_wrapper_1.Web3Wrapper.toBaseUnitAmount(
+                config_1.MAKER_FEE_ZRX_UNIT_AMOUNT,
+                constants_1.ZRX_DECIMALS,
+            ).toString(),
+            takerFee: web3_wrapper_1.Web3Wrapper.toBaseUnitAmount(
+                config_1.TAKER_FEE_ZRX_UNIT_AMOUNT,
+                constants_1.ZRX_DECIMALS,
+            ).toString(),
         };
         res.status(HttpStatus.OK).send(orderConfigResponse);
     },
@@ -95,8 +111,7 @@ exports.handlers = {
         const orderIfExists = await orderbook_1.orderBook.getOrderByHashIfExistsAsync(req.params.orderHash);
         if (_.isUndefined(orderIfExists)) {
             throw new errors_1.NotFoundError();
-        }
-        else {
+        } else {
             res.status(HttpStatus.OK).send(orderIfExists);
         }
     },
