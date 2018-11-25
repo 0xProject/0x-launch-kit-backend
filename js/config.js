@@ -23,6 +23,6 @@ exports.WHITELISTED_TOKENS = [
     '0xd0a1e359811322d97991e03f863a0c30c2cf029c',
 ];
 // Ethereum RPC url
-exports.RPC_URL = 'https://mainnet.infura.io';
+exports.RPC_URL = 'https://kovan.infura.io/v3';
 // Default ERC20 token precision
 exports.DEFAULT_ERC20_TOKEN_PRECISION = 18;
