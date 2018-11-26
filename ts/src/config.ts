@@ -23,6 +23,6 @@ export const WHITELISTED_TOKENS: string[] | '*' = [
     '0xd0a1e359811322d97991e03f863a0c30c2cf029c', // WETH
 ];
 // Ethereum RPC url
-export const RPC_URL = 'https://mainnet.infura.io';
+export const RPC_URL = 'https://kovan.infura.io/v3';
 // Default ERC20 token precision
 export const DEFAULT_ERC20_TOKEN_PRECISION = 18;
