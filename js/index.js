@@ -2,6 +2,7 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 require('@babel/polyfill');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 const express = require('express');
 const asyncHandler = require('express-async-handler');
 require('reflect-metadata');
@@ -14,6 +15,7 @@ const utils_1 = require('./utils');
 (async () => {
     await db_connection_1.initDBConnectionAsync();
     const app = express();
+    app.use(cors());
     app.use(bodyParser.json());
     app.use(url_params_parsing_1.urlParamsParsing);
     /**
