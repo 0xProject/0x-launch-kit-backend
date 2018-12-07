@@ -8,7 +8,7 @@ export const ORDER_SHADOWING_MARGIN_MS = 100 * 1000; // tslint:disable-line cust
 // Frequency of checks for permanently expired orders
 export const PERMANENT_CLEANUP_INTERVAL_MS = 10 * 1000; // tslint:disable-line custom-no-magic-numbers
 // Max number of entities per page
-export const MAX_PER_PAGE = 100;
+export const MAX_PER_PAGE = 1000;
 // Default network id to use when not specified
 export const NETWORK_ID = 42;
 // An array of fee recipients
