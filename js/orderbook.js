@@ -103,7 +103,8 @@ exports.orderBook = {
                 assetPair.assetDataA.assetData === assetData || assetPair.assetDataB.assetData === assetData;
             nonPaginatedFilteredAssetPairs = assetPairsItems.filter(containsAssetData);
         }
-        const paginatedFilteredAssetPairs = paginator_1.paginate(nonPaginatedFilteredAssetPairs, page, perPage);
+        const uniqueNonPaginatedFilteredAssetPairs = _.uniqWith(nonPaginatedFilteredAssetPairs, _.isEqual.bind(_));
+        const paginatedFilteredAssetPairs = paginator_1.paginate(uniqueNonPaginatedFilteredAssetPairs, page, perPage);
         return paginatedFilteredAssetPairs;
     },
     getOrderBookAsync: async (page, perPage, baseAssetData, quoteAssetData) => {
