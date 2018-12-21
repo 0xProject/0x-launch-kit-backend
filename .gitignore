@@ -65,3 +65,6 @@ typescript/lib
 
 # sqlite DB
 database.sqlite
+
+# IDEs
+.idea
