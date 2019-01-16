@@ -16,7 +16,7 @@ const utils_2 = require('./utils');
 const shadowedOrders = new Map();
 exports.orderBook = {
     onOrderStateChangeCallback: (err, orderState) => {
-        if (!_.isUndefined(err)) {
+        if (!_.isNull(err)) {
             utils_2.utils.log(err);
         } else {
             const state = orderState;

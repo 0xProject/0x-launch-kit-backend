@@ -25,7 +25,7 @@ const shadowedOrders: Map<string, number> = new Map();
 
 export const orderBook = {
     onOrderStateChangeCallback: (err: Error | null, orderState?: OrderState) => {
-        if (!_.isUndefined(err)) {
+        if (!_.isNull(err)) {
             utils.log(err);
         } else {
             const state = orderState as OrderState;
