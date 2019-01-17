@@ -42,6 +42,8 @@ export const orderBook = {
             const now = Date.now();
             if (shadowedAt + ORDER_SHADOWING_MARGIN_MS < now) {
                 permanentlyExpiredOrders.push(orderHash);
+                shadowedOrders.delete(orderHash);       // we need to remove this order so we don't keep shadowing it
+                orderWatcher.removeOrder(orderHash);    // also remove from order watcher to avoid more callbacks
             }
         }
         if (!_.isEmpty(permanentlyExpiredOrders)) {
