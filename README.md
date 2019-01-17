@@ -34,6 +34,8 @@ Before you start using `0x-launch-kit`, choose whether you want your codebase to
 -   delete the `ts` directory
 -   delete all scripts from `package.json` that end with `:ts`
 
+Note: If you also wish to build and use the Docker image, please update the command in the Dockerfile to `CMD [ "forever", "js/index.js" ]`
+
 **If you want to work in Typescript:**
 
 -   delete the `js` directory
