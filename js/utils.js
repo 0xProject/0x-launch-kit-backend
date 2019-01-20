@@ -43,7 +43,7 @@ function schemaValidationErrorToValidationErrorItem(schemaValidationError) {
     ) {
         return {
             field: schemaValidationError.property,
-            code: errors_1.ValidationErrorCodes.incorrectFormat,
+            code: errors_1.ValidationErrorCodes.IncorrectFormat,
             reason: schemaValidationError.message,
         };
     } else if (
@@ -54,19 +54,19 @@ function schemaValidationErrorToValidationErrorItem(schemaValidationError) {
     ) {
         return {
             field: schemaValidationError.property,
-            code: errors_1.ValidationErrorCodes.valueOutOfRange,
+            code: errors_1.ValidationErrorCodes.ValueOutOfRange,
             reason: schemaValidationError.message,
         };
     } else if (schemaValidationError.name === 'required') {
         return {
             field: schemaValidationError.argument,
-            code: errors_1.ValidationErrorCodes.requiredField,
+            code: errors_1.ValidationErrorCodes.RequiredField,
             reason: schemaValidationError.message,
         };
     } else if (schemaValidationError.name === 'not') {
         return {
             field: schemaValidationError.property,
-            code: errors_1.ValidationErrorCodes.unsupportedOption,
+            code: errors_1.ValidationErrorCodes.UnsupportedOption,
             reason: schemaValidationError.message,
         };
     } else {

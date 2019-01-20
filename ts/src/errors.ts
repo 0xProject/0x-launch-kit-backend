@@ -16,7 +16,7 @@ export interface ValidationErrorItem {
 }
 
 export class ValidationError extends BadRequestError {
-    public generalErrorCode = GeneralErrorCodes.validationError;
+    public generalErrorCode = GeneralErrorCodes.ValidationError;
     public validationErrors: ValidationErrorItem[];
     constructor(validationErrors: ValidationErrorItem[]) {
         super();
@@ -25,7 +25,7 @@ export class ValidationError extends BadRequestError {
 }
 
 export class MalformedJSONError extends BadRequestError {
-    public generalErrorCode = GeneralErrorCodes.malformedJson;
+    public generalErrorCode = GeneralErrorCodes.MalformedJson;
 }
 
 export class NotFoundError extends RelayerBaseError {
@@ -34,7 +34,7 @@ export class NotFoundError extends RelayerBaseError {
 
 export class TooManyRequestsError extends RelayerBaseError {
     public statusCode = 429;
-    public generalErrorCode = GeneralErrorCodes.throttled;
+    public generalErrorCode = GeneralErrorCodes.Throttled;
 }
 
 export class InternalServerError extends RelayerBaseError {
@@ -46,25 +46,25 @@ export class NotImplementedError extends RelayerBaseError {
 }
 
 export enum GeneralErrorCodes {
-    validationError = 100,
-    malformedJson = 101,
-    orderSubmissionDisabled = 102,
-    throttled = 103,
+    ValidationError = 100,
+    MalformedJson = 101,
+    OrderSubmissionDisabled = 102,
+    Throttled = 103,
 }
 
 export const generalErrorCodeToReason: { [key in GeneralErrorCodes]: string } = {
-    [GeneralErrorCodes.validationError]: 'Validation Failed',
-    [GeneralErrorCodes.malformedJson]: 'Malformed JSON',
-    [GeneralErrorCodes.orderSubmissionDisabled]: 'Order submission disabled',
-    [GeneralErrorCodes.throttled]: 'Throttled',
+    [GeneralErrorCodes.ValidationError]: 'Validation Failed',
+    [GeneralErrorCodes.MalformedJson]: 'Malformed JSON',
+    [GeneralErrorCodes.OrderSubmissionDisabled]: 'Order submission disabled',
+    [GeneralErrorCodes.Throttled]: 'Throttled',
 };
 
 export enum ValidationErrorCodes {
-    requiredField = 1000,
-    incorrectFormat = 1001,
-    invalidAddress = 1002,
-    addressNotSupported = 1003,
-    valueOutOfRange = 1004,
-    invalidSignatureOrHash = 1005,
-    unsupportedOption = 1006,
+    RequiredField = 1000,
+    IncorrectFormat = 1001,
+    InvalidAddress = 1002,
+    AddressNotSupported = 1003,
+    ValueOutOfRange = 1004,
+    InvalidSignatureOrHash = 1005,
+    UnsupportedOption = 1006,
 }

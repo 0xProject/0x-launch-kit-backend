@@ -18,7 +18,7 @@ exports.BadRequestError = BadRequestError;
 class ValidationError extends BadRequestError {
     constructor(validationErrors) {
         super();
-        this.generalErrorCode = GeneralErrorCodes.validationError;
+        this.generalErrorCode = GeneralErrorCodes.ValidationError;
         this.validationErrors = validationErrors;
     }
 }
@@ -26,7 +26,7 @@ exports.ValidationError = ValidationError;
 class MalformedJSONError extends BadRequestError {
     constructor() {
         super(...arguments);
-        this.generalErrorCode = GeneralErrorCodes.malformedJson;
+        this.generalErrorCode = GeneralErrorCodes.MalformedJson;
     }
 }
 exports.MalformedJSONError = MalformedJSONError;
@@ -41,7 +41,7 @@ class TooManyRequestsError extends RelayerBaseError {
     constructor() {
         super(...arguments);
         this.statusCode = 429;
-        this.generalErrorCode = GeneralErrorCodes.throttled;
+        this.generalErrorCode = GeneralErrorCodes.Throttled;
     }
 }
 exports.TooManyRequestsError = TooManyRequestsError;
@@ -61,24 +61,24 @@ class NotImplementedError extends RelayerBaseError {
 exports.NotImplementedError = NotImplementedError;
 var GeneralErrorCodes;
 (function(GeneralErrorCodes) {
-    GeneralErrorCodes[(GeneralErrorCodes['validationError'] = 100)] = 'validationError';
-    GeneralErrorCodes[(GeneralErrorCodes['malformedJson'] = 101)] = 'malformedJson';
-    GeneralErrorCodes[(GeneralErrorCodes['orderSubmissionDisabled'] = 102)] = 'orderSubmissionDisabled';
-    GeneralErrorCodes[(GeneralErrorCodes['throttled'] = 103)] = 'throttled';
+    GeneralErrorCodes[(GeneralErrorCodes['ValidationError'] = 100)] = 'ValidationError';
+    GeneralErrorCodes[(GeneralErrorCodes['MalformedJson'] = 101)] = 'MalformedJson';
+    GeneralErrorCodes[(GeneralErrorCodes['OrderSubmissionDisabled'] = 102)] = 'OrderSubmissionDisabled';
+    GeneralErrorCodes[(GeneralErrorCodes['Throttled'] = 103)] = 'Throttled';
 })((GeneralErrorCodes = exports.GeneralErrorCodes || (exports.GeneralErrorCodes = {})));
 exports.generalErrorCodeToReason = {
-    [GeneralErrorCodes.validationError]: 'Validation Failed',
-    [GeneralErrorCodes.malformedJson]: 'Malformed JSON',
-    [GeneralErrorCodes.orderSubmissionDisabled]: 'Order submission disabled',
-    [GeneralErrorCodes.throttled]: 'Throttled',
+    [GeneralErrorCodes.ValidationError]: 'Validation Failed',
+    [GeneralErrorCodes.MalformedJson]: 'Malformed JSON',
+    [GeneralErrorCodes.OrderSubmissionDisabled]: 'Order submission disabled',
+    [GeneralErrorCodes.Throttled]: 'Throttled',
 };
 var ValidationErrorCodes;
 (function(ValidationErrorCodes) {
-    ValidationErrorCodes[(ValidationErrorCodes['requiredField'] = 1000)] = 'requiredField';
-    ValidationErrorCodes[(ValidationErrorCodes['incorrectFormat'] = 1001)] = 'incorrectFormat';
-    ValidationErrorCodes[(ValidationErrorCodes['invalidAddress'] = 1002)] = 'invalidAddress';
-    ValidationErrorCodes[(ValidationErrorCodes['addressNotSupported'] = 1003)] = 'addressNotSupported';
-    ValidationErrorCodes[(ValidationErrorCodes['valueOutOfRange'] = 1004)] = 'valueOutOfRange';
-    ValidationErrorCodes[(ValidationErrorCodes['invalidSignatureOrHash'] = 1005)] = 'invalidSignatureOrHash';
-    ValidationErrorCodes[(ValidationErrorCodes['unsupportedOption'] = 1006)] = 'unsupportedOption';
+    ValidationErrorCodes[(ValidationErrorCodes['RequiredField'] = 1000)] = 'RequiredField';
+    ValidationErrorCodes[(ValidationErrorCodes['IncorrectFormat'] = 1001)] = 'IncorrectFormat';
+    ValidationErrorCodes[(ValidationErrorCodes['InvalidAddress'] = 1002)] = 'InvalidAddress';
+    ValidationErrorCodes[(ValidationErrorCodes['AddressNotSupported'] = 1003)] = 'AddressNotSupported';
+    ValidationErrorCodes[(ValidationErrorCodes['ValueOutOfRange'] = 1004)] = 'ValueOutOfRange';
+    ValidationErrorCodes[(ValidationErrorCodes['InvalidSignatureOrHash'] = 1005)] = 'InvalidSignatureOrHash';
+    ValidationErrorCodes[(ValidationErrorCodes['UnsupportedOption'] = 1006)] = 'UnsupportedOption';
 })((ValidationErrorCodes = exports.ValidationErrorCodes || (exports.ValidationErrorCodes = {})));

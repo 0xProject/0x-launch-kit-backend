@@ -18,7 +18,7 @@ const parsePaginationConfig = req => {
         throw new errors_1.ValidationError([
             {
                 field: 'perPage',
-                code: errors_1.ValidationErrorCodes.valueOutOfRange,
+                code: errors_1.ValidationErrorCodes.ValueOutOfRange,
                 reason: `perPage should be less or equal to ${config_1.MAX_PER_PAGE}`,
             },
         ]);
@@ -109,7 +109,7 @@ function validateAssetDataIsWhitelistedOrThrow(allowedTokens, assetData, field) 
             throw new errors_1.ValidationError([
                 {
                     field,
-                    code: errors_1.ValidationErrorCodes.valueOutOfRange,
+                    code: errors_1.ValidationErrorCodes.ValueOutOfRange,
                     reason: `${decodedAssetData.tokenAddress} not supported`,
                 },
             ]);
