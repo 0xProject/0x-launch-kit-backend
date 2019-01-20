@@ -80,26 +80,8 @@ export const handlers = {
         const signedOrder = unmarshallOrder(req.body);
         if (WHITELISTED_TOKENS !== '*') {
             const allowedTokens: string[] = WHITELISTED_TOKENS;
-            const decodedMakerAssetData = assetDataUtils.decodeAssetDataOrThrow(signedOrder.makerAssetData);
-            if (!_.includes(allowedTokens, decodedMakerAssetData.tokenAddress)) {
-                throw new ValidationError([
-                    {
-                        field: 'makerAssetData',
-                        code: ValidationErrorCodes.valueOutOfRange,
-                        reason: `${decodedMakerAssetData.tokenAddress} not supported`,
-                    },
-                ]);
-            }
-            const decodedTakerAssetData = assetDataUtils.decodeAssetDataOrThrow(signedOrder.takerAssetData);
-            if (!_.includes(allowedTokens, decodedTakerAssetData.tokenAddress)) {
-                throw new ValidationError([
-                    {
-                        field: 'takerAssetData',
-                        code: ValidationErrorCodes.valueOutOfRange,
-                        reason: `${decodedMakerAssetData.tokenAddress} not supported`,
-                    },
-                ]);
-            }
+            validateAssetDataIsWhitelistedOrThrow(allowedTokens, signedOrder.makerAssetData, 'makerAssetData');
+            validateAssetDataIsWhitelistedOrThrow(allowedTokens, signedOrder.takerAssetData, 'takerAssetData');
         }
         await orderBook.addOrderAsync(signedOrder);
         res.status(HttpStatus.OK).send();
@@ -113,6 +95,25 @@ export const handlers = {
         }
     },
 };
+
+function validateAssetDataIsWhitelistedOrThrow(allowedTokens: string[], assetData: string, field: string): void {
+    const decodedAssetData = assetDataUtils.decodeAssetDataOrThrow(assetData);
+    if (assetDataUtils.isMultiAssetData(decodedAssetData)) {
+        for (const [, nestedAssetDataElement] of decodedAssetData.nestedAssetData.entries()) {
+            validateAssetDataIsWhitelistedOrThrow(allowedTokens, nestedAssetDataElement, field);
+        }
+    } else {
+        if (!_.includes(allowedTokens, decodedAssetData.tokenAddress)) {
+            throw new ValidationError([
+                {
+                    field,
+                    code: ValidationErrorCodes.valueOutOfRange,
+                    reason: `${decodedAssetData.tokenAddress} not supported`,
+                },
+            ]);
+        }
+    }
+}
 
 // As the orders come in as JSON they need to be turned into the correct types such as BigNumber
 function unmarshallOrder(signedOrderRaw: any): SignedOrder {
