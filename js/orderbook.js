@@ -199,7 +199,8 @@ exports.orderBook = {
         if (_.isUndefined(signedOrderModelIfExists)) {
             return undefined;
         } else {
-            return deserializeOrder(signedOrderModelIfExists);
+            const deserializedOrder = deserializeOrder(signedOrderModelIfExists);
+            return { metaData: {}, order: deserializedOrder };
         }
     },
 };

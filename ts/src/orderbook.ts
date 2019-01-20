@@ -215,13 +215,14 @@ export const orderBook = {
         const paginatedApiOrders = paginate(apiOrders, page, perPage);
         return paginatedApiOrders;
     },
-    getOrderByHashIfExistsAsync: async (orderHash: string): Promise<SignedOrder | undefined> => {
+    getOrderByHashIfExistsAsync: async (orderHash: string): Promise<APIOrder | undefined> => {
         const connection = getDBConnection();
         const signedOrderModelIfExists = await connection.manager.findOne(SignedOrderModel, orderHash);
         if (_.isUndefined(signedOrderModelIfExists)) {
             return undefined;
         } else {
-            return deserializeOrder(signedOrderModelIfExists as Required<SignedOrderModel>);
+            const deserializedOrder = deserializeOrder(signedOrderModelIfExists as Required<SignedOrderModel>);
+            return { metaData: {}, order: deserializedOrder };
         }
     },
 };
