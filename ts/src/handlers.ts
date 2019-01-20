@@ -54,8 +54,8 @@ export const handlers = {
     feeRecipients: (req: express.Request, res: express.Response) => {
         const { page, perPage } = parsePaginationConfig(req);
         const normalizedFeeRecipient = FEE_RECIPIENT.toLowerCase();
-        const FEE_RECIPIENTS = [normalizedFeeRecipient];
-        const paginatedFeeRecipients = paginate(FEE_RECIPIENTS, page, perPage);
+        const feeRecipients = [normalizedFeeRecipient];
+        const paginatedFeeRecipients = paginate(feeRecipients, page, perPage);
         res.status(HttpStatus.OK).send(paginatedFeeRecipients);
     },
     orderbookAsync: async (req: express.Request, res: express.Response) => {
