@@ -25,7 +25,7 @@ const shadowedOrders: Map<string, number> = new Map();
 
 export const orderBook = {
     onOrderStateChangeCallback: (err: Error | null, orderState?: OrderState) => {
-        if (!_.isUndefined(err)) {
+        if (!_.isNull(err)) {
             utils.log(err);
         } else {
             const state = orderState as OrderState;
@@ -42,6 +42,8 @@ export const orderBook = {
             const now = Date.now();
             if (shadowedAt + ORDER_SHADOWING_MARGIN_MS < now) {
                 permanentlyExpiredOrders.push(orderHash);
+                shadowedOrders.delete(orderHash);       // we need to remove this order so we don't keep shadowing it
+                orderWatcher.removeOrder(orderHash);    // also remove from order watcher to avoid more callbacks
             }
         }
         if (!_.isEmpty(permanentlyExpiredOrders)) {
