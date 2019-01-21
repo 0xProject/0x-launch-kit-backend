@@ -18,7 +18,7 @@ const parsePaginationConfig = req => {
         throw new errors_1.ValidationError([
             {
                 field: 'perPage',
-                code: errors_1.ValidationErrorCodes.valueOutOfRange,
+                code: errors_1.ValidationErrorCodes.ValueOutOfRange,
                 reason: `perPage should be less or equal to ${config_1.MAX_PER_PAGE}`,
             },
         ]);
@@ -83,26 +83,8 @@ exports.handlers = {
         const signedOrder = unmarshallOrder(req.body);
         if (config_1.WHITELISTED_TOKENS !== '*') {
             const allowedTokens = config_1.WHITELISTED_TOKENS;
-            const decodedMakerAssetData = _0x_js_1.assetDataUtils.decodeAssetDataOrThrow(signedOrder.makerAssetData);
-            if (!_.includes(allowedTokens, decodedMakerAssetData.tokenAddress)) {
-                throw new errors_1.ValidationError([
-                    {
-                        field: 'makerAssetData',
-                        code: errors_1.ValidationErrorCodes.valueOutOfRange,
-                        reason: `${decodedMakerAssetData.tokenAddress} not supported`,
-                    },
-                ]);
-            }
-            const decodedTakerAssetData = _0x_js_1.assetDataUtils.decodeAssetDataOrThrow(signedOrder.takerAssetData);
-            if (!_.includes(allowedTokens, decodedTakerAssetData.tokenAddress)) {
-                throw new errors_1.ValidationError([
-                    {
-                        field: 'takerAssetData',
-                        code: errors_1.ValidationErrorCodes.valueOutOfRange,
-                        reason: `${decodedMakerAssetData.tokenAddress} not supported`,
-                    },
-                ]);
-            }
+            validateAssetDataIsWhitelistedOrThrow(allowedTokens, signedOrder.makerAssetData, 'makerAssetData');
+            validateAssetDataIsWhitelistedOrThrow(allowedTokens, signedOrder.takerAssetData, 'takerAssetData');
         }
         await orderbook_1.orderBook.addOrderAsync(signedOrder);
         res.status(HttpStatus.OK).send();
@@ -116,6 +98,24 @@ exports.handlers = {
         }
     },
 };
+function validateAssetDataIsWhitelistedOrThrow(allowedTokens, assetData, field) {
+    const decodedAssetData = _0x_js_1.assetDataUtils.decodeAssetDataOrThrow(assetData);
+    if (_0x_js_1.assetDataUtils.isMultiAssetData(decodedAssetData)) {
+        for (const [, nestedAssetDataElement] of decodedAssetData.nestedAssetData.entries()) {
+            validateAssetDataIsWhitelistedOrThrow(allowedTokens, nestedAssetDataElement, field);
+        }
+    } else {
+        if (!_.includes(allowedTokens, decodedAssetData.tokenAddress)) {
+            throw new errors_1.ValidationError([
+                {
+                    field,
+                    code: errors_1.ValidationErrorCodes.ValueOutOfRange,
+                    reason: `${decodedAssetData.tokenAddress} not supported`,
+                },
+            ]);
+        }
+    }
+}
 // As the orders come in as JSON they need to be turned into the correct types such as BigNumber
 function unmarshallOrder(signedOrderRaw) {
     const signedOrder = {

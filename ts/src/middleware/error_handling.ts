@@ -28,7 +28,7 @@ export function errorHandler(
         const relayerError = err as RelayerBaseError;
         if (relayerError.statusCode === HttpStatus.BAD_REQUEST) {
             const badRequestError = relayerError as BadRequestError;
-            if (badRequestError.generalErrorCode === GeneralErrorCodes.validationError) {
+            if (badRequestError.generalErrorCode === GeneralErrorCodes.ValidationError) {
                 const validationError = badRequestError as ValidationError;
                 const errorBody = {
                     code: badRequestError.generalErrorCode,
@@ -37,7 +37,7 @@ export function errorHandler(
                 };
                 res.status(relayerError.statusCode).send(errorBody);
                 return;
-            } else if (badRequestError.generalErrorCode === GeneralErrorCodes.malformedJson) {
+            } else if (badRequestError.generalErrorCode === GeneralErrorCodes.MalformedJson) {
                 const errorBody = {
                     code: badRequestError.generalErrorCode,
                     reason: generalErrorCodeToReason[badRequestError.generalErrorCode],
