@@ -53,8 +53,9 @@ export const handlers = {
     },
     feeRecipients: (req: express.Request, res: express.Response) => {
         const { page, perPage } = parsePaginationConfig(req);
-        const FEE_RECIPIENTS = [FEE_RECIPIENT];
-        const paginatedFeeRecipients = paginate(FEE_RECIPIENTS, page, perPage);
+        const normalizedFeeRecipient = FEE_RECIPIENT.toLowerCase();
+        const feeRecipients = [normalizedFeeRecipient];
+        const paginatedFeeRecipients = paginate(feeRecipients, page, perPage);
         res.status(HttpStatus.OK).send(paginatedFeeRecipients);
     },
     orderbookAsync: async (req: express.Request, res: express.Response) => {
@@ -67,9 +68,10 @@ export const handlers = {
     },
     orderConfig: (req: express.Request, res: express.Response) => {
         utils.validateSchema(req.body, schemas.orderConfigRequestSchema);
+        const normalizedFeeRecipient = FEE_RECIPIENT.toLowerCase();
         const orderConfigResponse = {
             senderAddress: NULL_ADDRESS,
-            feeRecipientAddress: FEE_RECIPIENT,
+            feeRecipientAddress: normalizedFeeRecipient,
             makerFee: Web3Wrapper.toBaseUnitAmount(MAKER_FEE_ZRX_UNIT_AMOUNT, ZRX_DECIMALS).toString(),
             takerFee: Web3Wrapper.toBaseUnitAmount(TAKER_FEE_ZRX_UNIT_AMOUNT, ZRX_DECIMALS).toString(),
         };
