@@ -1,7 +1,6 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
 const _0x_js_1 = require('0x.js');
-const order_utils_1 = require('@0x/order-utils');
 const order_watcher_1 = require('@0x/order-watcher');
 const types_1 = require('@0x/types');
 const utils_1 = require('@0x/utils');
@@ -70,7 +69,7 @@ exports.orderBook = {
             return asset;
         };
         const assetDataToAsset = assetData => {
-            const assetProxyId = order_utils_1.assetDataUtils.decodeAssetProxyId(assetData);
+            const assetProxyId = _0x_js_1.assetDataUtils.decodeAssetProxyId(assetData);
             let asset;
             switch (assetProxyId) {
                 case types_1.AssetProxyId.ERC20:
@@ -176,14 +175,14 @@ exports.orderBook = {
                 // makerAssetProxyId
                 signedOrder =>
                     _.isUndefined(ordersFilterParams.makerAssetProxyId) ||
-                    order_utils_1.assetDataUtils.decodeAssetDataOrThrow(signedOrder.makerAssetData).assetProxyId ===
+                    _0x_js_1.assetDataUtils.decodeAssetDataOrThrow(signedOrder.makerAssetData).assetProxyId ===
                         ordersFilterParams.makerAssetProxyId,
             )
             .filter(
                 // makerAssetProxyId
                 signedOrder =>
                     _.isUndefined(ordersFilterParams.takerAssetProxyId) ||
-                    order_utils_1.assetDataUtils.decodeAssetDataOrThrow(signedOrder.takerAssetData).assetProxyId ===
+                    _0x_js_1.assetDataUtils.decodeAssetDataOrThrow(signedOrder.takerAssetData).assetProxyId ===
                         ordersFilterParams.takerAssetProxyId,
             );
         const apiOrders = signedOrders.map(signedOrder => ({ metaData: {}, order: signedOrder }));
@@ -205,8 +204,8 @@ exports.orderBook = {
     },
 };
 const includesTokenAddress = (assetData, tokenAddress) => {
-    const decodedAssetData = order_utils_1.assetDataUtils.decodeAssetDataOrThrow(assetData);
-    if (order_utils_1.assetDataUtils.isMultiAssetData(decodedAssetData)) {
+    const decodedAssetData = _0x_js_1.assetDataUtils.decodeAssetDataOrThrow(assetData);
+    if (_0x_js_1.assetDataUtils.isMultiAssetData(decodedAssetData)) {
         for (const [, nestedAssetDataElement] of decodedAssetData.nestedAssetData.entries()) {
             if (includesTokenAddress(nestedAssetDataElement, tokenAddress)) {
                 return true;
