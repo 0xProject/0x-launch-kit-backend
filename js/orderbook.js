@@ -1,7 +1,6 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
 const _0x_js_1 = require('0x.js');
-const order_utils_1 = require('@0x/order-utils');
 const order_watcher_1 = require('@0x/order-watcher');
 const types_1 = require('@0x/types');
 const utils_1 = require('@0x/utils');
@@ -33,6 +32,8 @@ exports.orderBook = {
             const now = Date.now();
             if (shadowedAt + config_1.ORDER_SHADOWING_MARGIN_MS < now) {
                 permanentlyExpiredOrders.push(orderHash);
+                shadowedOrders.delete(orderHash); // we need to remove this order so we don't keep shadowing it
+                orderWatcher.removeOrder(orderHash); // also remove from order watcher to avoid more callbacks
             }
         }
         if (!_.isEmpty(permanentlyExpiredOrders)) {
@@ -68,7 +69,7 @@ exports.orderBook = {
             return asset;
         };
         const assetDataToAsset = assetData => {
-            const assetProxyId = order_utils_1.assetDataUtils.decodeAssetProxyId(assetData);
+            const assetProxyId = _0x_js_1.assetDataUtils.decodeAssetProxyId(assetData);
             let asset;
             switch (assetProxyId) {
                 case types_1.AssetProxyId.ERC20:
@@ -162,28 +163,26 @@ exports.orderBook = {
                 // makerAssetAddress
                 signedOrder =>
                     _.isUndefined(ordersFilterParams.makerAssetAddress) ||
-                    order_utils_1.assetDataUtils.decodeAssetDataOrThrow(signedOrder.makerAssetData).tokenAddress ===
-                        ordersFilterParams.makerAssetAddress,
+                    includesTokenAddress(signedOrder.makerAssetData, ordersFilterParams.makerAssetAddress),
             )
             .filter(
                 // takerAssetAddress
                 signedOrder =>
                     _.isUndefined(ordersFilterParams.takerAssetAddress) ||
-                    order_utils_1.assetDataUtils.decodeAssetDataOrThrow(signedOrder.takerAssetData).tokenAddress ===
-                        ordersFilterParams.takerAssetAddress,
+                    includesTokenAddress(signedOrder.takerAssetData, ordersFilterParams.takerAssetAddress),
             )
             .filter(
                 // makerAssetProxyId
                 signedOrder =>
                     _.isUndefined(ordersFilterParams.makerAssetProxyId) ||
-                    order_utils_1.assetDataUtils.decodeAssetDataOrThrow(signedOrder.makerAssetData).assetProxyId ===
+                    _0x_js_1.assetDataUtils.decodeAssetDataOrThrow(signedOrder.makerAssetData).assetProxyId ===
                         ordersFilterParams.makerAssetProxyId,
             )
             .filter(
                 // makerAssetProxyId
                 signedOrder =>
                     _.isUndefined(ordersFilterParams.takerAssetProxyId) ||
-                    order_utils_1.assetDataUtils.decodeAssetDataOrThrow(signedOrder.takerAssetData).assetProxyId ===
+                    _0x_js_1.assetDataUtils.decodeAssetDataOrThrow(signedOrder.takerAssetData).assetProxyId ===
                         ordersFilterParams.takerAssetProxyId,
             );
         const apiOrders = signedOrders.map(signedOrder => ({ metaData: {}, order: signedOrder }));
@@ -203,6 +202,19 @@ exports.orderBook = {
             return { metaData: {}, order: deserializedOrder };
         }
     },
+};
+const includesTokenAddress = (assetData, tokenAddress) => {
+    const decodedAssetData = _0x_js_1.assetDataUtils.decodeAssetDataOrThrow(assetData);
+    if (_0x_js_1.assetDataUtils.isMultiAssetData(decodedAssetData)) {
+        for (const [, nestedAssetDataElement] of decodedAssetData.nestedAssetData.entries()) {
+            if (includesTokenAddress(nestedAssetDataElement, tokenAddress)) {
+                return true;
+            }
+        }
+        return false;
+    } else {
+        return decodedAssetData.tokenAddress === tokenAddress;
+    }
 };
 const deserializeOrder = signedOrderModel => {
     const signedOrder = {
