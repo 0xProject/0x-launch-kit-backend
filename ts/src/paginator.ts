@@ -3,7 +3,7 @@ export const paginate = <T>(collection: T[], page: number, perPage: number) => {
         total: collection.length,
         page,
         perPage,
-        records: collection.slice(page * perPage, (page + 1) * perPage),
+        records: collection.slice((page - 1) * perPage, page * perPage),
     };
     return paginatedCollection;
 };
