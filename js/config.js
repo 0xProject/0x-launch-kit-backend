@@ -12,13 +12,19 @@ exports.PERMANENT_CLEANUP_INTERVAL_MS = 10 * 1000; // tslint:disable-line custom
 // Max number of entities per page
 exports.MAX_PER_PAGE = 1000;
 // Default network id to use when not specified
-exports.NETWORK_ID = !_.isUndefined(process.env.NETWORK_ID) ? parseInt(process.env.NETWORK_ID, 10) : 42;
-// An array of fee recipients
-exports.FEE_RECIPIENT = '0x0000000000000000000000000000000000000000';
+exports.NETWORK_ID = !_.isUndefined(process.env.NETWORK_ID) ? _.parseInt(process.env.NETWORK_ID) : 42;
+// The fee recipient for orders
+exports.FEE_RECIPIENT = !_.isUndefined(process.env.FEE_RECIPIENT)
+    ? process.env.FEE_RECIPIENT
+    : '0x0000000000000000000000000000000000000000';
 // A flat fee in ZRX that should be charged to the order maker
-exports.MAKER_FEE_ZRX_UNIT_AMOUNT = new _0x_js_1.BigNumber(0);
+exports.MAKER_FEE_ZRX_UNIT_AMOUNT = !_.isUndefined(process.env.MAKER_FEE_ZRX_UNIT_AMOUNT)
+    ? new _0x_js_1.BigNumber(process.env.MAKER_FEE_ZRX_UNIT_AMOUNT)
+    : new _0x_js_1.BigNumber(0);
 // A flat fee in ZRX that should be charged to the order taker
-exports.TAKER_FEE_ZRX_UNIT_AMOUNT = new _0x_js_1.BigNumber(0);
+exports.TAKER_FEE_ZRX_UNIT_AMOUNT = !_.isUndefined(process.env.TAKER_FEE_ZRX_UNIT_AMOUNT)
+    ? new _0x_js_1.BigNumber(process.env.TAKER_FEE_ZRX_UNIT_AMOUNT)
+    : new _0x_js_1.BigNumber(0);
 // Whitelisted token addresses. Set to a '*' instead of an array to allow all tokens.
 exports.WHITELISTED_TOKENS = [
     '0x2002d3812f58e35f0ea1ffbf80a75a38c32175fa',
