@@ -4,7 +4,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 const _0x_js_1 = require('0x.js');
 const _ = require('lodash');
 // Network port to listen on
-exports.HTTP_PORT = process.env.HTTP_PORT || 3000;
+exports.HTTP_PORT = !_.isUndefined(process.env.HTTP_PORT) ? process.env.HTTP_PORT : 3000;
 // A time window after which the order is considered permanently expired
 exports.ORDER_SHADOWING_MARGIN_MS = 100 * 1000; // tslint:disable-line custom-no-magic-numbers
 // Frequency of checks for permanently expired orders
@@ -31,6 +31,6 @@ exports.WHITELISTED_TOKENS = [
     '0xd0a1e359811322d97991e03f863a0c30c2cf029c',
 ];
 // Ethereum RPC url
-exports.RPC_URL = process.env.RPC_URL || 'https://kovan.infura.io/v3';
+exports.RPC_URL = !_.isUndefined(process.env.RPC_URL) ? process.env.RPC_URL : 'https://kovan.infura.io/v3';
 // Default ERC20 token precision
 exports.DEFAULT_ERC20_TOKEN_PRECISION = 18;
