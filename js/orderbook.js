@@ -33,6 +33,8 @@ exports.orderBook = {
             const now = Date.now();
             if (shadowedAt + config_1.ORDER_SHADOWING_MARGIN_MS < now) {
                 permanentlyExpiredOrders.push(orderHash);
+                shadowedOrders.delete(orderHash); // we need to remove this order so we don't keep shadowing it
+                orderWatcher.removeOrder(orderHash); // also remove from order watcher to avoid more callbacks
             }
         }
         if (!_.isEmpty(permanentlyExpiredOrders)) {
@@ -162,15 +164,13 @@ exports.orderBook = {
                 // makerAssetAddress
                 signedOrder =>
                     _.isUndefined(ordersFilterParams.makerAssetAddress) ||
-                    order_utils_1.assetDataUtils.decodeAssetDataOrThrow(signedOrder.makerAssetData).tokenAddress ===
-                        ordersFilterParams.makerAssetAddress,
+                    includesTokenAddress(signedOrder.makerAssetData, ordersFilterParams.makerAssetAddress),
             )
             .filter(
                 // takerAssetAddress
                 signedOrder =>
                     _.isUndefined(ordersFilterParams.takerAssetAddress) ||
-                    order_utils_1.assetDataUtils.decodeAssetDataOrThrow(signedOrder.takerAssetData).tokenAddress ===
-                        ordersFilterParams.takerAssetAddress,
+                    includesTokenAddress(signedOrder.takerAssetData, ordersFilterParams.takerAssetAddress),
             )
             .filter(
                 // makerAssetProxyId
@@ -203,6 +203,19 @@ exports.orderBook = {
             return { metaData: {}, order: deserializedOrder };
         }
     },
+};
+const includesTokenAddress = (assetData, tokenAddress) => {
+    const decodedAssetData = order_utils_1.assetDataUtils.decodeAssetDataOrThrow(assetData);
+    if (order_utils_1.assetDataUtils.isMultiAssetData(decodedAssetData)) {
+        for (const [, nestedAssetDataElement] of decodedAssetData.nestedAssetData.entries()) {
+            if (includesTokenAddress(nestedAssetDataElement, tokenAddress)) {
+                return true;
+            }
+        }
+        return false;
+    } else {
+        return decodedAssetData.tokenAddress === tokenAddress;
+    }
 };
 const deserializeOrder = signedOrderModel => {
     const signedOrder = {
