@@ -11,7 +11,7 @@ export const PERMANENT_CLEANUP_INTERVAL_MS = 10 * 1000; // tslint:disable-line c
 // Max number of entities per page
 export const MAX_PER_PAGE = 1000;
 // Default network id to use when not specified
-export const NETWORK_ID = !_.isUndefined(process.env.NETWORK_ID) ? parseInt(process.env.NETWORK_ID, 10) : 42;
+export const NETWORK_ID = !_.isUndefined(process.env.NETWORK_ID) ? _.parseInt(process.env.NETWORK_ID) : 42;
 // An array of fee recipients
 export const FEE_RECIPIENT = '0x0000000000000000000000000000000000000000';
 // A flat fee in ZRX that should be charged to the order maker
