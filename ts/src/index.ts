@@ -5,7 +5,7 @@ import * as express from 'express';
 import * as asyncHandler from 'express-async-handler';
 import 'reflect-metadata';
 
-import { HTTP_PORT } from './config';
+import * as config from './config';
 import { initDBConnectionAsync } from './db_connection';
 import { handlers } from './handlers';
 import { errorHandler } from './middleware/error_handling';
@@ -56,5 +56,13 @@ import { utils } from './utils';
 
     app.use(errorHandler);
 
-    app.listen(HTTP_PORT, () => utils.log(`Standard relayer API (HTTP) listening on port ${HTTP_PORT}!`));
+    app.listen(config.HTTP_PORT, () => {
+        utils.log(
+            `Standard relayer API (HTTP) listening on port ${config.HTTP_PORT}!\nConfig: ${JSON.stringify(
+                config,
+                null,
+                2,
+            )}`,
+        );
+    });
 })().catch(utils.log);

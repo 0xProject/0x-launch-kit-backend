@@ -55,13 +55,16 @@ typings/
 .yarn-integrity
 
 # dotenv environment variables file
-.env
+# .env
+
+# Generated metadata file
+# metadata.json
 
 # next.js build output
 .next
 
 # compiled ts sources
-typescript/lib
+ts/lib
 
 # sqlite DB
 database.sqlite
