@@ -8,6 +8,11 @@ const _ = require('lodash');
 const path = require('path');
 const metadataPath = path.join(__dirname, '../../metadata.json');
 const metadata = JSON.parse(fs.readFileSync(metadataPath).toString());
+// Whitelisted token addresses. Set to a '*' instead of an array to allow all tokens.
+exports.WHITELISTED_TOKENS = [
+    '0x2002d3812f58e35f0ea1ffbf80a75a38c32175fa',
+    '0xd0a1e359811322d97991e03f863a0c30c2cf029c',
+];
 // Network port to listen on
 exports.HTTP_PORT = !_.isEmpty(process.env.HTTP_PORT) ? _.parseInt(process.env.HTTP_PORT) : 3000;
 // A time window after which the order is considered permanently expired
@@ -28,11 +33,6 @@ exports.MAKER_FEE_ZRX_UNIT_AMOUNT = !_.isEmpty(process.env.MAKER_FEE_ZRX_UNIT_AM
 exports.TAKER_FEE_ZRX_UNIT_AMOUNT = !_.isEmpty(process.env.TAKER_FEE_ZRX_UNIT_AMOUNT)
     ? new _0x_js_1.BigNumber(_.parseInt(process.env.TAKER_FEE_ZRX_UNIT_AMOUNT))
     : new _0x_js_1.BigNumber(0);
-// Whitelisted token addresses. Set to a '*' instead of an array to allow all tokens.
-exports.WHITELISTED_TOKENS = [
-    '0x2002d3812f58e35f0ea1ffbf80a75a38c32175fa',
-    '0xd0a1e359811322d97991e03f863a0c30c2cf029c',
-];
 // Ethereum RPC url
 exports.RPC_URL = !_.isEmpty(process.env.RPC_URL) ? process.env.RPC_URL : 'https://kovan.infura.io/v3';
 // Default ERC20 token precision
