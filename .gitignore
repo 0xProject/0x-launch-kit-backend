@@ -1,3 +1,9 @@
+# dotenv environment variables file
+# .env
+
+# Generated metadata file
+# metadata.json
+
 # Logs
 logs
 *.log
@@ -53,12 +59,6 @@ typings/
 
 # Yarn Integrity file
 .yarn-integrity
-
-# dotenv environment variables file
-# .env
-
-# Generated metadata file
-# metadata.json
 
 # next.js build output
 .next

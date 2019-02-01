@@ -64,8 +64,9 @@ To develop ontop of `0x-launch-kit`, follow the following instructions:
 -   `TAKER_FEE_ZRX_UNIT_AMOUNT` -- (optional) The flat taker fee you'd like to receive for filled orders hosted by you.
 -   `RPC_URL` -- (optional) Update with your node url. NOTE: Kovan doesn't work on INFURA with the current version of the OrderWatcher
 
-4. Make sure you have [Yarn](https://yarnpkg.com/en/) installed.
-5. Install the dependencies
+4. Open `.gitignore` and uncomment `.env` and `metadata.json` lines.
+5. Make sure you have [Yarn](https://yarnpkg.com/en/) installed.
+6. Install the dependencies
 
 ```sh
 yarn
