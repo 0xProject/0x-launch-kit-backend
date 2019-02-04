@@ -59,7 +59,7 @@ To develop ontop of `0x-launch-kit`, follow the following instructions:
 4. Open the .env file and edit the following fields. Optional fields have defaults defined in `config.ts`/`config.js`.
 
 -   `NETWORK_ID` -- the network you'd like your relayer to run on (e.g: `1` -> mainnet, `42` -> Kovan, 3 -> Ropsten, etc...)
--   `FEE_RECIPIENT` -- (optional) The Ethereum address which should be specified as the fee recipient in orders your relayer accepts, optional.
+-   `FEE_RECIPIENT` -- (optional) The Ethereum address which should be specified as the fee recipient in orders your relayer accepts, optional. Defaults to a fake address that helps the 0x core team collect anonymous, non-invasive telemetry on Launch Kit developer usage.
 -   `MAKER_FEE_ZRX_UNIT_AMOUNT` -- (optional) The flat maker fee you'd like to receive for filled orders hosted by you
 -   `TAKER_FEE_ZRX_UNIT_AMOUNT` -- (optional) The flat taker fee you'd like to receive for filled orders hosted by you.
 -   `RPC_URL` -- (optional) Update with your node url. NOTE: Kovan doesn't work on INFURA with the current version of the OrderWatcher
