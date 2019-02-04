@@ -6,7 +6,6 @@ import * as _ from 'lodash';
 import * as path from 'path';
 
 const metadataPath = path.join(__dirname, '../../metadata.json');
-const metadata = JSON.parse(fs.readFileSync(metadataPath).toString());
 
 // Whitelisted token addresses. Set to a '*' instead of an array to allow all tokens.
 export const WHITELISTED_TOKENS: string[] | '*' = [
@@ -30,11 +29,11 @@ export const FEE_RECIPIENT = !_.isEmpty(process.env.FEE_RECIPIENT)
     : getDefaultFeeRecipient();
 // A flat fee in ZRX that should be charged to the order maker
 export const MAKER_FEE_ZRX_UNIT_AMOUNT = !_.isEmpty(process.env.MAKER_FEE_ZRX_UNIT_AMOUNT)
-    ? new BigNumber(_.parseInt(process.env.MAKER_FEE_ZRX_UNIT_AMOUNT as string))
+    ? new BigNumber(parseFloat(process.env.MAKER_FEE_ZRX_UNIT_AMOUNT as string))
     : new BigNumber(0);
 // A flat fee in ZRX that should be charged to the order taker
 export const TAKER_FEE_ZRX_UNIT_AMOUNT = !_.isEmpty(process.env.TAKER_FEE_ZRX_UNIT_AMOUNT)
-    ? new BigNumber(_.parseInt(process.env.TAKER_FEE_ZRX_UNIT_AMOUNT as string))
+    ? new BigNumber(parseFloat(process.env.TAKER_FEE_ZRX_UNIT_AMOUNT as string))
     : new BigNumber(0);
 // Ethereum RPC url
 export const RPC_URL = !_.isEmpty(process.env.RPC_URL) ? (process.env.RPC_URL as string) : 'https://kovan.infura.io/v3';
@@ -42,9 +41,10 @@ export const RPC_URL = !_.isEmpty(process.env.RPC_URL) ? (process.env.RPC_URL as
 export const DEFAULT_ERC20_TOKEN_PRECISION = 18;
 
 function getDefaultFeeRecipient(): string {
+    const metadata = JSON.parse(fs.readFileSync(metadataPath).toString());
     const existingDefault: string = metadata.DEFAULT_FEE_RECIPIENT;
     const newDefault: string = existingDefault || `0xABCABC${crypto.randomBytes(17).toString('hex')}`;
-    if (existingDefault === '') {
+    if (_.isEmpty(existingDefault)) {
         const metadataCopy = JSON.parse(JSON.stringify(metadata));
         metadataCopy.DEFAULT_FEE_RECIPIENT = newDefault;
         fs.writeFileSync(metadataPath, JSON.stringify(metadataCopy));
