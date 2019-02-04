@@ -51,51 +51,54 @@ Note: If you also wish to build and use the Docker image, please update the comm
 To develop ontop of `0x-launch-kit`, follow the following instructions:
 
 1. Fork this repository
+
 2. Clone your fork of this repository
+
 3. Open the `config.ts`/`config.js` file (depending on the language you've chosen above) and edit the whitelisted tokens:
 
--   `WHITELISTED_TOKENS` -- Which tokens you would like to host orderbooks for.
+    - `WHITELISTED_TOKENS` -- Which tokens you would like to host orderbooks for.
 
 4. Open the `.env` file and edit the following fields. Defaults are defined in `config.ts`/`config.js`. The bash environment takes precedence over the `.env` file. If you run `source .env`, changes to the `.env` file will have no effect until you unset the colliding variables.
 
--   `NETWORK_ID` -- the network you'd like your relayer to run on (e.g: `1` -> mainnet, `42` -> Kovan, 3 -> Ropsten, etc...)
--   `FEE_RECIPIENT` -- The Ethereum address which should be specified as the fee recipient in orders your relayer accepts. Defaults to a fake address that helps the 0x core team collect anonymous, non-invasive telemetry on Launch Kit developer usage.
--   `MAKER_FEE_ZRX_UNIT_AMOUNT` -- The flat maker fee you'd like to receive for filled orders hosted by you
--   `TAKER_FEE_ZRX_UNIT_AMOUNT` -- The flat taker fee you'd like to receive for filled orders hosted by you.
--   `RPC_URL` -- Update with your node url. NOTE: Kovan doesn't work on INFURA with the current version of the OrderWatcher
+    - `NETWORK_ID` -- the network you'd like your relayer to run on (e.g: `1` -> mainnet, `42` -> Kovan, 3 -> Ropsten, etc...)
+    - `FEE_RECIPIENT` -- The Ethereum address which should be specified as the fee recipient in orders your relayer accepts. Defaults to a fake address that helps the 0x core team use anonymous, already public data to understand Launch Kit developer usage.
+    - `MAKER_FEE_ZRX_UNIT_AMOUNT` -- The flat maker fee you'd like to receive for filled orders hosted by you
+    - `TAKER_FEE_ZRX_UNIT_AMOUNT` -- The flat taker fee you'd like to receive for filled orders hosted by you.
+    - `RPC_URL` -- Update with your node url. NOTE: Kovan doesn't work on INFURA with the current version of the OrderWatcher
 
 5. Make sure you have [Yarn](https://yarnpkg.com/en/) installed.
-6. Install the dependencies
 
-```sh
-yarn
-```
+6. Install the dependencies:
 
-6. Build the project [This step is for Typescript users only]
+    ```sh
+    yarn
+    ```
 
-```sh
-yarn build:ts
-```
+7. Build the project [This step is for Typescript users only]
 
-or build & watch:
+    ```sh
+    yarn build:ts
+    ```
 
-```sh
-yarn watch:ts
-```
+    or build & watch:
 
-**Note:** There isn't currently a build step when working on the Javascript codebase because we assume `0x-launch-kit` will be running on Node.js > v8.0. If you want this project to work in an environment that doesn't support many of the latest Javascript features, you will need to add a transpiler (e.g [Babel](https://babeljs.io/)) to this project.
+    ```sh
+    yarn watch:ts
+    ```
 
-7.  Start the relayer
+    **Note:** There isn't currently a build step when working on the Javascript codebase because we assume `0x-launch-kit` will be running on Node.js > v8.0. If you want this project to work in an environment that doesn't support many of the latest Javascript features, you will need to add a transpiler (e.g [Babel](https://babeljs.io/)) to this project.
 
-```sh
-yarn start:ts
-```
+8. Start the relayer
 
-OR
+    ```sh
+    yarn start:ts
+    ```
 
-```sh
-yarn start:js
-```
+    OR
+
+    ```sh
+    yarn start:js
+    ```
 
 ## Client for your relayer's API
 

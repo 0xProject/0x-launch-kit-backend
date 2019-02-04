@@ -54,24 +54,26 @@ exports.MAX_PER_PAGE = 1000;
 // Default ERC20 token precision
 exports.DEFAULT_ERC20_TOKEN_PRECISION = 18;
 function assertEnvVarType(name, value, expectedType) {
+    let returnValue;
     switch (expectedType) {
         case EnvVarType.Port:
             try {
-                const isWithinRange = parseInt(value, 10) >= 0 && parseInt(value, 10) <= 65535;
+                returnValue = parseInt(value, 10);
+                const isWithinRange = returnValue >= 0 && returnValue <= 65535;
                 if (!isWithinRange) {
                     throw new Error();
                 }
             } catch (err) {
                 throw new Error(`${name} must be between 0 to 65535, found ${value}.`);
             }
-            return parseInt(value, 10);
+            return returnValue;
         case EnvVarType.NetworkId:
             try {
-                parseInt(value, 10);
+                returnValue = parseInt(value, 10);
             } catch (err) {
                 throw new Error(`${name} must be a valid integer, found ${value}.`);
             }
-            return parseInt(value, 10);
+            return returnValue;
         case EnvVarType.FeeRecipient:
             assert_1.assert.isETHAddressHex(name, value);
             return value;
@@ -80,13 +82,14 @@ function assertEnvVarType(name, value, expectedType) {
             return value;
         case EnvVarType.UnitAmount:
             try {
-                if (new _0x_js_1.BigNumber(parseFloat(value)).isNegative) {
+                returnValue = new _0x_js_1.BigNumber(parseFloat(value));
+                if (returnValue.isNegative) {
                     throw new Error();
                 }
             } catch (err) {
                 throw new Error(`${name} must be valid number greater than 0.`);
             }
-            return new _0x_js_1.BigNumber(parseFloat(value));
+            return returnValue;
         default:
             throw new Error(`Unrecognised EnvVarType: ${expectedType} encountered for variable ${name}.`);
     }
