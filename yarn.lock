@@ -64,6 +64,7 @@
 "@0x/assert@^1.0.23":
   version "1.0.23"
   resolved "https://registry.yarnpkg.com/@0x/assert/-/assert-1.0.23.tgz#2f663efae9b0ba2a00f2d5821b7a767f87058d3d"
+  integrity sha512-0Y4R97o+GgCydQUMXbDpHyI0S5ix2Vm0eeNQTD2SSqPIXhJf4eykXCnfDLz9R8wODz51ry9oi3cOMQ2ShONN7Q==
   dependencies:
     "@0x/json-schemas" "^2.1.7"
     "@0x/typescript-typings" "^3.0.8"
@@ -629,6 +630,13 @@
   resolved "https://registry.yarnpkg.com/@types/cors/-/cors-2.8.4.tgz#50991a759a29c0b89492751008c6af7a7c8267b0"
   dependencies:
     "@types/express" "*"
+
+"@types/dotenv@^6.1.0":
+  version "6.1.0"
+  resolved "https://registry.yarnpkg.com/@types/dotenv/-/dotenv-6.1.0.tgz#fba2bfd1f28a46eadaa049f3313ebb89bdedfc53"
+  integrity sha512-gmbNb7V1LbJQA4MmH0hVFgqY1cyKsa6RvKC1Xrq0WBnZ0JuuvXKciXx/s8dN0LVXCJd8xO6wIaSFSyUIoGph9g==
+  dependencies:
+    "@types/node" "*"
 
 "@types/eth-lightwallet@^3.0.0":
   version "3.0.0"
@@ -2415,6 +2423,11 @@ dom-walk@^0.1.0:
 dotenv@^5.0.1:
   version "5.0.1"
   resolved "http://registry.npmjs.org/dotenv/-/dotenv-5.0.1.tgz#a5317459bd3d79ab88cff6e44057a6a3fbb1fcef"
+
+dotenv@^6.2.0:
+  version "6.2.0"
+  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-6.2.0.tgz#941c0410535d942c8becf28d3f357dbd9d476064"
+  integrity sha512-HygQCKUBSFl8wKQZBSemMywRWcEDNidvNbjGVyZu3nbZ8qq9ubiPoGLMdRDpfSrpkkm9BXYFkpKxxFX38o/76w==
 
 drbg.js@^1.0.1:
   version "1.0.1"

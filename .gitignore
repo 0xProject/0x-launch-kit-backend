@@ -1,3 +1,9 @@
+# dotenv environment variables file
+.env
+
+# Generated metadata file
+metadata.json
+
 # Logs
 logs
 *.log
@@ -54,14 +60,11 @@ typings/
 # Yarn Integrity file
 .yarn-integrity
 
-# dotenv environment variables file
-.env
-
 # next.js build output
 .next
 
 # compiled ts sources
-typescript/lib
+ts/lib
 
 # sqlite DB
 database.sqlite
