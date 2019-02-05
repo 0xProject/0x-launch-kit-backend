@@ -34,6 +34,9 @@ const parsePaginationConfig = (req: express.Request): { page: number; perPage: n
 };
 
 export const handlers = {
+    initOrderbook: async () => {
+        await orderBook.addExistingOrdersToOrderWatcherAsync();
+    },
     assetPairsAsync: async (req: express.Request, res: express.Response) => {
         utils.validateSchema(req.query, schemas.assetPairsRequestOptsSchema);
         const { page, perPage } = parsePaginationConfig(req);

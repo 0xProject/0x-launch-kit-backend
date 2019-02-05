@@ -224,6 +224,16 @@ export const orderBook = {
             return { metaData: {}, order: deserializedOrder };
         }
     },
+    addExistingOrdersToOrderWatcherAsync: async () => {
+        const connection = getDBConnection();
+        const signedOrderModels = (await connection.manager.find(SignedOrderModel)) as Array<
+            Required<SignedOrderModel>
+        >;
+        const signedOrders = signedOrderModels.map(deserializeOrder);
+        for (const signedOrder of signedOrders) {
+            await orderWatcher.addOrderAsync(signedOrder);
+        }
+    },
 };
 
 const includesTokenAddress = (assetData: string, tokenAddress: string): boolean => {
@@ -281,6 +291,7 @@ const serializeOrder = (signedOrder: SignedOrder): SignedOrderModel => {
     return signedOrderModel;
 };
 
+console.log('start orderwatcher');
 const provider = new Web3ProviderEngine();
 provider.addProvider(new RPCSubprovider(RPC_URL));
 provider.start();

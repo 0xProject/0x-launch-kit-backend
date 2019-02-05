@@ -14,6 +14,7 @@ import { utils } from './utils';
 
 (async () => {
     await initDBConnectionAsync();
+    await handlers.initOrderbook();
     const app = express();
     app.use(cors());
     app.use(bodyParser.json());
