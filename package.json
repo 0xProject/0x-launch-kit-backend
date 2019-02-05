@@ -1,6 +1,6 @@
 {
     "name": "0x-launch-kit",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "Template 0x relayer",
     "repository": "git@github.com:0xProject/0x-launch-kit.git",
     "author": "Leonid Logvinov <logvinov.leon@gmail.com>",
