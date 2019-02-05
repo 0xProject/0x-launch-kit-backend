@@ -99,7 +99,7 @@ function assertEnvVarType(name: string, value: any, expectedType: EnvVarType): a
 function getDefaultFeeRecipient(): string {
     const metadata = JSON.parse(fs.readFileSync(metadataPath).toString());
     const existingDefault: string = metadata.DEFAULT_FEE_RECIPIENT;
-    const newDefault: string = existingDefault || `0xABCABC${crypto.randomBytes(17).toString('hex')}`;
+    const newDefault: string = existingDefault || `0xabcabc${crypto.randomBytes(17).toString('hex')}`;
     if (_.isEmpty(existingDefault)) {
         const metadataCopy = JSON.parse(JSON.stringify(metadata));
         metadataCopy.DEFAULT_FEE_RECIPIENT = newDefault;
