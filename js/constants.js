@@ -1,6 +1,6 @@
-'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
-const _0x_js_1 = require('0x.js');
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const _0x_js_1 = require("0x.js");
 exports.NULL_ADDRESS = '0x0000000000000000000000000000000000000000';
 exports.ZRX_DECIMALS = 18;
 exports.DEFAULT_PAGE = 1;
