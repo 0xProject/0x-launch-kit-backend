@@ -43,7 +43,7 @@ export const TAKER_FEE_ZRX_UNIT_AMOUNT = _.isEmpty(process.env.TAKER_FEE_ZRX_UNI
     : assertEnvVarType('TAKER_FEE_ZRX_UNIT_AMOUNT', process.env.TAKER_FEE_ZRX_UNIT_AMOUNT, EnvVarType.UnitAmount);
 // Ethereum RPC url
 export const RPC_URL = _.isEmpty(process.env.RPC_URL)
-    ? 'https://kovan.infura.io/v3'
+    ? 'https://kovan.infura.io/v3/e2c067d9717e492091d1f1d7a2ec55aa'
     : assertEnvVarType('RPC_URL', process.env.RPC_URL, EnvVarType.Url);
 
 // A time window after which the order is considered permanently expired
@@ -99,7 +99,7 @@ function assertEnvVarType(name: string, value: any, expectedType: EnvVarType): a
 function getDefaultFeeRecipient(): string {
     const metadata = JSON.parse(fs.readFileSync(metadataPath).toString());
     const existingDefault: string = metadata.DEFAULT_FEE_RECIPIENT;
-    const newDefault: string = existingDefault || `0xABCABC${crypto.randomBytes(17).toString('hex')}`;
+    const newDefault: string = existingDefault || `0xabcabc${crypto.randomBytes(17).toString('hex')}`;
     if (_.isEmpty(existingDefault)) {
         const metadataCopy = JSON.parse(JSON.stringify(metadata));
         metadataCopy.DEFAULT_FEE_RECIPIENT = newDefault;
