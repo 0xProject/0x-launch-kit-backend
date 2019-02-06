@@ -50,7 +50,6 @@ export class OrderBook {
         );
     }
     public onOrderStateChangeCallback(err: Error | null, orderState?: OrderState) {
-        console.log('orderState', orderState);
         if (!_.isNull(err)) {
             utils.log(err);
         } else {
