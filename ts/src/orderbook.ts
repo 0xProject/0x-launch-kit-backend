@@ -27,17 +27,17 @@ import { SignedOrderModel } from './models/SignedOrderModel';
 import { paginate } from './paginator';
 import { utils } from './utils';
 
-// Mapping from an order hash to the timestamp when it was shadowed
-const shadowedOrders: Map<string, number> = new Map();
-
 export class OrderBook {
     private _orderWatcher: OrderWatcher;
     private _contractWrappers: ContractWrappers;
+    // Mapping from an order hash to the timestamp when it was shadowed
+    private _shadowedOrders: Map<string, number>;
     constructor() {
         const provider = new Web3ProviderEngine();
         provider.addProvider(new RPCSubprovider(RPC_URL));
         provider.start();
 
+        this._shadowedOrders = new Map();
         this._contractWrappers = new ContractWrappers(provider, {
             networkId: NETWORK_ID,
         });
@@ -55,19 +55,19 @@ export class OrderBook {
         } else {
             const state = orderState as OrderState;
             if (!state.isValid) {
-                shadowedOrders.set(state.orderHash, Date.now());
+                this._shadowedOrders.set(state.orderHash, Date.now());
             } else {
-                shadowedOrders.delete(state.orderHash);
+                this._shadowedOrders.delete(state.orderHash);
             }
         }
     }
     public async onCleanUpInvalidOrdersAsync() {
         const permanentlyExpiredOrders: string[] = [];
-        for (const [orderHash, shadowedAt] of shadowedOrders) {
+        for (const [orderHash, shadowedAt] of this._shadowedOrders) {
             const now = Date.now();
             if (shadowedAt + ORDER_SHADOWING_MARGIN_MS < now) {
                 permanentlyExpiredOrders.push(orderHash);
-                shadowedOrders.delete(orderHash); // we need to remove this order so we don't keep shadowing it
+                this._shadowedOrders.delete(orderHash); // we need to remove this order so we don't keep shadowing it
                 this._orderWatcher.removeOrder(orderHash); // also remove from order watcher to avoid more callbacks
             }
         }
@@ -166,11 +166,11 @@ export class OrderBook {
         })) as Array<Required<SignedOrderModel>>;
         const bidApiOrders: APIOrder[] = bidSignedOrderModels
             .map(deserializeOrder)
-            .filter(order => !shadowedOrders.has(orderHashUtils.getOrderHashHex(order)))
+            .filter(order => !this._shadowedOrders.has(orderHashUtils.getOrderHashHex(order)))
             .map(signedOrder => ({ metaData: {}, order: signedOrder }));
         const askApiOrders: APIOrder[] = askSignedOrderModels
             .map(deserializeOrder)
-            .filter(order => !shadowedOrders.has(orderHashUtils.getOrderHashHex(order)))
+            .filter(order => !this._shadowedOrders.has(orderHashUtils.getOrderHashHex(order)))
             .map(signedOrder => ({ metaData: {}, order: signedOrder }));
         const paginatedBidApiOrders = paginate(bidApiOrders, page, perPage);
         const paginatedAskApiOrders = paginate(askApiOrders, page, perPage);
@@ -203,7 +203,7 @@ export class OrderBook {
         let signedOrders = _.map(signedOrderModels, deserializeOrder);
         // Post-filters
         signedOrders = signedOrders
-            .filter(order => !shadowedOrders.has(orderHashUtils.getOrderHashHex(order)))
+            .filter(order => !this._shadowedOrders.has(orderHashUtils.getOrderHashHex(order)))
             .filter(
                 // traderAddress
                 signedOrder =>
