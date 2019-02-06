@@ -67,4 +67,5 @@ export enum ValidationErrorCodes {
     ValueOutOfRange = 1004,
     InvalidSignatureOrHash = 1005,
     UnsupportedOption = 1006,
+    InvalidOrder = 1007,
 }

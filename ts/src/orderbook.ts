@@ -1,4 +1,12 @@
-import { assetDataUtils, BigNumber, orderHashUtils, RPCSubprovider, SignedOrder, Web3ProviderEngine } from '0x.js';
+import {
+    assetDataUtils,
+    BigNumber,
+    orderHashUtils,
+    RPCSubprovider,
+    SignedOrder,
+    Web3ProviderEngine,
+    ContractWrappers,
+} from '0x.js';
 import { APIOrder, OrderbookResponse, PaginatedCollection } from '@0x/connect';
 import { OrderState, OrderWatcher } from '@0x/order-watcher';
 import { Asset, AssetPairsItem, AssetProxyId, OrdersRequestOpts } from '@0x/types';
@@ -22,8 +30,27 @@ import { utils } from './utils';
 // Mapping from an order hash to the timestamp when it was shadowed
 const shadowedOrders: Map<string, number> = new Map();
 
-export const orderBook = {
-    onOrderStateChangeCallback: (err: Error | null, orderState?: OrderState) => {
+export class OrderBook {
+    private _orderWatcher: OrderWatcher;
+    private _contractWrappers: ContractWrappers;
+    constructor() {
+        const provider = new Web3ProviderEngine();
+        provider.addProvider(new RPCSubprovider(RPC_URL));
+        provider.start();
+
+        this._contractWrappers = new ContractWrappers(provider, {
+            networkId: NETWORK_ID,
+        });
+        this._orderWatcher = new OrderWatcher(provider, NETWORK_ID);
+        this._orderWatcher.subscribe(this.onOrderStateChangeCallback);
+        intervalUtils.setAsyncExcludingInterval(
+            this.onCleanUpInvalidOrdersAsync.bind(this),
+            PERMANENT_CLEANUP_INTERVAL_MS,
+            utils.log,
+        );
+    }
+    public onOrderStateChangeCallback(err: Error | null, orderState?: OrderState) {
+        console.log('orderState', orderState);
         if (!_.isNull(err)) {
             utils.log(err);
         } else {
@@ -34,34 +61,35 @@ export const orderBook = {
                 shadowedOrders.delete(state.orderHash);
             }
         }
-    },
-    onCleanUpInvalidOrdersAsync: async () => {
+    }
+    public async onCleanUpInvalidOrdersAsync() {
         const permanentlyExpiredOrders: string[] = [];
         for (const [orderHash, shadowedAt] of shadowedOrders) {
             const now = Date.now();
             if (shadowedAt + ORDER_SHADOWING_MARGIN_MS < now) {
                 permanentlyExpiredOrders.push(orderHash);
                 shadowedOrders.delete(orderHash); // we need to remove this order so we don't keep shadowing it
-                orderWatcher.removeOrder(orderHash); // also remove from order watcher to avoid more callbacks
+                this._orderWatcher.removeOrder(orderHash); // also remove from order watcher to avoid more callbacks
             }
         }
         if (!_.isEmpty(permanentlyExpiredOrders)) {
             const connection = getDBConnection();
             await connection.manager.delete(SignedOrderModel, permanentlyExpiredOrders);
         }
-    },
-    addOrderAsync: async (signedOrder: SignedOrder) => {
-        await orderWatcher.addOrderAsync(signedOrder);
-        const signedOrderModel = serializeOrder(signedOrder);
+    }
+    public async addOrderAsync(signedOrder: SignedOrder) {
         const connection = getDBConnection();
+        await this._contractWrappers.exchange.validateOrderFillableOrThrowAsync(signedOrder);
+        await this._orderWatcher.addOrderAsync(signedOrder);
+        const signedOrderModel = serializeOrder(signedOrder);
         await connection.manager.save(signedOrderModel);
-    },
-    getAssetPairsAsync: async (
+    }
+    public async getAssetPairsAsync(
         page: number,
         perPage: number,
         assetDataA: string,
         assetDataB: string,
-    ): Promise<PaginatedCollection<AssetPairsItem>> => {
+    ): Promise<PaginatedCollection<AssetPairsItem>> {
         const connection = getDBConnection();
         const signedOrderModels = (await connection.manager.find(SignedOrderModel)) as Array<
             Required<SignedOrderModel>
@@ -123,13 +151,13 @@ export const orderBook = {
         const uniqueNonPaginatedFilteredAssetPairs = _.uniqWith(nonPaginatedFilteredAssetPairs, _.isEqual.bind(_));
         const paginatedFilteredAssetPairs = paginate(uniqueNonPaginatedFilteredAssetPairs, page, perPage);
         return paginatedFilteredAssetPairs;
-    },
-    getOrderBookAsync: async (
+    }
+    public async getOrderBookAsync(
         page: number,
         perPage: number,
         baseAssetData: string,
         quoteAssetData: string,
-    ): Promise<OrderbookResponse> => {
+    ): Promise<OrderbookResponse> {
         const connection = getDBConnection();
         const bidSignedOrderModels = (await connection.manager.find(SignedOrderModel, {
             where: { takerAssetData: baseAssetData, makerAssetData: quoteAssetData },
@@ -151,13 +179,13 @@ export const orderBook = {
             bids: paginatedBidApiOrders,
             asks: paginatedAskApiOrders,
         };
-    },
+    }
     // TODO:(leo) Do all filtering and pagination in a DB (requires stored procedures or redundant fields)
-    getOrdersAsync: async (
+    public async getOrdersAsync(
         page: number,
         perPage: number,
         ordersFilterParams: OrdersRequestOpts,
-    ): Promise<PaginatedCollection<APIOrder>> => {
+    ): Promise<PaginatedCollection<APIOrder>> {
         const connection = getDBConnection();
         // Pre-filters
         const filterObjectWithValuesIfExist: Partial<SignedOrder> = {
@@ -213,8 +241,8 @@ export const orderBook = {
         const apiOrders: APIOrder[] = signedOrders.map(signedOrder => ({ metaData: {}, order: signedOrder }));
         const paginatedApiOrders = paginate(apiOrders, page, perPage);
         return paginatedApiOrders;
-    },
-    getOrderByHashIfExistsAsync: async (orderHash: string): Promise<APIOrder | undefined> => {
+    }
+    public async getOrderByHashIfExistsAsync(orderHash: string): Promise<APIOrder | undefined> {
         const connection = getDBConnection();
         const signedOrderModelIfExists = await connection.manager.findOne(SignedOrderModel, orderHash);
         if (_.isUndefined(signedOrderModelIfExists)) {
@@ -223,18 +251,24 @@ export const orderBook = {
             const deserializedOrder = deserializeOrder(signedOrderModelIfExists as Required<SignedOrderModel>);
             return { metaData: {}, order: deserializedOrder };
         }
-    },
-    addExistingOrdersToOrderWatcherAsync: async () => {
+    }
+    public async addExistingOrdersToOrderWatcherAsync() {
         const connection = getDBConnection();
         const signedOrderModels = (await connection.manager.find(SignedOrderModel)) as Array<
             Required<SignedOrderModel>
         >;
         const signedOrders = signedOrderModels.map(deserializeOrder);
         for (const signedOrder of signedOrders) {
-            await orderWatcher.addOrderAsync(signedOrder);
+            try {
+                await this._contractWrappers.exchange.validateOrderFillableOrThrowAsync(signedOrder);
+                await this._orderWatcher.addOrderAsync(signedOrder);
+            } catch (err) {
+                const orderHash = orderHashUtils.getOrderHashHex(signedOrder);
+                await connection.manager.delete(SignedOrderModel, orderHash);
+            }
         }
-    },
-};
+    }
+}
 
 const includesTokenAddress = (assetData: string, tokenAddress: string): boolean => {
     const decodedAssetData = assetDataUtils.decodeAssetDataOrThrow(assetData);
@@ -290,15 +324,3 @@ const serializeOrder = (signedOrder: SignedOrder): SignedOrderModel => {
     });
     return signedOrderModel;
 };
-
-console.log('start orderwatcher');
-const provider = new Web3ProviderEngine();
-provider.addProvider(new RPCSubprovider(RPC_URL));
-provider.start();
-const orderWatcher = new OrderWatcher(provider, NETWORK_ID);
-orderWatcher.subscribe(orderBook.onOrderStateChangeCallback);
-intervalUtils.setAsyncExcludingInterval(
-    orderBook.onCleanUpInvalidOrdersAsync.bind(orderBook),
-    PERMANENT_CLEANUP_INTERVAL_MS,
-    utils.log,
-);
