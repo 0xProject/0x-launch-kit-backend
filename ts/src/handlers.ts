@@ -34,7 +34,7 @@ const parsePaginationConfig = (req: express.Request): { page: number; perPage: n
 };
 
 export class Handlers {
-    private _orderBook: OrderBook;
+    private readonly _orderBook: OrderBook;
     public static feeRecipients(req: express.Request, res: express.Response): void {
         const { page, perPage } = parsePaginationConfig(req);
         const normalizedFeeRecipient = FEE_RECIPIENT.toLowerCase();

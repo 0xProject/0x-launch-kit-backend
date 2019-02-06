@@ -40,12 +40,12 @@ import { utils } from './utils';
      * POST Order config endpoint retrives the values for order fields that the relayer requires.
      * http://sra-spec.s3-website-us-east-1.amazonaws.com/#operation/getOrderConfig
      */
-    app.post('/v2/order_config', Handlers.orderConfig);
+    app.post('/v2/order_config', Handlers.orderConfig.bind(Handlers));
     /**
      * GET FeeRecepients endpoint retrieves a collection of all fee recipient addresses for a relayer.
      * http://sra-spec.s3-website-us-east-1.amazonaws.com/v2/fee_recipients
      */
-    app.get('/v2/fee_recipients', Handlers.feeRecipients);
+    app.get('/v2/fee_recipients', Handlers.feeRecipients.bind(Handlers));
     /**
      * POST Order endpoint submits an order to the Relayer.
      * http://sra-spec.s3-website-us-east-1.amazonaws.com/#operation/postOrder
