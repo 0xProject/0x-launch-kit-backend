@@ -25,7 +25,7 @@ import { utils } from './utils';
      * GET AssetPairs endpoint retrieves a list of available asset pairs and the information required to trade them.
      * http://sra-spec.s3-website-us-east-1.amazonaws.com/#operation/getAssetPairs
      */
-    app.get('/v2/asset_pairs', asyncHandler(handlers.assetPairsAsync.bind(handlers)));
+    app.get('/v2/asset_pairs', asyncHandler(Handlers.assetPairsAsync.bind(Handlers)));
     /**
      * GET Orders endpoint retrieves a list of orders given query parameters.
      * http://sra-spec.s3-website-us-east-1.amazonaws.com/#operation/getOrders
@@ -55,7 +55,7 @@ import { utils } from './utils';
      * GET Order endpoint retrieves the order by order hash.
      * http://sra-spec.s3-website-us-east-1.amazonaws.com/#operation/getOrder
      */
-    app.get('/v2/order/:orderHash', asyncHandler(handlers.getOrderByHashAsync.bind(handlers)));
+    app.get('/v2/order/:orderHash', asyncHandler(Handlers.getOrderByHashAsync.bind(Handlers)));
 
     app.use(errorHandler);
 

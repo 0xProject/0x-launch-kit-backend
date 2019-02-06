@@ -53,22 +53,30 @@ export class Handlers {
         };
         res.status(HttpStatus.OK).send(orderConfigResponse);
     }
-    constructor() {
-        this._orderBook = new OrderBook();
-    }
-    public async initOrderBookAsync(): Promise<void> {
-        await this._orderBook.addExistingOrdersToOrderWatcherAsync();
-    }
-    public async assetPairsAsync(req: express.Request, res: express.Response): Promise<void> {
+    public static async assetPairsAsync(req: express.Request, res: express.Response): Promise<void> {
         utils.validateSchema(req.query, schemas.assetPairsRequestOptsSchema);
         const { page, perPage } = parsePaginationConfig(req);
-        const assetPairs = await this._orderBook.getAssetPairsAsync(
+        const assetPairs = await OrderBook.getAssetPairsAsync(
             page,
             perPage,
             req.query.assetDataA,
             req.query.assetDataB,
         );
         res.status(HttpStatus.OK).send(assetPairs);
+    }
+    public static async getOrderByHashAsync(req: express.Request, res: express.Response): Promise<void> {
+        const orderIfExists = await OrderBook.getOrderByHashIfExistsAsync(req.params.orderHash);
+        if (_.isUndefined(orderIfExists)) {
+            throw new NotFoundError();
+        } else {
+            res.status(HttpStatus.OK).send(orderIfExists);
+        }
+    }
+    constructor() {
+        this._orderBook = new OrderBook();
+    }
+    public async initOrderBookAsync(): Promise<void> {
+        await this._orderBook.addExistingOrdersToOrderWatcherAsync();
     }
     public async ordersAsync(req: express.Request, res: express.Response): Promise<void> {
         utils.validateSchema(req.query, schemas.ordersRequestOptsSchema);
@@ -104,14 +112,6 @@ export class Handlers {
             ]);
         }
         res.status(HttpStatus.OK).send();
-    }
-    public async getOrderByHashAsync(req: express.Request, res: express.Response): Promise<void> {
-        const orderIfExists = await this._orderBook.getOrderByHashIfExistsAsync(req.params.orderHash);
-        if (_.isUndefined(orderIfExists)) {
-            throw new NotFoundError();
-        } else {
-            res.status(HttpStatus.OK).send(orderIfExists);
-        }
     }
 }
 
