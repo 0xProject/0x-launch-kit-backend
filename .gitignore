@@ -68,3 +68,5 @@ ts/lib
 
 # sqlite DB
 database.sqlite
+
+TODO.txt
