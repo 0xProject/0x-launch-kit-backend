@@ -43,7 +43,7 @@ export const TAKER_FEE_ZRX_UNIT_AMOUNT = _.isEmpty(process.env.TAKER_FEE_ZRX_UNI
     : assertEnvVarType('TAKER_FEE_ZRX_UNIT_AMOUNT', process.env.TAKER_FEE_ZRX_UNIT_AMOUNT, EnvVarType.UnitAmount);
 // Ethereum RPC url
 export const RPC_URL = _.isEmpty(process.env.RPC_URL)
-    ? 'https://kovan.infura.io/v3'
+    ? 'https://mainnet.infura.io/v3/e2c067d9717e492091d1f1d7a2ec55aa'
     : assertEnvVarType('RPC_URL', process.env.RPC_URL, EnvVarType.Url);
 
 // A time window after which the order is considered permanently expired
