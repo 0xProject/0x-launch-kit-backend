@@ -85,7 +85,7 @@ function assertEnvVarType(name: string, value: any, expectedType: EnvVarType): a
         case EnvVarType.UnitAmount:
             try {
                 returnValue = new BigNumber(parseFloat(value));
-                if (returnValue.isNegative) {
+                if (returnValue.isNegative()) {
                     throw new Error();
                 }
             } catch (err) {
