@@ -98,13 +98,16 @@ function assertEnvVarType(name, value, expectedType) {
     }
 }
 function getDefaultFeeRecipient() {
-    const metadata = JSON.parse(fs.readFileSync(metadataPath).toString());
-    const existingDefault = metadata.DEFAULT_FEE_RECIPIENT;
-    const newDefault = existingDefault || `0xabcabc${crypto.randomBytes(17).toString('hex')}`;
-    if (_.isEmpty(existingDefault)) {
-        const metadataCopy = JSON.parse(JSON.stringify(metadata));
-        metadataCopy.DEFAULT_FEE_RECIPIENT = newDefault;
-        fs.writeFileSync(metadataPath, JSON.stringify(metadataCopy));
+    let newDefault = `0xabcabc${crypto.randomBytes(17).toString('hex')}`;
+    if (fs.existsSync(metadataPath)) {
+        const metadata = JSON.parse(fs.readFileSync(metadataPath).toString());
+        const existingDefault = metadata.DEFAULT_FEE_RECIPIENT;
+        newDefault = existingDefault || newDefault;
+        if (_.isEmpty(existingDefault)) {
+            const metadataCopy = JSON.parse(JSON.stringify(metadata));
+            metadataCopy.DEFAULT_FEE_RECIPIENT = newDefault;
+            fs.writeFileSync(metadataPath, JSON.stringify(metadataCopy));
+        }
     }
     return newDefault;
 }
