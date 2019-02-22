@@ -1,3 +1,6 @@
+# Webstorm config folder
+.idea
+
 # dotenv environment variables file
 .env
 

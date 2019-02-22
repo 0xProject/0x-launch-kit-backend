@@ -1,17 +1,17 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const _0x_js_1 = require("0x.js");
-const json_schemas_1 = require("@0x/json-schemas");
-const web3_wrapper_1 = require("@0x/web3-wrapper");
-const HttpStatus = require("http-status-codes");
-const _ = require("lodash");
-const config_1 = require("./config");
-const constants_1 = require("./constants");
-const errors_1 = require("./errors");
-const orderbook_1 = require("./orderbook");
-const paginator_1 = require("./paginator");
-const utils_1 = require("./utils");
-const parsePaginationConfig = (req) => {
+'use strict';
+Object.defineProperty(exports, '__esModule', { value: true });
+const _0x_js_1 = require('0x.js');
+const json_schemas_1 = require('@0x/json-schemas');
+const web3_wrapper_1 = require('@0x/web3-wrapper');
+const HttpStatus = require('http-status-codes');
+const _ = require('lodash');
+const config_1 = require('./config');
+const constants_1 = require('./constants');
+const errors_1 = require('./errors');
+const orderbook_1 = require('./orderbook');
+const paginator_1 = require('./paginator');
+const utils_1 = require('./utils');
+const parsePaginationConfig = req => {
     const page = _.isUndefined(req.query.page) ? constants_1.DEFAULT_PAGE : Number(req.query.page);
     const perPage = _.isUndefined(req.query.perPage) ? constants_1.DEFAULT_PER_PAGE : Number(req.query.perPage);
     if (perPage > config_1.MAX_PER_PAGE) {
@@ -39,23 +39,33 @@ class Handlers {
         const orderConfigResponse = {
             senderAddress: constants_1.NULL_ADDRESS,
             feeRecipientAddress: normalizedFeeRecipient,
-            makerFee: web3_wrapper_1.Web3Wrapper.toBaseUnitAmount(config_1.MAKER_FEE_ZRX_UNIT_AMOUNT, constants_1.ZRX_DECIMALS).toString(),
-            takerFee: web3_wrapper_1.Web3Wrapper.toBaseUnitAmount(config_1.TAKER_FEE_ZRX_UNIT_AMOUNT, constants_1.ZRX_DECIMALS).toString(),
+            makerFee: web3_wrapper_1.Web3Wrapper.toBaseUnitAmount(
+                config_1.MAKER_FEE_ZRX_UNIT_AMOUNT,
+                constants_1.ZRX_DECIMALS,
+            ).toString(),
+            takerFee: web3_wrapper_1.Web3Wrapper.toBaseUnitAmount(
+                config_1.TAKER_FEE_ZRX_UNIT_AMOUNT,
+                constants_1.ZRX_DECIMALS,
+            ).toString(),
         };
         res.status(HttpStatus.OK).send(orderConfigResponse);
     }
     static async assetPairsAsync(req, res) {
         utils_1.utils.validateSchema(req.query, json_schemas_1.schemas.assetPairsRequestOptsSchema);
         const { page, perPage } = parsePaginationConfig(req);
-        const assetPairs = await orderbook_1.OrderBook.getAssetPairsAsync(page, perPage, req.query.assetDataA, req.query.assetDataB);
+        const assetPairs = await orderbook_1.OrderBook.getAssetPairsAsync(
+            page,
+            perPage,
+            req.query.assetDataA,
+            req.query.assetDataB,
+        );
         res.status(HttpStatus.OK).send(assetPairs);
     }
     static async getOrderByHashAsync(req, res) {
         const orderIfExists = await orderbook_1.OrderBook.getOrderByHashIfExistsAsync(req.params.orderHash);
         if (_.isUndefined(orderIfExists)) {
             throw new errors_1.NotFoundError();
-        }
-        else {
+        } else {
             res.status(HttpStatus.OK).send(orderIfExists);
         }
     }
@@ -89,8 +99,7 @@ class Handlers {
         }
         try {
             await this._orderBook.addOrderAsync(signedOrder);
-        }
-        catch (err) {
+        } catch (err) {
             throw new errors_1.ValidationError([
                 {
                     field: 'signedOrder',
@@ -109,8 +118,7 @@ function validateAssetDataIsWhitelistedOrThrow(allowedTokens, assetData, field) 
         for (const [, nestedAssetDataElement] of decodedAssetData.nestedAssetData.entries()) {
             validateAssetDataIsWhitelistedOrThrow(allowedTokens, nestedAssetDataElement, field);
         }
-    }
-    else {
+    } else {
         if (!_.includes(allowedTokens, decodedAssetData.tokenAddress)) {
             throw new errors_1.ValidationError([
                 {
