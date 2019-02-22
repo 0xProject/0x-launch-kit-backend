@@ -9,7 +9,7 @@
         "prettier": "yarn prettier:js && yarn prettier:ts",
         "build": "yarn build:ts && shx rm -rf js && shx cp -r ts/lib/ js",
         "prettier:js": "prettier --write 'js/**/*.js' --config .prettierrc",
-        "start:js": "node -r dotenv/config js/lib/index.js",
+        "start:js": "node -r dotenv/config js/index.js",
         "build:ts": "tsc -p ts/tsconfig.json",
         "watch:ts": "tsc -w -p ts/tsconfig.json",
         "prettier:ts": "prettier --write 'ts/**/*.ts' --config .prettierrc",
