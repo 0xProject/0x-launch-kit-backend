@@ -6,6 +6,7 @@ import * as _ from 'lodash';
 import * as path from 'path';
 
 import { assert } from '@0x/assert';
+import { getContractAddressesForNetworkOrThrow, NetworkId } from '@0x/contract-addresses';
 
 const metadataPath = path.join(__dirname, '../../metadata.json');
 enum EnvVarType {
@@ -16,10 +17,12 @@ enum EnvVarType {
     Url,
 }
 // Whitelisted token addresses. Set to a '*' instead of an array to allow all tokens.
-export const WHITELISTED_TOKENS: string[] | '*' = [
-    '0x2002d3812f58e35f0ea1ffbf80a75a38c32175fa', // ZRX on Kovan
-    '0xd0a1e359811322d97991e03f863a0c30c2cf029c', // WETH on Kovan
-];
+export const WHITELISTED_TOKENS: string[] | '*' = new Array<string>()
+    .concat(Object.values(getContractAddressesForNetworkOrThrow(NetworkId.Mainnet)))
+    .concat(Object.values(getContractAddressesForNetworkOrThrow(NetworkId.Ropsten)))
+    .concat(Object.values(getContractAddressesForNetworkOrThrow(NetworkId.Rinkeby)))
+    .concat(Object.values(getContractAddressesForNetworkOrThrow(NetworkId.Kovan)))
+    .concat(Object.values(getContractAddressesForNetworkOrThrow(NetworkId.Ganache)));
 
 // Network port to listen on
 export const HTTP_PORT = _.isEmpty(process.env.HTTP_PORT)
