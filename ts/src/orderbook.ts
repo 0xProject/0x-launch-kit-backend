@@ -278,7 +278,7 @@ const compareAskOrder = (orderA: SignedOrder, orderB: SignedOrder): number => {
         return orderAPrice.comparedTo(orderBPrice);
     }
 
-    return compareOrder(orderA, orderB);
+    return compareOrderByFeeRatio(orderA, orderB);
 };
 
 const compareBidOrder = (orderA: SignedOrder, orderB: SignedOrder): number => {
@@ -288,10 +288,10 @@ const compareBidOrder = (orderA: SignedOrder, orderB: SignedOrder): number => {
         return orderBPrice.comparedTo(orderAPrice);
     }
 
-    return compareOrder(orderA, orderB);
+    return compareOrderByFeeRatio(orderA, orderB);
 };
 
-const compareOrder = (orderA: SignedOrder, orderB: SignedOrder): number => {
+const compareOrderByFeeRatio = (orderA: SignedOrder, orderB: SignedOrder): number => {
     const orderAFeePrice = orderA.takerFee.div(orderA.takerAssetAmount);
     const orderBFeePrice = orderB.takerFee.div(orderB.takerAssetAmount);
     if (!orderAFeePrice.isEqualTo(orderBFeePrice)) {
