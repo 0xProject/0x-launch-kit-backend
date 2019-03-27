@@ -177,10 +177,12 @@ export class OrderBook {
         const bidApiOrders: APIOrder[] = bidSignedOrderModels
             .map(deserializeOrder)
             .filter(order => !this._shadowedOrders.has(orderHashUtils.getOrderHashHex(order)))
+            .sort((orderA, orderB) => compareBidOrder(orderA, orderB))
             .map(signedOrder => ({ metaData: {}, order: signedOrder }));
         const askApiOrders: APIOrder[] = askSignedOrderModels
             .map(deserializeOrder)
             .filter(order => !this._shadowedOrders.has(orderHashUtils.getOrderHashHex(order)))
+            .sort((orderA, orderB) => compareAskOrder(orderA, orderB))
             .map(signedOrder => ({ metaData: {}, order: signedOrder }));
         const paginatedBidApiOrders = paginate(bidApiOrders, page, perPage);
         const paginatedAskApiOrders = paginate(askApiOrders, page, perPage);
@@ -268,6 +270,36 @@ export class OrderBook {
         }
     }
 }
+
+const compareAskOrder = (orderA: SignedOrder, orderB: SignedOrder): number => {
+    const orderAPrice = orderA.takerAssetAmount.div(orderA.makerAssetAmount);
+    const orderBPrice = orderB.takerAssetAmount.div(orderB.makerAssetAmount);
+    if (!orderAPrice.isEqualTo(orderBPrice)) {
+        return orderAPrice.comparedTo(orderBPrice);
+    }
+
+    return compareOrderByFeeRatio(orderA, orderB);
+};
+
+const compareBidOrder = (orderA: SignedOrder, orderB: SignedOrder): number => {
+    const orderAPrice = orderA.makerAssetAmount.div(orderA.takerAssetAmount);
+    const orderBPrice = orderB.makerAssetAmount.div(orderB.takerAssetAmount);
+    if (!orderAPrice.isEqualTo(orderBPrice)) {
+        return orderBPrice.comparedTo(orderAPrice);
+    }
+
+    return compareOrderByFeeRatio(orderA, orderB);
+};
+
+const compareOrderByFeeRatio = (orderA: SignedOrder, orderB: SignedOrder): number => {
+    const orderAFeePrice = orderA.takerFee.div(orderA.takerAssetAmount);
+    const orderBFeePrice = orderB.takerFee.div(orderB.takerAssetAmount);
+    if (!orderAFeePrice.isEqualTo(orderBFeePrice)) {
+        return orderBFeePrice.comparedTo(orderAFeePrice);
+    }
+
+    return orderA.expirationTimeSeconds.comparedTo(orderB.expirationTimeSeconds);
+};
 
 const includesTokenAddress = (assetData: string, tokenAddress: string): boolean => {
     const decodedAssetData = assetDataUtils.decodeAssetDataOrThrow(assetData);
