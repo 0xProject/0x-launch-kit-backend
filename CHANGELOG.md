@@ -1,5 +1,10 @@
 CHANGELOG
 
+## v0.1.0 - _March 27, 2019_
+
+    * Add the sorting of bids/asks for the GET /v2/orderbook endpoint as stated in the SRA v2:
+      https://github.com/0xProject/standard-relayer-api/blob/master/http/v2.md#get-v2orderbook
+
 ## v0.0.2 - _February 5, 2019_
 
     * Fix bug where orders in DB weren't being added to OrderWatcher on re-start

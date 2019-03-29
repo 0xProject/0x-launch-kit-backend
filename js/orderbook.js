@@ -147,10 +147,12 @@ class OrderBook {
         const bidApiOrders = bidSignedOrderModels
             .map(deserializeOrder)
             .filter(order => !this._shadowedOrders.has(_0x_js_1.orderHashUtils.getOrderHashHex(order)))
+            .sort((orderA, orderB) => compareBidOrder(orderA, orderB))
             .map(signedOrder => ({ metaData: {}, order: signedOrder }));
         const askApiOrders = askSignedOrderModels
             .map(deserializeOrder)
             .filter(order => !this._shadowedOrders.has(_0x_js_1.orderHashUtils.getOrderHashHex(order)))
+            .sort((orderA, orderB) => compareAskOrder(orderA, orderB))
             .map(signedOrder => ({ metaData: {}, order: signedOrder }));
         const paginatedBidApiOrders = paginator_1.paginate(bidApiOrders, page, perPage);
         const paginatedAskApiOrders = paginator_1.paginate(askApiOrders, page, perPage);
@@ -233,6 +235,30 @@ class OrderBook {
     }
 }
 exports.OrderBook = OrderBook;
+const compareAskOrder = (orderA, orderB) => {
+    const orderAPrice = orderA.takerAssetAmount.div(orderA.makerAssetAmount);
+    const orderBPrice = orderB.takerAssetAmount.div(orderB.makerAssetAmount);
+    if (!orderAPrice.isEqualTo(orderBPrice)) {
+        return orderAPrice.comparedTo(orderBPrice);
+    }
+    return compareOrder(orderA, orderB);
+};
+const compareBidOrder = (orderA, orderB) => {
+    const orderAPrice = orderA.makerAssetAmount.div(orderA.takerAssetAmount);
+    const orderBPrice = orderB.makerAssetAmount.div(orderB.takerAssetAmount);
+    if (!orderAPrice.isEqualTo(orderBPrice)) {
+        return orderBPrice.comparedTo(orderAPrice);
+    }
+    return compareOrder(orderA, orderB);
+};
+const compareOrder = (orderA, orderB) => {
+    const orderAFeePrice = orderA.takerFee.div(orderA.takerAssetAmount);
+    const orderBFeePrice = orderB.takerFee.div(orderB.takerAssetAmount);
+    if (!orderAFeePrice.isEqualTo(orderBFeePrice)) {
+        return orderBFeePrice.comparedTo(orderAFeePrice);
+    }
+    return orderA.expirationTimeSeconds.comparedTo(orderB.expirationTimeSeconds);
+};
 const includesTokenAddress = (assetData, tokenAddress) => {
     const decodedAssetData = _0x_js_1.assetDataUtils.decodeAssetDataOrThrow(assetData);
     if (_0x_js_1.assetDataUtils.isMultiAssetData(decodedAssetData)) {
