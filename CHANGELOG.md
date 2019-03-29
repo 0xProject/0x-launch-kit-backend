@@ -1,5 +1,9 @@
 CHANGELOG
 
+## v0.1.1 - _March 29, 2019_
+
+    * Add support for environment variable WHITELIST_ALL_TOKENS.  If set (to any value), the whitelist will be set to '*'.
+
 ## v0.1.0 - _March 27, 2019_
 
     * Add the sorting of bids/asks for the GET /v2/orderbook endpoint as stated in the SRA v2:
