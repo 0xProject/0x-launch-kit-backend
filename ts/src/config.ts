@@ -1,11 +1,10 @@
 // tslint:disable:custom-no-magic-numbers
 import { BigNumber } from '0x.js';
+import { assert } from '@0x/assert';
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as _ from 'lodash';
 import * as path from 'path';
-
-import { assert } from '@0x/assert';
 
 const metadataPath = path.join(__dirname, '../../metadata.json');
 enum EnvVarType {

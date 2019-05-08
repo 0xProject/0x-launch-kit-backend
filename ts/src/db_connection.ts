@@ -7,7 +7,7 @@ let connectionIfExists: Connection | undefined;
  * Returns the DB connnection
  */
 export function getDBConnection(): Connection {
-    if (_.isUndefined(connectionIfExists)) {
+    if (connectionIfExists === undefined) {
         throw new Error('DB connection not initialized');
     }
     return connectionIfExists;
@@ -17,7 +17,7 @@ export function getDBConnection(): Connection {
  * Creates the DB connnection to use in an app
  */
 export async function initDBConnectionAsync(): Promise<void> {
-    if (!_.isUndefined(connectionIfExists)) {
+    if (connectionIfExists !== undefined) {
         throw new Error('DB connection already exists');
     }
     connectionIfExists = await createConnection();

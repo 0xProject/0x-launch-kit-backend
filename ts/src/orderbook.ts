@@ -21,7 +21,6 @@ import {
     RPC_URL,
 } from './config';
 import { MAX_TOKEN_SUPPLY_POSSIBLE } from './constants';
-
 import { getDBConnection } from './db_connection';
 import { SignedOrderModel } from './models/SignedOrderModel';
 import { paginate } from './paginator';
@@ -35,7 +34,7 @@ export class OrderBook {
     public static async getOrderByHashIfExistsAsync(orderHash: string): Promise<APIOrder | undefined> {
         const connection = getDBConnection();
         const signedOrderModelIfExists = await connection.manager.findOne(SignedOrderModel, orderHash);
-        if (_.isUndefined(signedOrderModelIfExists)) {
+        if (signedOrderModelIfExists === undefined) {
             return undefined;
         } else {
             const deserializedOrder = deserializeOrder(signedOrderModelIfExists as Required<SignedOrderModel>);
@@ -93,9 +92,9 @@ export class OrderBook {
         };
         const assetPairsItems: AssetPairsItem[] = signedOrderModels.map(deserializeOrder).map(signedOrderToAssetPair);
         let nonPaginatedFilteredAssetPairs: AssetPairsItem[];
-        if (_.isUndefined(assetDataA) && _.isUndefined(assetDataB)) {
+        if (assetDataA === undefined && assetDataB === undefined) {
             nonPaginatedFilteredAssetPairs = assetPairsItems;
-        } else if (!_.isUndefined(assetDataA) && !_.isUndefined(assetDataB)) {
+        } else if (assetDataA !== undefined && assetDataB !== undefined) {
             const containsAssetDataAAndAssetDataB = (assetPair: AssetPairsItem) =>
                 (assetPair.assetDataA.assetData === assetDataA && assetPair.assetDataB.assetData === assetDataB) ||
                 (assetPair.assetDataA.assetData === assetDataB && assetPair.assetDataB.assetData === assetDataA);
@@ -128,7 +127,7 @@ export class OrderBook {
         );
     }
     public onOrderStateChangeCallback(err: Error | null, orderState?: OrderState): void {
-        if (!_.isNull(err)) {
+        if (err !== null) {
             utils.log(err);
         } else {
             const state = orderState as OrderState;
@@ -219,33 +218,33 @@ export class OrderBook {
             .filter(
                 // traderAddress
                 signedOrder =>
-                    _.isUndefined(ordersFilterParams.traderAddress) ||
+                    ordersFilterParams.traderAddress === undefined ||
                     signedOrder.makerAddress === ordersFilterParams.traderAddress ||
                     signedOrder.takerAddress === ordersFilterParams.traderAddress,
             )
             .filter(
                 // makerAssetAddress
                 signedOrder =>
-                    _.isUndefined(ordersFilterParams.makerAssetAddress) ||
+                    ordersFilterParams.makerAssetAddress === undefined ||
                     includesTokenAddress(signedOrder.makerAssetData, ordersFilterParams.makerAssetAddress),
             )
             .filter(
                 // takerAssetAddress
                 signedOrder =>
-                    _.isUndefined(ordersFilterParams.takerAssetAddress) ||
+                    ordersFilterParams.takerAssetAddress === undefined ||
                     includesTokenAddress(signedOrder.takerAssetData, ordersFilterParams.takerAssetAddress),
             )
             .filter(
                 // makerAssetProxyId
                 signedOrder =>
-                    _.isUndefined(ordersFilterParams.makerAssetProxyId) ||
+                    ordersFilterParams.makerAssetProxyId === undefined ||
                     assetDataUtils.decodeAssetDataOrThrow(signedOrder.makerAssetData).assetProxyId ===
                         ordersFilterParams.makerAssetProxyId,
             )
             .filter(
                 // makerAssetProxyId
                 signedOrder =>
-                    _.isUndefined(ordersFilterParams.takerAssetProxyId) ||
+                    ordersFilterParams.takerAssetProxyId === undefined ||
                     assetDataUtils.decodeAssetDataOrThrow(signedOrder.takerAssetData).assetProxyId ===
                         ordersFilterParams.takerAssetProxyId,
             );

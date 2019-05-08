@@ -19,8 +19,8 @@ import { paginate } from './paginator';
 import { utils } from './utils';
 
 const parsePaginationConfig = (req: express.Request): { page: number; perPage: number } => {
-    const page = _.isUndefined(req.query.page) ? DEFAULT_PAGE : Number(req.query.page);
-    const perPage = _.isUndefined(req.query.perPage) ? DEFAULT_PER_PAGE : Number(req.query.perPage);
+    const page = req.query.page === undefined ? DEFAULT_PAGE : Number(req.query.page);
+    const perPage = req.query.perPage === undefined ? DEFAULT_PER_PAGE : Number(req.query.perPage);
     if (perPage > MAX_PER_PAGE) {
         throw new ValidationError([
             {
@@ -66,7 +66,7 @@ export class Handlers {
     }
     public static async getOrderByHashAsync(req: express.Request, res: express.Response): Promise<void> {
         const orderIfExists = await OrderBook.getOrderByHashIfExistsAsync(req.params.orderHash);
-        if (_.isUndefined(orderIfExists)) {
+        if (orderIfExists === undefined) {
             throw new NotFoundError();
         } else {
             res.status(HttpStatus.OK).send(orderIfExists);
