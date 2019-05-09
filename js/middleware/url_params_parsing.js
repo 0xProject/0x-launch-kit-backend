@@ -14,7 +14,7 @@ function urlParamsParsing(req, _res, next) {
 }
 exports.urlParamsParsing = urlParamsParsing;
 function parseNetworkId(networkIdStrIfExists) {
-    if (_.isUndefined(networkIdStrIfExists)) {
+    if (networkIdStrIfExists === undefined) {
         return config_1.NETWORK_ID;
     } else {
         const networkId = _.parseInt(networkIdStrIfExists);

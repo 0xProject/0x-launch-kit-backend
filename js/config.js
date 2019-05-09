@@ -2,11 +2,11 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 // tslint:disable:custom-no-magic-numbers
 const _0x_js_1 = require('0x.js');
+const assert_1 = require('@0x/assert');
 const crypto = require('crypto');
 const fs = require('fs');
 const _ = require('lodash');
 const path = require('path');
-const assert_1 = require('@0x/assert');
 const metadataPath = path.join(__dirname, '../../metadata.json');
 var EnvVarType;
 (function(EnvVarType) {
@@ -15,12 +15,12 @@ var EnvVarType;
     EnvVarType[(EnvVarType['FeeRecipient'] = 2)] = 'FeeRecipient';
     EnvVarType[(EnvVarType['UnitAmount'] = 3)] = 'UnitAmount';
     EnvVarType[(EnvVarType['Url'] = 4)] = 'Url';
+    EnvVarType[(EnvVarType['WhitelistAllTokens'] = 5)] = 'WhitelistAllTokens';
 })(EnvVarType || (EnvVarType = {}));
 // Whitelisted token addresses. Set to a '*' instead of an array to allow all tokens.
-exports.WHITELISTED_TOKENS = [
-    '0x2002d3812f58e35f0ea1ffbf80a75a38c32175fa',
-    '0xd0a1e359811322d97991e03f863a0c30c2cf029c',
-];
+exports.WHITELISTED_TOKENS = _.isEmpty(process.env.WHITELIST_ALL_TOKENS)
+    ? ['0x2002d3812f58e35f0ea1ffbf80a75a38c32175fa', '0xd0a1e359811322d97991e03f863a0c30c2cf029c']
+    : assertEnvVarType('WHILTELIST_ALL_TOKENS', process.env.WHITELIST_ALL_TOKENS, EnvVarType.WhitelistAllTokens);
 // Network port to listen on
 exports.HTTP_PORT = _.isEmpty(process.env.HTTP_PORT)
     ? 3000
@@ -90,6 +90,8 @@ function assertEnvVarType(name, value, expectedType) {
                 throw new Error(`${name} must be valid number greater than 0.`);
             }
             return returnValue;
+        case EnvVarType.WhitelistAllTokens:
+            return '*';
         default:
             throw new Error(`Unrecognised EnvVarType: ${expectedType} encountered for variable ${name}.`);
     }
