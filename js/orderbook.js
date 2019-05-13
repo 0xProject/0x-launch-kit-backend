@@ -18,7 +18,7 @@ class OrderBook {
             SignedOrderModel_1.SignedOrderModel,
             orderHash,
         );
-        if (_.isUndefined(signedOrderModelIfExists)) {
+        if (signedOrderModelIfExists === undefined) {
             return undefined;
         } else {
             const deserializedOrder = deserializeOrder(signedOrderModelIfExists);
@@ -69,9 +69,9 @@ class OrderBook {
         };
         const assetPairsItems = signedOrderModels.map(deserializeOrder).map(signedOrderToAssetPair);
         let nonPaginatedFilteredAssetPairs;
-        if (_.isUndefined(assetDataA) && _.isUndefined(assetDataB)) {
+        if (assetDataA === undefined && assetDataB === undefined) {
             nonPaginatedFilteredAssetPairs = assetPairsItems;
-        } else if (!_.isUndefined(assetDataA) && !_.isUndefined(assetDataB)) {
+        } else if (assetDataA !== undefined && assetDataB !== undefined) {
             const containsAssetDataAAndAssetDataB = assetPair =>
                 (assetPair.assetDataA.assetData === assetDataA && assetPair.assetDataB.assetData === assetDataB) ||
                 (assetPair.assetDataA.assetData === assetDataB && assetPair.assetDataB.assetData === assetDataA);
@@ -103,7 +103,7 @@ class OrderBook {
         );
     }
     onOrderStateChangeCallback(err, orderState) {
-        if (!_.isNull(err)) {
+        if (err !== null) {
             utils_2.utils.log(err);
         } else {
             const state = orderState;
@@ -185,33 +185,33 @@ class OrderBook {
             .filter(
                 // traderAddress
                 signedOrder =>
-                    _.isUndefined(ordersFilterParams.traderAddress) ||
+                    ordersFilterParams.traderAddress === undefined ||
                     signedOrder.makerAddress === ordersFilterParams.traderAddress ||
                     signedOrder.takerAddress === ordersFilterParams.traderAddress,
             )
             .filter(
                 // makerAssetAddress
                 signedOrder =>
-                    _.isUndefined(ordersFilterParams.makerAssetAddress) ||
+                    ordersFilterParams.makerAssetAddress === undefined ||
                     includesTokenAddress(signedOrder.makerAssetData, ordersFilterParams.makerAssetAddress),
             )
             .filter(
                 // takerAssetAddress
                 signedOrder =>
-                    _.isUndefined(ordersFilterParams.takerAssetAddress) ||
+                    ordersFilterParams.takerAssetAddress === undefined ||
                     includesTokenAddress(signedOrder.takerAssetData, ordersFilterParams.takerAssetAddress),
             )
             .filter(
                 // makerAssetProxyId
                 signedOrder =>
-                    _.isUndefined(ordersFilterParams.makerAssetProxyId) ||
+                    ordersFilterParams.makerAssetProxyId === undefined ||
                     _0x_js_1.assetDataUtils.decodeAssetDataOrThrow(signedOrder.makerAssetData).assetProxyId ===
                         ordersFilterParams.makerAssetProxyId,
             )
             .filter(
                 // makerAssetProxyId
                 signedOrder =>
-                    _.isUndefined(ordersFilterParams.takerAssetProxyId) ||
+                    ordersFilterParams.takerAssetProxyId === undefined ||
                     _0x_js_1.assetDataUtils.decodeAssetDataOrThrow(signedOrder.takerAssetData).assetProxyId ===
                         ordersFilterParams.takerAssetProxyId,
             );
@@ -241,7 +241,7 @@ const compareAskOrder = (orderA, orderB) => {
     if (!orderAPrice.isEqualTo(orderBPrice)) {
         return orderAPrice.comparedTo(orderBPrice);
     }
-    return compareOrder(orderA, orderB);
+    return compareOrderByFeeRatio(orderA, orderB);
 };
 const compareBidOrder = (orderA, orderB) => {
     const orderAPrice = orderA.makerAssetAmount.div(orderA.takerAssetAmount);
@@ -249,9 +249,9 @@ const compareBidOrder = (orderA, orderB) => {
     if (!orderAPrice.isEqualTo(orderBPrice)) {
         return orderBPrice.comparedTo(orderAPrice);
     }
-    return compareOrder(orderA, orderB);
+    return compareOrderByFeeRatio(orderA, orderB);
 };
-const compareOrder = (orderA, orderB) => {
+const compareOrderByFeeRatio = (orderA, orderB) => {
     const orderAFeePrice = orderA.takerFee.div(orderA.takerAssetAmount);
     const orderBFeePrice = orderB.takerFee.div(orderB.takerAssetAmount);
     if (!orderAFeePrice.isEqualTo(orderBFeePrice)) {
