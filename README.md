@@ -65,6 +65,9 @@ To develop ontop of `0x-launch-kit`, follow the following instructions:
     - `MAKER_FEE_ZRX_UNIT_AMOUNT` -- The flat maker fee you'd like to receive for filled orders hosted by you
     - `TAKER_FEE_ZRX_UNIT_AMOUNT` -- The flat taker fee you'd like to receive for filled orders hosted by you.
     - `RPC_URL` -- Update with your node url. NOTE: Kovan doesn't work on INFURA with the current version of the OrderWatcher
+    
+    
+[Instructions for using Launch Kit with Ganache](https://hackmd.io/-rC79gYWRyG7h6M9jUf5qA)
 
 5. Make sure you have [Yarn](https://yarnpkg.com/en/) installed.
 
