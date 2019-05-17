@@ -15,6 +15,7 @@ import * as _ from 'lodash';
 
 import {
     DEFAULT_ERC20_TOKEN_PRECISION,
+    DEFAULT_TAKER_SIMULATION_ADDRESS,
     NETWORK_ID,
     ORDER_SHADOWING_MARGIN_MS,
     PERMANENT_CLEANUP_INTERVAL_MS,
@@ -155,7 +156,11 @@ export class OrderBook {
     }
     public async addOrderAsync(signedOrder: SignedOrder): Promise<void> {
         const connection = getDBConnection();
-        await this._contractWrappers.exchange.validateOrderFillableOrThrowAsync(signedOrder);
+        // Validate transfers to a non 0 default address. Some tokens cannot be transferred to
+        // the null address (default)
+        await this._contractWrappers.exchange.validateOrderFillableOrThrowAsync(signedOrder, {
+            simulationTakerAddress: DEFAULT_TAKER_SIMULATION_ADDRESS,
+        });
         await this._orderWatcher.addOrderAsync(signedOrder);
         const signedOrderModel = serializeOrder(signedOrder);
         await connection.manager.save(signedOrderModel);

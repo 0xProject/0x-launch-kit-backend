@@ -131,7 +131,11 @@ class OrderBook {
     }
     async addOrderAsync(signedOrder) {
         const connection = db_connection_1.getDBConnection();
-        await this._contractWrappers.exchange.validateOrderFillableOrThrowAsync(signedOrder);
+        // Validate transfers to a non 0 default address. Some tokens cannot be transferred to
+        // the null address (default)
+        await this._contractWrappers.exchange.validateOrderFillableOrThrowAsync(signedOrder, {
+            simulationTakerAddress: config_1.DEFAULT_TAKER_SIMULATION_ADDRESS,
+        });
         await this._orderWatcher.addOrderAsync(signedOrder);
         const signedOrderModel = serializeOrder(signedOrder);
         await connection.manager.save(signedOrderModel);
