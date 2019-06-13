@@ -72,25 +72,25 @@ export class Handlers {
             res.status(HttpStatus.OK).send(orderIfExists);
         }
     }
+    public static async orderbookAsync(req: express.Request, res: express.Response): Promise<void> {
+        utils.validateSchema(req.query, schemas.orderBookRequestSchema);
+        const { page, perPage } = parsePaginationConfig(req);
+        const baseAssetData = req.query.baseAssetData;
+        const quoteAssetData = req.query.quoteAssetData;
+        const orderbookResponse = await OrderBook.getOrderBookAsync(page, perPage, baseAssetData, quoteAssetData);
+        res.status(HttpStatus.OK).send(orderbookResponse);
+    }
+    public static async ordersAsync(req: express.Request, res: express.Response): Promise<void> {
+        utils.validateSchema(req.query, schemas.ordersRequestOptsSchema);
+        const { page, perPage } = parsePaginationConfig(req);
+        const paginatedOrders = await OrderBook.getOrdersAsync(page, perPage, req.query);
+        res.status(HttpStatus.OK).send(paginatedOrders);
+    }
     constructor() {
         this._orderBook = new OrderBook();
     }
     public async initOrderBookAsync(): Promise<void> {
         await this._orderBook.addExistingOrdersToOrderWatcherAsync();
-    }
-    public async ordersAsync(req: express.Request, res: express.Response): Promise<void> {
-        utils.validateSchema(req.query, schemas.ordersRequestOptsSchema);
-        const { page, perPage } = parsePaginationConfig(req);
-        const paginatedOrders = await this._orderBook.getOrdersAsync(page, perPage, req.query);
-        res.status(HttpStatus.OK).send(paginatedOrders);
-    }
-    public async orderbookAsync(req: express.Request, res: express.Response): Promise<void> {
-        utils.validateSchema(req.query, schemas.orderBookRequestSchema);
-        const { page, perPage } = parsePaginationConfig(req);
-        const baseAssetData = req.query.baseAssetData;
-        const quoteAssetData = req.query.quoteAssetData;
-        const orderbookResponse = await this._orderBook.getOrderBookAsync(page, perPage, baseAssetData, quoteAssetData);
-        res.status(HttpStatus.OK).send(orderbookResponse);
     }
     public async postOrderAsync(req: express.Request, res: express.Response): Promise<void> {
         utils.validateSchema(req.body, schemas.signedOrderSchema);

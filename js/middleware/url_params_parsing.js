@@ -1,8 +1,8 @@
-'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
-const _ = require('lodash');
-const config_1 = require('../config');
-const errors_1 = require('../errors');
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const _ = require("lodash");
+const config_1 = require("../config");
+const errors_1 = require("../errors");
 /**
  * Parses URL params and stores them on the request object
  */
@@ -16,7 +16,8 @@ exports.urlParamsParsing = urlParamsParsing;
 function parseNetworkId(networkIdStrIfExists) {
     if (networkIdStrIfExists === undefined) {
         return config_1.NETWORK_ID;
-    } else {
+    }
+    else {
         const networkId = _.parseInt(networkIdStrIfExists);
         if (networkId !== config_1.NETWORK_ID) {
             const validationErrorItem = {

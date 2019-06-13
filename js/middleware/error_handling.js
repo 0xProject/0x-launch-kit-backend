@@ -1,7 +1,7 @@
-'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
-const HttpStatus = require('http-status-codes');
-const errors_1 = require('../errors');
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const HttpStatus = require("http-status-codes");
+const errors_1 = require("../errors");
 /**
  * Catches errors thrown by our code and serialies them
  */
@@ -25,7 +25,8 @@ function errorHandler(err, _req, res, next) {
                 };
                 res.status(relayerError.statusCode).send(errorBody);
                 return;
-            } else if (badRequestError.generalErrorCode === errors_1.GeneralErrorCodes.MalformedJson) {
+            }
+            else if (badRequestError.generalErrorCode === errors_1.GeneralErrorCodes.MalformedJson) {
                 const errorBody = {
                     code: badRequestError.generalErrorCode,
                     reason: errors_1.generalErrorCodeToReason[badRequestError.generalErrorCode],
@@ -33,14 +34,16 @@ function errorHandler(err, _req, res, next) {
                 res.status(relayerError.statusCode).send(errorBody);
                 return;
             }
-        } else {
+        }
+        else {
             const errorBody = {
                 reason: HttpStatus.getStatusText(relayerError.statusCode),
             };
             res.status(relayerError.statusCode).send(errorBody);
             return;
         }
-    } else {
+    }
+    else {
         return next(err);
     }
 }

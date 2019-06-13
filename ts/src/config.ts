@@ -48,13 +48,6 @@ export const RPC_URL = _.isEmpty(process.env.RPC_URL)
     ? 'https://kovan.infura.io/v3/e2c067d9717e492091d1f1d7a2ec55aa'
     : assertEnvVarType('RPC_URL', process.env.RPC_URL, EnvVarType.Url);
 
-// Address used when simulating transfers from the maker as part of 0x order validation
-export const DEFAULT_TAKER_SIMULATION_ADDRESS = '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
-
-// A time window after which the order is considered permanently expired
-export const ORDER_SHADOWING_MARGIN_MS = 100 * 1000; // tslint:disable-line custom-no-magic-numbers
-// Frequency of checks for permanently expired orders
-export const PERMANENT_CLEANUP_INTERVAL_MS = 10 * 1000; // tslint:disable-line custom-no-magic-numbers
 // Max number of entities per page
 export const MAX_PER_PAGE = 1000;
 // Default ERC20 token precision

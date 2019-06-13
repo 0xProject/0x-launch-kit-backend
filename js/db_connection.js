@@ -1,6 +1,6 @@
-'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
-const typeorm_1 = require('typeorm');
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const typeorm_1 = require("typeorm");
 let connectionIfExists;
 /**
  * Returns the DB connnection
