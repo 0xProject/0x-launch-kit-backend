@@ -70,6 +70,6 @@ typings/
 ts/lib
 
 # sqlite DB
-database.sqlite
+db/database.sqlite
 
 TODO.txt
