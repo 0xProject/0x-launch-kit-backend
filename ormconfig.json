@@ -1,6 +1,6 @@
 {
     "type": "sqlite",
-    "database": "database.sqlite",
+    "database": "db/database.sqlite",
     "synchronize": true,
     "logging": true,
     "entities": ["ts/lib/entity/**/*.js", "js/entity/**/*.js"],
