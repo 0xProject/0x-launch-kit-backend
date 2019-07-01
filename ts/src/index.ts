@@ -16,6 +16,7 @@ import { utils } from './utils';
     await initDBConnectionAsync();
     const handlers = new Handlers();
     await handlers.initOrderBookAsync();
+    console.log('Done initing orderboook');
     const app = express();
     app.use(cors());
     app.use(bodyParser.json());
@@ -30,12 +31,12 @@ import { utils } from './utils';
      * GET Orders endpoint retrieves a list of orders given query parameters.
      * http://sra-spec.s3-website-us-east-1.amazonaws.com/#operation/getOrders
      */
-    app.get('/v2/orders', asyncHandler(handlers.ordersAsync.bind(handlers)));
+    app.get('/v2/orders', asyncHandler(Handlers.ordersAsync.bind(handlers)));
     /**
      * GET Orderbook endpoint retrieves the orderbook for a given asset pair.
      * http://sra-spec.s3-website-us-east-1.amazonaws.com/#operation/getOrderbook
      */
-    app.get('/v2/orderbook', asyncHandler(handlers.orderbookAsync.bind(handlers)));
+    app.get('/v2/orderbook', asyncHandler(Handlers.orderbookAsync.bind(handlers)));
     /**
      * POST Order config endpoint retrives the values for order fields that the relayer requires.
      * http://sra-spec.s3-website-us-east-1.amazonaws.com/#operation/getOrderConfig

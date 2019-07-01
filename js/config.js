@@ -1,26 +1,29 @@
-'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 // tslint:disable:custom-no-magic-numbers
-const _0x_js_1 = require('0x.js');
-const assert_1 = require('@0x/assert');
-const crypto = require('crypto');
-const fs = require('fs');
-const _ = require('lodash');
-const path = require('path');
+const _0x_js_1 = require("0x.js");
+const assert_1 = require("@0x/assert");
+const crypto = require("crypto");
+const fs = require("fs");
+const _ = require("lodash");
+const path = require("path");
 const metadataPath = path.join(__dirname, '../../metadata.json');
 var EnvVarType;
-(function(EnvVarType) {
-    EnvVarType[(EnvVarType['Port'] = 0)] = 'Port';
-    EnvVarType[(EnvVarType['NetworkId'] = 1)] = 'NetworkId';
-    EnvVarType[(EnvVarType['FeeRecipient'] = 2)] = 'FeeRecipient';
-    EnvVarType[(EnvVarType['UnitAmount'] = 3)] = 'UnitAmount';
-    EnvVarType[(EnvVarType['Url'] = 4)] = 'Url';
-    EnvVarType[(EnvVarType['WhitelistAllTokens'] = 5)] = 'WhitelistAllTokens';
+(function (EnvVarType) {
+    EnvVarType[EnvVarType["Port"] = 0] = "Port";
+    EnvVarType[EnvVarType["NetworkId"] = 1] = "NetworkId";
+    EnvVarType[EnvVarType["FeeRecipient"] = 2] = "FeeRecipient";
+    EnvVarType[EnvVarType["UnitAmount"] = 3] = "UnitAmount";
+    EnvVarType[EnvVarType["Url"] = 4] = "Url";
+    EnvVarType[EnvVarType["WhitelistAllTokens"] = 5] = "WhitelistAllTokens";
 })(EnvVarType || (EnvVarType = {}));
 // Whitelisted token addresses. Set to a '*' instead of an array to allow all tokens.
 exports.WHITELISTED_TOKENS = _.isEmpty(process.env.WHITELIST_ALL_TOKENS)
-    ? ['0x2002d3812f58e35f0ea1ffbf80a75a38c32175fa', '0xd0a1e359811322d97991e03f863a0c30c2cf029c']
-    : assertEnvVarType('WHILTELIST_ALL_TOKENS', process.env.WHITELIST_ALL_TOKENS, EnvVarType.WhitelistAllTokens);
+    ? [
+        '0x2002d3812f58e35f0ea1ffbf80a75a38c32175fa',
+        '0xd0a1e359811322d97991e03f863a0c30c2cf029c',
+    ]
+    : assertEnvVarType('WHITELIST_ALL_TOKENS', process.env.WHITELIST_ALL_TOKENS, EnvVarType.WhitelistAllTokens);
 // Network port to listen on
 exports.HTTP_PORT = _.isEmpty(process.env.HTTP_PORT)
     ? 3000
@@ -45,12 +48,6 @@ exports.TAKER_FEE_ZRX_UNIT_AMOUNT = _.isEmpty(process.env.TAKER_FEE_ZRX_UNIT_AMO
 exports.RPC_URL = _.isEmpty(process.env.RPC_URL)
     ? 'https://kovan.infura.io/v3/e2c067d9717e492091d1f1d7a2ec55aa'
     : assertEnvVarType('RPC_URL', process.env.RPC_URL, EnvVarType.Url);
-// Address used when simulating transfers from the maker to the simulation address
-exports.DEFAULT_TAKER_SIMULATION_ADDRESS = '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
-// A time window after which the order is considered permanently expired
-exports.ORDER_SHADOWING_MARGIN_MS = 100 * 1000; // tslint:disable-line custom-no-magic-numbers
-// Frequency of checks for permanently expired orders
-exports.PERMANENT_CLEANUP_INTERVAL_MS = 10 * 1000; // tslint:disable-line custom-no-magic-numbers
 // Max number of entities per page
 exports.MAX_PER_PAGE = 1000;
 // Default ERC20 token precision
@@ -65,14 +62,16 @@ function assertEnvVarType(name, value, expectedType) {
                 if (!isWithinRange) {
                     throw new Error();
                 }
-            } catch (err) {
+            }
+            catch (err) {
                 throw new Error(`${name} must be between 0 to 65535, found ${value}.`);
             }
             return returnValue;
         case EnvVarType.NetworkId:
             try {
                 returnValue = parseInt(value, 10);
-            } catch (err) {
+            }
+            catch (err) {
                 throw new Error(`${name} must be a valid integer, found ${value}.`);
             }
             return returnValue;
@@ -88,7 +87,8 @@ function assertEnvVarType(name, value, expectedType) {
                 if (returnValue.isNegative()) {
                     throw new Error();
                 }
-            } catch (err) {
+            }
+            catch (err) {
                 throw new Error(`${name} must be valid number greater than 0.`);
             }
             return returnValue;

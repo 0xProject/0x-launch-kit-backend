@@ -1,37 +1,26 @@
-import {
-    assetDataUtils,
-    BigNumber,
-    ContractWrappers,
-    orderHashUtils,
-    RPCSubprovider,
-    SignedOrder,
-    Web3ProviderEngine,
-} from '0x.js';
+import { assetDataUtils, BigNumber, orderHashUtils, RPCSubprovider, SignedOrder, Web3ProviderEngine } from '0x.js';
 import { APIOrder, OrderbookResponse, PaginatedCollection } from '@0x/connect';
-import { OrderState, OrderWatcher } from '@0x/order-watcher';
+import { orderParsingUtils } from '@0x/order-utils';
 import { Asset, AssetPairsItem, AssetProxyId, OrdersRequestOpts } from '@0x/types';
-import { errorUtils, intervalUtils } from '@0x/utils';
+import { errorUtils } from '@0x/utils';
 import * as _ from 'lodash';
+import * as Web3Providers from 'web3-providers';
 
-import {
-    DEFAULT_ERC20_TOKEN_PRECISION,
-    DEFAULT_TAKER_SIMULATION_ADDRESS,
-    NETWORK_ID,
-    ORDER_SHADOWING_MARGIN_MS,
-    PERMANENT_CLEANUP_INTERVAL_MS,
-    RPC_URL,
-} from './config';
+import { DEFAULT_ERC20_TOKEN_PRECISION, RPC_URL } from './config';
 import { MAX_TOKEN_SUPPLY_POSSIBLE } from './constants';
 import { getDBConnection } from './db_connection';
 import { SignedOrderModel } from './models/SignedOrderModel';
 import { paginate } from './paginator';
-import { utils } from './utils';
+import { OrderEventKind, OrderEventPayload, RejectedCode, StringifiedSignedOrder, ValidationResults } from './types';
+
+const MESH_WS_PORT = 60557;
+const MESH_WS_ENDPOINT = `ws://localhost:${MESH_WS_PORT}`;
+const BATCH_SIZE = 18;
+const SLEEP_INTERVAL = 500;
 
 export class OrderBook {
-    private readonly _orderWatcher: OrderWatcher;
-    private readonly _contractWrappers: ContractWrappers;
-    // Mapping from an order hash to the timestamp when it was shadowed
-    private readonly _shadowedOrders: Map<string, number>;
+    private _wsClient: any;
+    private _isConnectedToMesh: boolean;
     public static async getOrderByHashIfExistsAsync(orderHash: string): Promise<APIOrder | undefined> {
         const connection = getDBConnection();
         const signedOrderModelIfExists = await connection.manager.findOne(SignedOrderModel, orderHash);
@@ -110,93 +99,8 @@ export class OrderBook {
         const paginatedFilteredAssetPairs = paginate(uniqueNonPaginatedFilteredAssetPairs, page, perPage);
         return paginatedFilteredAssetPairs;
     }
-    constructor() {
-        const provider = new Web3ProviderEngine();
-        provider.addProvider(new RPCSubprovider(RPC_URL));
-        provider.start();
-
-        this._shadowedOrders = new Map();
-        this._contractWrappers = new ContractWrappers(provider, {
-            networkId: NETWORK_ID,
-        });
-        this._orderWatcher = new OrderWatcher(provider, NETWORK_ID);
-        this._orderWatcher.subscribe(this.onOrderStateChangeCallback.bind(this));
-        intervalUtils.setAsyncExcludingInterval(
-            this.onCleanUpInvalidOrdersAsync.bind(this),
-            PERMANENT_CLEANUP_INTERVAL_MS,
-            utils.log,
-        );
-    }
-    public onOrderStateChangeCallback(err: Error | null, orderState?: OrderState): void {
-        if (err !== null) {
-            utils.log(err);
-        } else {
-            const state = orderState as OrderState;
-            if (!state.isValid) {
-                this._shadowedOrders.set(state.orderHash, Date.now());
-            } else {
-                this._shadowedOrders.delete(state.orderHash);
-            }
-        }
-    }
-    public async onCleanUpInvalidOrdersAsync(): Promise<void> {
-        const permanentlyExpiredOrders: string[] = [];
-        for (const [orderHash, shadowedAt] of this._shadowedOrders) {
-            const now = Date.now();
-            if (shadowedAt + ORDER_SHADOWING_MARGIN_MS < now) {
-                permanentlyExpiredOrders.push(orderHash);
-                this._shadowedOrders.delete(orderHash); // we need to remove this order so we don't keep shadowing it
-                this._orderWatcher.removeOrder(orderHash); // also remove from order watcher to avoid more callbacks
-            }
-        }
-        if (!_.isEmpty(permanentlyExpiredOrders)) {
-            const connection = getDBConnection();
-            await connection.manager.delete(SignedOrderModel, permanentlyExpiredOrders);
-        }
-    }
-    public async addOrderAsync(signedOrder: SignedOrder): Promise<void> {
-        const connection = getDBConnection();
-        // Validate transfers to a non 0 default address. Some tokens cannot be transferred to
-        // the null address (default)
-        await this._contractWrappers.exchange.validateOrderFillableOrThrowAsync(signedOrder, {
-            simulationTakerAddress: DEFAULT_TAKER_SIMULATION_ADDRESS,
-        });
-        await this._orderWatcher.addOrderAsync(signedOrder);
-        const signedOrderModel = serializeOrder(signedOrder);
-        await connection.manager.save(signedOrderModel);
-    }
-    public async getOrderBookAsync(
-        page: number,
-        perPage: number,
-        baseAssetData: string,
-        quoteAssetData: string,
-    ): Promise<OrderbookResponse> {
-        const connection = getDBConnection();
-        const bidSignedOrderModels = (await connection.manager.find(SignedOrderModel, {
-            where: { takerAssetData: baseAssetData, makerAssetData: quoteAssetData },
-        })) as Array<Required<SignedOrderModel>>;
-        const askSignedOrderModels = (await connection.manager.find(SignedOrderModel, {
-            where: { takerAssetData: quoteAssetData, makerAssetData: baseAssetData },
-        })) as Array<Required<SignedOrderModel>>;
-        const bidApiOrders: APIOrder[] = bidSignedOrderModels
-            .map(deserializeOrder)
-            .filter(order => !this._shadowedOrders.has(orderHashUtils.getOrderHashHex(order)))
-            .sort((orderA, orderB) => compareBidOrder(orderA, orderB))
-            .map(signedOrder => ({ metaData: {}, order: signedOrder }));
-        const askApiOrders: APIOrder[] = askSignedOrderModels
-            .map(deserializeOrder)
-            .filter(order => !this._shadowedOrders.has(orderHashUtils.getOrderHashHex(order)))
-            .sort((orderA, orderB) => compareAskOrder(orderA, orderB))
-            .map(signedOrder => ({ metaData: {}, order: signedOrder }));
-        const paginatedBidApiOrders = paginate(bidApiOrders, page, perPage);
-        const paginatedAskApiOrders = paginate(askApiOrders, page, perPage);
-        return {
-            bids: paginatedBidApiOrders,
-            asks: paginatedAskApiOrders,
-        };
-    }
     // TODO:(leo) Do all filtering and pagination in a DB (requires stored procedures or redundant fields)
-    public async getOrdersAsync(
+    public static async getOrdersAsync(
         page: number,
         perPage: number,
         ordersFilterParams: OrdersRequestOpts,
@@ -219,7 +123,6 @@ export class OrderBook {
         let signedOrders = _.map(signedOrderModels, deserializeOrder);
         // Post-filters
         signedOrders = signedOrders
-            .filter(order => !this._shadowedOrders.has(orderHashUtils.getOrderHashHex(order)))
             .filter(
                 // traderAddress
                 signedOrder =>
@@ -257,21 +160,164 @@ export class OrderBook {
         const paginatedApiOrders = paginate(apiOrders, page, perPage);
         return paginatedApiOrders;
     }
+    public static async getOrderBookAsync(
+        page: number,
+        perPage: number,
+        baseAssetData: string,
+        quoteAssetData: string,
+    ): Promise<OrderbookResponse> {
+        const connection = getDBConnection();
+        const bidSignedOrderModels = (await connection.manager.find(SignedOrderModel, {
+            where: { takerAssetData: baseAssetData, makerAssetData: quoteAssetData },
+        })) as Array<Required<SignedOrderModel>>;
+        const askSignedOrderModels = (await connection.manager.find(SignedOrderModel, {
+            where: { takerAssetData: quoteAssetData, makerAssetData: baseAssetData },
+        })) as Array<Required<SignedOrderModel>>;
+        const bidApiOrders: APIOrder[] = bidSignedOrderModels
+            .map(deserializeOrder)
+            .sort((orderA, orderB) => compareBidOrder(orderA, orderB))
+            .map(signedOrder => ({ metaData: {}, order: signedOrder }));
+        const askApiOrders: APIOrder[] = askSignedOrderModels
+            .map(deserializeOrder)
+            .sort((orderA, orderB) => compareAskOrder(orderA, orderB))
+            .map(signedOrder => ({ metaData: {}, order: signedOrder }));
+        const paginatedBidApiOrders = paginate(bidApiOrders, page, perPage);
+        const paginatedAskApiOrders = paginate(askApiOrders, page, perPage);
+        return {
+            bids: paginatedBidApiOrders,
+            asks: paginatedAskApiOrders,
+        };
+    }
+    private static async _onOrderEventCallbackAsync(eventPayload: OrderEventPayload): Promise<void> {
+        const connection = getDBConnection();
+        for (const event of eventPayload.result) {
+            const signedOrder = orderParsingUtils.convertOrderStringFieldsToBigNumber(event.signedOrder);
+            switch (event.kind) {
+                case OrderEventKind.Added: {
+                    const signedOrderModel = serializeOrder(signedOrder);
+                    await connection.manager.save(signedOrderModel);
+                    break;
+                }
+                case OrderEventKind.Cancelled:
+                case OrderEventKind.Expired:
+                case OrderEventKind.FullyFilled:
+                case OrderEventKind.Unfunded: {
+                    await connection.manager.delete(SignedOrderModel, event.orderHash);
+                    break;
+                }
+                case OrderEventKind.Filled: {
+                    // TODO(fabio): Once we store remaining fillable amount, update DB
+                    break;
+                }
+                case OrderEventKind.FillabilityIncreased: {
+                    // Check if in DB, if not, re-add it
+                    const signedOrderModels = await connection.manager.findOne(SignedOrderModel, event.orderHash);
+                    if (signedOrderModels === undefined) {
+                        const signedOrderModel = serializeOrder(signedOrder);
+                        await connection.manager.save(signedOrderModel);
+                    }
+                    break;
+                }
+                default:
+                // noop
+            }
+        }
+    }
+    constructor() {
+        const provider = new Web3ProviderEngine();
+        provider.addProvider(new RPCSubprovider(RPC_URL));
+        (provider as any)._ready.go();
+        (provider as any)._running = true;
+
+        this._isConnectedToMesh = false;
+        // Fire-and-forget
+        this._connectToMeshAsync();
+    }
+    public async addOrderAsync(signedOrder: SignedOrder): Promise<void> {
+        const connection = getDBConnection();
+        if (!this._isConnectedToMesh) {
+            throw new Error('Not connected to Mesh');
+        }
+        const validationResults = await this._submitOrdersToMeshAsync([signedOrder]);
+        if (validationResults.rejected !== null) {
+            const rejection = validationResults.rejected[0];
+            throw new Error(rejection.status.code);
+        } else {
+            // TODO(fabio): Store the `fillableTakerAssetAmount`?
+            const signedOrderModel = serializeOrder(signedOrder);
+            await connection.manager.save(signedOrderModel);
+        }
+    }
     public async addExistingOrdersToOrderWatcherAsync(): Promise<void> {
         const connection = getDBConnection();
+
+        while (!this._isConnectedToMesh) {
+            console.log('Attempting to connnect to Mesh...');
+            await sleepAsync(SLEEP_INTERVAL);
+        }
+        console.log('Mesh connected!');
+
         const signedOrderModels = (await connection.manager.find(SignedOrderModel)) as Array<
             Required<SignedOrderModel>
         >;
+        if (signedOrderModels.length === 0) {
+            return;
+        }
         const signedOrders = signedOrderModels.map(deserializeOrder);
-        for (const signedOrder of signedOrders) {
-            try {
-                await this._contractWrappers.exchange.validateOrderFillableOrThrowAsync(signedOrder);
-                await this._orderWatcher.addOrderAsync(signedOrder);
-            } catch (err) {
-                const orderHash = orderHashUtils.getOrderHashHex(signedOrder);
-                await connection.manager.delete(SignedOrderModel, orderHash);
+        let numBatches = Math.floor(signedOrders.length / BATCH_SIZE);
+        numBatches = numBatches === 0 && signedOrders.length > 0 ? 1 : numBatches;
+
+        for (let i = 0; i < numBatches; i++) {
+            const batch = signedOrders.slice(i * BATCH_SIZE, (i + 1) * BATCH_SIZE + 1);
+            const validationResults = await this._submitOrdersToMeshAsync(batch);
+            // TODO(fabio): Once we store fillable amounts in DB, update them for all accepted orders
+            for (const rejectedOrderInfo of validationResults.rejected) {
+                switch (rejectedOrderInfo.status.code) {
+                    case RejectedCode.InternalError:
+                    case RejectedCode.NetworkRequestFailed:
+                        // Ignore
+                        break;
+                    case RejectedCode.MaxOrderSizeExceeded:
+                    case RejectedCode.OrderCancelled:
+                    case RejectedCode.OrderFullyFilled:
+                    case RejectedCode.OrderForIncorrectNetwork:
+                    case RejectedCode.OrderExpired:
+                    case RejectedCode.OrderUnfunded:
+                        // Remove from DB
+                        await connection.manager.delete(SignedOrderModel, rejectedOrderInfo.orderHash);
+                        break;
+
+                    case RejectedCode.OrderAlreadyStored:
+                        // TODO(fabio): Update fillable amount in DB
+                        // Noop
+                        break;
+                    default:
+                    // noop
+                }
             }
         }
+    }
+    private async _connectToMeshAsync(): Promise<void> {
+        while (true) {
+            try {
+                this._wsClient = new Web3Providers.WebsocketProvider(MESH_WS_ENDPOINT);
+                const subscriptionId = await this._wsClient.subscribe('mesh_subscribe', 'orders', []);
+                this._wsClient.on(subscriptionId, OrderBook._onOrderEventCallbackAsync.bind(this));
+                this._isConnectedToMesh = true;
+                return; // Done
+            } catch (err) {
+                // Try again
+            }
+            await sleepAsync(SLEEP_INTERVAL);
+        }
+    }
+    // TODO: Remove hashh from orders.
+    private async _submitOrdersToMeshAsync(signedOrders: SignedOrder[]): Promise<ValidationResults> {
+        const stringifiedSignedOrders = signedOrders.map(stringifyOrder);
+        console.log(JSON.stringify(stringifiedSignedOrders));
+        const validationResults = await this._wsClient.send('mesh_addOrders', [stringifiedSignedOrders]);
+        console.log('validationResults', JSON.stringify(validationResults));
+        return validationResults;
     }
 }
 
@@ -339,6 +385,26 @@ const deserializeOrder = (signedOrderModel: Required<SignedOrderModel>): SignedO
     return signedOrder;
 };
 
+const stringifyOrder = (signedOrder: SignedOrder): StringifiedSignedOrder => {
+    const stringifiedSignedOrder = {
+        signature: signedOrder.signature,
+        senderAddress: signedOrder.senderAddress,
+        makerAddress: signedOrder.makerAddress,
+        takerAddress: signedOrder.takerAddress,
+        makerFee: signedOrder.makerFee.toString(),
+        takerFee: signedOrder.takerFee.toString(),
+        makerAssetAmount: signedOrder.makerAssetAmount.toString(),
+        takerAssetAmount: signedOrder.takerAssetAmount.toString(),
+        makerAssetData: signedOrder.makerAssetData,
+        takerAssetData: signedOrder.takerAssetData,
+        salt: signedOrder.salt.toString(),
+        exchangeAddress: signedOrder.exchangeAddress,
+        feeRecipientAddress: signedOrder.feeRecipientAddress,
+        expirationTimeSeconds: signedOrder.expirationTimeSeconds.toString(),
+    };
+    return stringifiedSignedOrder;
+};
+
 const serializeOrder = (signedOrder: SignedOrder): SignedOrderModel => {
     const signedOrderModel = new SignedOrderModel({
         signature: signedOrder.signature,
@@ -359,3 +425,7 @@ const serializeOrder = (signedOrder: SignedOrder): SignedOrderModel => {
     });
     return signedOrderModel;
 };
+
+function sleepAsync(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
