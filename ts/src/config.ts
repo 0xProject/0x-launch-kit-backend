@@ -14,6 +14,7 @@ enum EnvVarType {
     UnitAmount,
     Url,
     WhitelistAllTokens,
+    Boolean,
 }
 // Whitelisted token addresses. Set to a '*' instead of an array to allow all tokens.
 export const WHITELISTED_TOKENS: string[] | '*' = _.isEmpty(process.env.WHITELIST_ALL_TOKENS)
@@ -47,18 +48,26 @@ export const TAKER_FEE_ZRX_UNIT_AMOUNT = _.isEmpty(process.env.TAKER_FEE_ZRX_UNI
 export const RPC_URL = _.isEmpty(process.env.RPC_URL)
     ? 'https://kovan.infura.io/v3/f215624b820f46028eb77aef44c5b400'
     : assertEnvVarType('RPC_URL', process.env.RPC_URL, EnvVarType.Url);
+// Mesh Endpoint. Optional
+export const MESH_ENDPOINT = _.isEmpty(process.env.MESH_ENDPOINT)
+    ? 'ws://localhost:60557'
+    : assertEnvVarType('MESH_ENDPOINT', process.env.MESH_ENDPOINT, EnvVarType.Url);
 
-// Address used when simulating transfers from the maker as part of 0x order validation
-export const DEFAULT_TAKER_SIMULATION_ADDRESS = '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+export const USE_MESH = _.isEmpty(process.env.USE_MESH)
+    ? false
+    : assertEnvVarType('USE_MESH', process.env.USE_MESH, EnvVarType.Boolean);
 
-// A time window after which the order is considered permanently expired
-export const ORDER_SHADOWING_MARGIN_MS = 100 * 1000; // tslint:disable-line custom-no-magic-numbers
-// Frequency of checks for permanently expired orders
-export const PERMANENT_CLEANUP_INTERVAL_MS = 10 * 1000; // tslint:disable-line custom-no-magic-numbers
 // Max number of entities per page
 export const MAX_PER_PAGE = 1000;
 // Default ERC20 token precision
 export const DEFAULT_ERC20_TOKEN_PRECISION = 18;
+// Address used when simulating transfers from the maker as part of 0x order validation
+export const DEFAULT_TAKER_SIMULATION_ADDRESS = '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+// OrderWatcher Options
+// A time window after which the order is considered permanently expired
+export const ORDER_SHADOWING_MARGIN_MS = 100 * 1000; // tslint:disable-line custom-no-magic-numbers
+// Frequency of checks for permanently expired orders
+export const PERMANENT_CLEANUP_INTERVAL_MS = 10 * 1000; // tslint:disable-line custom-no-magic-numbers
 
 function assertEnvVarType(name: string, value: any, expectedType: EnvVarType): any {
     let returnValue;
@@ -87,6 +96,8 @@ function assertEnvVarType(name: string, value: any, expectedType: EnvVarType): a
         case EnvVarType.Url:
             assert.isUri(name, value);
             return value;
+        case EnvVarType.Boolean:
+            return value === 'true';
         case EnvVarType.UnitAmount:
             try {
                 returnValue = new BigNumber(parseFloat(value));

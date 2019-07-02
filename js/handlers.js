@@ -73,7 +73,11 @@ class Handlers {
         this._orderBook = new orderbook_1.OrderBook();
     }
     async initOrderBookAsync() {
-        await this._orderBook.addExistingOrdersToOrderWatcherAsync();
+        try {
+            await this._orderBook.addExistingOrdersToOrderWatcherAsync();
+        } catch (e) {
+            utils_1.utils.log(e);
+        }
     }
     async ordersAsync(req, res) {
         utils_1.utils.validateSchema(req.query, json_schemas_1.schemas.ordersRequestOptsSchema);

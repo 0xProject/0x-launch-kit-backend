@@ -76,7 +76,11 @@ export class Handlers {
         this._orderBook = new OrderBook();
     }
     public async initOrderBookAsync(): Promise<void> {
-        await this._orderBook.addExistingOrdersToOrderWatcherAsync();
+        try {
+            await this._orderBook.addExistingOrdersToOrderWatcherAsync();
+        } catch (e) {
+            utils.log(e);
+        }
     }
     public async ordersAsync(req: express.Request, res: express.Response): Promise<void> {
         utils.validateSchema(req.query, schemas.ordersRequestOptsSchema);

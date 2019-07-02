@@ -20,6 +20,31 @@ exports.utils = {
             throw new errors_1.ValidationError(validationErrorItems);
         }
     },
+    async sleepAsync(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    },
+    async delayAsync(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    },
+    async attemptAsync(fn, opts = { interval: 5000, maxRetries: 10 }) {
+        let result;
+        let attempt = 0;
+        let error;
+        while (!result && attempt < opts.maxRetries) {
+            attempt++;
+            try {
+                result = await fn();
+            } catch (err) {
+                exports.utils.log(new Date(), attempt, err.message);
+                error = err;
+                await exports.utils.delayAsync(opts.interval);
+            }
+        }
+        if (result) {
+            return result;
+        }
+        throw error;
+    },
 };
 function schemaValidationErrorToValidationErrorItem(schemaValidationError) {
     if (

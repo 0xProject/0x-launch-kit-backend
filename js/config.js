@@ -16,6 +16,7 @@ var EnvVarType;
     EnvVarType[(EnvVarType['UnitAmount'] = 3)] = 'UnitAmount';
     EnvVarType[(EnvVarType['Url'] = 4)] = 'Url';
     EnvVarType[(EnvVarType['WhitelistAllTokens'] = 5)] = 'WhitelistAllTokens';
+    EnvVarType[(EnvVarType['Boolean'] = 6)] = 'Boolean';
 })(EnvVarType || (EnvVarType = {}));
 // Whitelisted token addresses. Set to a '*' instead of an array to allow all tokens.
 exports.WHITELISTED_TOKENS = _.isEmpty(process.env.WHITELIST_ALL_TOKENS)
@@ -45,16 +46,24 @@ exports.TAKER_FEE_ZRX_UNIT_AMOUNT = _.isEmpty(process.env.TAKER_FEE_ZRX_UNIT_AMO
 exports.RPC_URL = _.isEmpty(process.env.RPC_URL)
     ? 'https://kovan.infura.io/v3/f215624b820f46028eb77aef44c5b400'
     : assertEnvVarType('RPC_URL', process.env.RPC_URL, EnvVarType.Url);
-// Address used when simulating transfers from the maker as part of 0x order validation
-exports.DEFAULT_TAKER_SIMULATION_ADDRESS = '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
-// A time window after which the order is considered permanently expired
-exports.ORDER_SHADOWING_MARGIN_MS = 100 * 1000; // tslint:disable-line custom-no-magic-numbers
-// Frequency of checks for permanently expired orders
-exports.PERMANENT_CLEANUP_INTERVAL_MS = 10 * 1000; // tslint:disable-line custom-no-magic-numbers
+// Mesh Endpoint. Optional
+exports.MESH_ENDPOINT = _.isEmpty(process.env.MESH_ENDPOINT)
+    ? 'ws://localhost:60557'
+    : assertEnvVarType('MESH_ENDPOINT', process.env.MESH_ENDPOINT, EnvVarType.Url);
+exports.USE_MESH = _.isEmpty(process.env.USE_MESH)
+    ? false
+    : assertEnvVarType('USE_MESH', process.env.USE_MESH, EnvVarType.Boolean);
 // Max number of entities per page
 exports.MAX_PER_PAGE = 1000;
 // Default ERC20 token precision
 exports.DEFAULT_ERC20_TOKEN_PRECISION = 18;
+// Address used when simulating transfers from the maker as part of 0x order validation
+exports.DEFAULT_TAKER_SIMULATION_ADDRESS = '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+// OrderWatcher Options
+// A time window after which the order is considered permanently expired
+exports.ORDER_SHADOWING_MARGIN_MS = 100 * 1000; // tslint:disable-line custom-no-magic-numbers
+// Frequency of checks for permanently expired orders
+exports.PERMANENT_CLEANUP_INTERVAL_MS = 10 * 1000; // tslint:disable-line custom-no-magic-numbers
 function assertEnvVarType(name, value, expectedType) {
     let returnValue;
     switch (expectedType) {
@@ -82,6 +91,8 @@ function assertEnvVarType(name, value, expectedType) {
         case EnvVarType.Url:
             assert_1.assert.isUri(name, value);
             return value;
+        case EnvVarType.Boolean:
+            return value === 'true';
         case EnvVarType.UnitAmount:
             try {
                 returnValue = new _0x_js_1.BigNumber(parseFloat(value));
