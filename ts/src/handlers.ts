@@ -121,7 +121,7 @@ function validateAssetDataIsWhitelistedOrThrow(allowedTokens: string[], assetDat
         for (const [, nestedAssetDataElement] of decodedAssetData.nestedAssetData.entries()) {
             validateAssetDataIsWhitelistedOrThrow(allowedTokens, nestedAssetDataElement, field);
         }
-    } else {
+    } else if (!assetDataUtils.isStaticCallAssetData(decodedAssetData)) {
         if (!_.includes(allowedTokens, decodedAssetData.tokenAddress)) {
             throw new ValidationError([
                 {
