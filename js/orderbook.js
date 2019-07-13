@@ -272,9 +272,10 @@ const includesTokenAddress = (assetData, tokenAddress) => {
             }
         }
         return false;
-    } else {
+    } else if (!_0x_js_1.assetDataUtils.isStaticCallAssetData(decodedAssetData)) {
         return decodedAssetData.tokenAddress === tokenAddress;
     }
+    return false;
 };
 const deserializeOrder = signedOrderModel => {
     const signedOrder = {
