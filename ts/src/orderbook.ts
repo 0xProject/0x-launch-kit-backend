@@ -265,7 +265,9 @@ export class OrderBook {
         const signedOrders = signedOrderModels.map(deserializeOrder);
         for (const signedOrder of signedOrders) {
             try {
-                await this._contractWrappers.exchange.validateOrderFillableOrThrowAsync(signedOrder);
+                await this._contractWrappers.exchange.validateOrderFillableOrThrowAsync(signedOrder, {
+                    simulationTakerAddress: DEFAULT_TAKER_SIMULATION_ADDRESS,
+                });
                 await this._orderWatcher.addOrderAsync(signedOrder);
             } catch (err) {
                 const orderHash = orderHashUtils.getOrderHashHex(signedOrder);
