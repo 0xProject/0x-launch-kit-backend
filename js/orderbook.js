@@ -59,25 +59,14 @@ class OrderBook {
         const paginatedFilteredAssetPairs = paginator_1.paginate(uniqueNonPaginatedFilteredAssetPairs, page, perPage);
         return paginatedFilteredAssetPairs;
     }
-    static async onOrderLifeCycleEventAsync(lifecycleEvent, orders) {
-        const connection = db_connection_1.getDBConnection();
-        if (lifecycleEvent === types_2.OrderWatcherLifeCycleEvents.Add) {
-            const signedOrdersModel = orders.map(o => serializeOrder(o.order));
-            d('ADD', orders.map(o => o.metaData));
-            await connection.manager.save(signedOrdersModel);
-        } else if (lifecycleEvent === types_2.OrderWatcherLifeCycleEvents.Remove) {
-            const orderHashes = orders.map(o => o.metaData.orderHash);
-            d('REMOVE', orders.map(o => o.metaData));
-            await connection.manager.delete(SignedOrderModel_1.SignedOrderModel, orderHashes);
-        }
-    }
-    constructor() {
+    constructor(websocketSRA) {
+        this._websocketSRA = websocketSRA;
         this._orderWatcher = order_watchers_factory_1.OrderWatchersFactory.build();
         this._orderWatcher.onOrdersAdded(async orders => {
-            await OrderBook.onOrderLifeCycleEventAsync(types_2.OrderWatcherLifeCycleEvents.Add, orders);
+            await this._onOrderLifeCycleEventAsync(types_2.OrderWatcherLifeCycleEvents.Add, orders);
         });
         this._orderWatcher.onOrdersRemoved(async orders => {
-            await OrderBook.onOrderLifeCycleEventAsync(types_2.OrderWatcherLifeCycleEvents.Remove, orders);
+            await this._onOrderLifeCycleEventAsync(types_2.OrderWatcherLifeCycleEvents.Remove, orders);
         });
         this._orderWatcher.onReconnected(async () => {
             d('Reconnecting to orderwatcher');
@@ -188,12 +177,26 @@ class OrderBook {
         );
         // Remove all of the rejected orders
         if (rejected.length > 0) {
-            await OrderBook.onOrderLifeCycleEventAsync(types_2.OrderWatcherLifeCycleEvents.Remove, rejected);
+            await this._onOrderLifeCycleEventAsync(types_2.OrderWatcherLifeCycleEvents.Remove, rejected);
         }
         // Sync the order watching service state locally
         const orders = await getOrdersPromise;
         if (orders.length > 0) {
-            await OrderBook.onOrderLifeCycleEventAsync(types_2.OrderWatcherLifeCycleEvents.Add, orders);
+            await this._onOrderLifeCycleEventAsync(types_2.OrderWatcherLifeCycleEvents.Add, orders);
+        }
+    }
+    async _onOrderLifeCycleEventAsync(lifecycleEvent, orders) {
+        const connection = db_connection_1.getDBConnection();
+        if (lifecycleEvent === types_2.OrderWatcherLifeCycleEvents.Add) {
+            const signedOrdersModel = orders.map(o => serializeOrder(o.order));
+            d('ADD', signedOrdersModel.map(o => o.hash));
+            this._websocketSRA._orderUpdate(orders);
+            await connection.manager.save(signedOrdersModel);
+        } else if (lifecycleEvent === types_2.OrderWatcherLifeCycleEvents.Remove) {
+            const orderHashes = orders.map(o => o.metaData.orderHash);
+            d('REMOVE', orderHashes);
+            this._websocketSRA._orderUpdate(orders);
+            await connection.manager.delete(SignedOrderModel_1.SignedOrderModel, orderHashes);
         }
     }
 }

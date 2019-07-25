@@ -11,12 +11,24 @@ const db_connection_1 = require('./db_connection');
 const handlers_1 = require('./handlers');
 const error_handling_1 = require('./middleware/error_handling');
 const url_params_parsing_1 = require('./middleware/url_params_parsing');
+const orderbook_1 = require('./orderbook');
 const utils_1 = require('./utils');
+const websocket_1 = require('./websocket');
 (async () => {
     await db_connection_1.initDBConnectionAsync();
-    const handlers = new handlers_1.Handlers();
-    await handlers.initOrderBookAsync();
     const app = express();
+    const server = app.listen(config.HTTP_PORT, () => {
+        utils_1.utils.log(
+            `Standard relayer API (HTTP) listening on port ${config.HTTP_PORT}!\nConfig: ${JSON.stringify(
+                config,
+                null,
+                2,
+            )}`,
+        );
+    });
+    const orderBook = new orderbook_1.OrderBook(websocket_1.WebsocketSRA.createServer(server));
+    const handlers = new handlers_1.Handlers(orderBook);
+    await handlers.initOrderBookAsync();
     app.use(cors());
     app.use(bodyParser.json());
     app.use(url_params_parsing_1.urlParamsParsing);
@@ -56,13 +68,4 @@ const utils_1 = require('./utils');
      */
     app.get('/v2/order/:orderHash', asyncHandler(handlers_1.Handlers.getOrderByHashAsync.bind(handlers_1.Handlers)));
     app.use(error_handling_1.errorHandler);
-    app.listen(config.HTTP_PORT, () => {
-        utils_1.utils.log(
-            `Standard relayer API (HTTP) listening on port ${config.HTTP_PORT}!\nConfig: ${JSON.stringify(
-                config,
-                null,
-                2,
-            )}`,
-        );
-    });
 })().catch(utils_1.utils.log);

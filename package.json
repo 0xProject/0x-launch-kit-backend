@@ -23,6 +23,7 @@
         "@types/express": "^4.17.0",
         "@types/lodash": "^4.14.136",
         "@types/web3-provider-engine": "^14.0.0",
+        "@types/ws": "^6.0.1",
         "prettier": "^1.18.2",
         "shx": "^0.3.2",
         "tslint": "^5.18.0",
@@ -56,6 +57,7 @@
         "lodash": "^4.17.15",
         "reflect-metadata": "^0.1.13",
         "sqlite3": "^4.0.9",
-        "typeorm": "0.2.18"
+        "typeorm": "0.2.18",
+        "ws": "^7.1.1"
     }
 }

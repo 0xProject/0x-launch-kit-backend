@@ -13,6 +13,7 @@ import { OrderWatcherAdapter } from './order_watchers/order_watcher_adapter';
 import { OrderWatchersFactory } from './order_watchers/order_watchers_factory';
 import { paginate } from './paginator';
 import { APIOrderWithMetaData, OrderWatcherLifeCycleEvents } from './types';
+import { WebsocketSRA } from './websocket';
 
 // tslint:disable-next-line:no-var-requires
 const d = require('debug')('orderbook');
@@ -29,6 +30,7 @@ const DEFAULT_ERC20_ASSET = {
 };
 
 export class OrderBook {
+    private readonly _websocketSRA: WebsocketSRA;
     private readonly _orderWatcher: OrderWatcherAdapter | MeshAdapter;
     public static async getOrderByHashIfExistsAsync(orderHash: string): Promise<APIOrder | undefined> {
         const connection = getDBConnection();
@@ -70,28 +72,15 @@ export class OrderBook {
         const paginatedFilteredAssetPairs = paginate(uniqueNonPaginatedFilteredAssetPairs, page, perPage);
         return paginatedFilteredAssetPairs;
     }
-    public static async onOrderLifeCycleEventAsync(
-        lifecycleEvent: OrderWatcherLifeCycleEvents,
-        orders: APIOrderWithMetaData[],
-    ): Promise<void> {
-        const connection = getDBConnection();
-        if (lifecycleEvent === OrderWatcherLifeCycleEvents.Add) {
-            const signedOrdersModel = orders.map(o => serializeOrder(o.order));
-            d('ADD', orders.map(o => o.metaData));
-            await connection.manager.save(signedOrdersModel);
-        } else if (lifecycleEvent === OrderWatcherLifeCycleEvents.Remove) {
-            const orderHashes = orders.map(o => o.metaData.orderHash);
-            d('REMOVE', orders.map(o => o.metaData));
-            await connection.manager.delete(SignedOrderModel, orderHashes);
-        }
-    }
-    constructor() {
+
+    constructor(websocketSRA: WebsocketSRA) {
+        this._websocketSRA = websocketSRA;
         this._orderWatcher = OrderWatchersFactory.build();
         this._orderWatcher.onOrdersAdded(async orders => {
-            await OrderBook.onOrderLifeCycleEventAsync(OrderWatcherLifeCycleEvents.Add, orders);
+            await this._onOrderLifeCycleEventAsync(OrderWatcherLifeCycleEvents.Add, orders);
         });
         this._orderWatcher.onOrdersRemoved(async orders => {
-            await OrderBook.onOrderLifeCycleEventAsync(OrderWatcherLifeCycleEvents.Remove, orders);
+            await this._onOrderLifeCycleEventAsync(OrderWatcherLifeCycleEvents.Remove, orders);
         });
         this._orderWatcher.onReconnected(async () => {
             d('Reconnecting to orderwatcher');
@@ -213,12 +202,29 @@ export class OrderBook {
         );
         // Remove all of the rejected orders
         if (rejected.length > 0) {
-            await OrderBook.onOrderLifeCycleEventAsync(OrderWatcherLifeCycleEvents.Remove, rejected);
+            await this._onOrderLifeCycleEventAsync(OrderWatcherLifeCycleEvents.Remove, rejected);
         }
         // Sync the order watching service state locally
         const orders = await getOrdersPromise;
         if (orders.length > 0) {
-            await OrderBook.onOrderLifeCycleEventAsync(OrderWatcherLifeCycleEvents.Add, orders);
+            await this._onOrderLifeCycleEventAsync(OrderWatcherLifeCycleEvents.Add, orders);
+        }
+    }
+    private async _onOrderLifeCycleEventAsync(
+        lifecycleEvent: OrderWatcherLifeCycleEvents,
+        orders: APIOrderWithMetaData[],
+    ): Promise<void> {
+        const connection = getDBConnection();
+        if (lifecycleEvent === OrderWatcherLifeCycleEvents.Add) {
+            const signedOrdersModel = orders.map(o => serializeOrder(o.order));
+            d('ADD', signedOrdersModel.map(o => o.hash));
+            this._websocketSRA._orderUpdate(orders);
+            await connection.manager.save(signedOrdersModel);
+        } else if (lifecycleEvent === OrderWatcherLifeCycleEvents.Remove) {
+            const orderHashes = orders.map(o => o.metaData.orderHash);
+            d('REMOVE', orderHashes);
+            this._websocketSRA._orderUpdate(orders);
+            await connection.manager.delete(SignedOrderModel, orderHashes);
         }
     }
 }

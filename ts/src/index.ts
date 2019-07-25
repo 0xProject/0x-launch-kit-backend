@@ -10,13 +10,26 @@ import { initDBConnectionAsync } from './db_connection';
 import { Handlers } from './handlers';
 import { errorHandler } from './middleware/error_handling';
 import { urlParamsParsing } from './middleware/url_params_parsing';
+import { OrderBook } from './orderbook';
 import { utils } from './utils';
+import { WebsocketSRA } from './websocket';
 
 (async () => {
     await initDBConnectionAsync();
-    const handlers = new Handlers();
-    await handlers.initOrderBookAsync();
     const app = express();
+    const server = app.listen(config.HTTP_PORT, () => {
+        utils.log(
+            `Standard relayer API (HTTP) listening on port ${config.HTTP_PORT}!\nConfig: ${JSON.stringify(
+                config,
+                null,
+                2,
+            )}`,
+        );
+    });
+    const orderBook = new OrderBook(WebsocketSRA.createServer(server));
+    const handlers = new Handlers(orderBook);
+    await handlers.initOrderBookAsync();
+
     app.use(cors());
     app.use(bodyParser.json());
     app.use(urlParamsParsing);
@@ -58,14 +71,4 @@ import { utils } from './utils';
     app.get('/v2/order/:orderHash', asyncHandler(Handlers.getOrderByHashAsync.bind(Handlers)));
 
     app.use(errorHandler);
-
-    app.listen(config.HTTP_PORT, () => {
-        utils.log(
-            `Standard relayer API (HTTP) listening on port ${config.HTTP_PORT}!\nConfig: ${JSON.stringify(
-                config,
-                null,
-                2,
-            )}`,
-        );
-    });
 })().catch(utils.log);
