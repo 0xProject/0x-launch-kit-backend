@@ -1,7 +1,7 @@
 import { ContractWrappers, OrderAndTraderInfo, orderHashUtils, OrderStatus } from '0x.js';
 import { assetDataUtils } from '@0x/order-utils';
 import { OrderState, OrderWatcher, SignedOrder } from '@0x/order-watcher';
-import { AssetProxyId, RevertReason } from '@0x/types';
+import { AssetProxyId, OrderStateValid, RevertReason } from '@0x/types';
 import { BigNumber, intervalUtils } from '@0x/utils';
 import { Provider } from 'ethereum-types';
 import _ = require('lodash');
@@ -34,41 +34,41 @@ export class OrderWatcherAdapter {
         this._orderWatcher.subscribe((err, orderState) => {
             if (err) {
                 utils.log(err);
-            } else {
-                const state = orderState as OrderState;
-                const { orderHash } = state;
-                if (!state.isValid) {
-                    this._shadowedOrderHashes.set(state.orderHash, Date.now());
-                    const order = this._orders.get(state.orderHash);
-                    if (order) {
-                        for (const cb of this._onOrdersRemovedCallbacks) {
-                            cb([
-                                {
-                                    order,
-                                    metaData: {
-                                        orderHash,
-                                        remainingFillableTakerAssetAmount: ZERO,
-                                    },
+                return;
+            }
+            const { orderHash, isValid } = orderState as OrderState;
+            if (!isValid) {
+                this._shadowedOrderHashes.set(orderHash, Date.now());
+                const order = this._orders.get(orderHash);
+                if (order) {
+                    for (const cb of this._onOrdersRemovedCallbacks) {
+                        cb([
+                            {
+                                order,
+                                metaData: {
+                                    orderHash,
+                                    remainingFillableTakerAssetAmount: ZERO,
                                 },
-                            ]);
-                        }
+                            },
+                        ]);
                     }
-                } else {
-                    this._shadowedOrderHashes.delete(state.orderHash);
-                    const order = this._orders.get(state.orderHash);
-                    if (order) {
-                        for (const cb of this._onOrdersAddedCallbacks) {
-                            cb([
-                                {
-                                    order,
-                                    metaData: {
-                                        orderHash,
-                                        remainingFillableTakerAssetAmount:
-                                            state.orderRelevantState.remainingFillableTakerAssetAmount,
-                                    },
+                }
+            } else {
+                const { orderRelevantState } = orderState as OrderStateValid;
+                this._shadowedOrderHashes.delete(orderHash);
+                const order = this._orders.get(orderHash);
+                if (order) {
+                    for (const cb of this._onOrdersAddedCallbacks) {
+                        cb([
+                            {
+                                order,
+                                metaData: {
+                                    orderHash,
+                                    remainingFillableTakerAssetAmount:
+                                        orderRelevantState.remainingFillableTakerAssetAmount,
                                 },
-                            ]);
-                        }
+                            },
+                        ]);
                     }
                 }
             }

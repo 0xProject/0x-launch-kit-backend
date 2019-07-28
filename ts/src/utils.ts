@@ -24,15 +24,12 @@ export const utils = {
             throw new ValidationError(validationErrorItems);
         }
     },
-    async sleepAsync(ms: number): Promise<void> {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    },
     async delayAsync(ms: number): Promise<void> {
         return new Promise(resolve => setTimeout(resolve, ms));
     },
     async attemptAsync<T>(
         fn: () => Promise<T>,
-        opts: { interval: number; maxRetries: number } = { interval: 5000, maxRetries: 10 },
+        opts: { interval: number; maxRetries: number } = { interval: 1000, maxRetries: 10 },
     ): Promise<T> {
         let result: T | undefined;
         let attempt = 0;
