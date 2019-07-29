@@ -190,12 +190,12 @@ class OrderBook {
         if (lifecycleEvent === types_2.OrderWatcherLifeCycleEvents.Add) {
             const signedOrdersModel = orders.map(o => serializeOrder(o.order));
             d('ADD', signedOrdersModel.map(o => o.hash));
-            this._websocketSRA._orderUpdate(orders);
+            this._websocketSRA.orderUpdate(orders);
             await connection.manager.save(signedOrdersModel);
         } else if (lifecycleEvent === types_2.OrderWatcherLifeCycleEvents.Remove) {
             const orderHashes = orders.map(o => o.metaData.orderHash);
             d('REMOVE', orderHashes);
-            this._websocketSRA._orderUpdate(orders);
+            this._websocketSRA.orderUpdate(orders);
             await connection.manager.delete(SignedOrderModel_1.SignedOrderModel, orderHashes);
         }
     }

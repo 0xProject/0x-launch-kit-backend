@@ -22,6 +22,7 @@ import { utils } from '../utils';
 const d = require('debug')('MESH');
 
 const ZERO = new BigNumber(0);
+const ADD_ORDER_BATCH_SIZE = 100;
 
 export class MeshAdapter {
     private readonly _wsClient: WSClient;
@@ -119,7 +120,15 @@ export class MeshAdapter {
         return orders;
     }
     private async _submitOrdersToMeshAsync(signedOrders: SignedOrder[]): Promise<ValidationResults> {
-        const validationResults = await utils.attemptAsync(() => this._wsClient.addOrdersAsync(signedOrders));
-        return validationResults;
+        const chunks = _.chunk(signedOrders, ADD_ORDER_BATCH_SIZE);
+        let allValidationResults: ValidationResults = { accepted: [], rejected: [] };
+        for (const chunk of chunks) {
+            const validationResults = await utils.attemptAsync(() => this._wsClient.addOrdersAsync(chunk));
+            allValidationResults = {
+                accepted: [...allValidationResults.accepted, ...validationResults.accepted],
+                rejected: [...allValidationResults.rejected, ...validationResults.rejected],
+            };
+        }
+        return allValidationResults;
     }
 }

@@ -13,7 +13,7 @@ import { OrderWatcherAdapter } from './order_watchers/order_watcher_adapter';
 import { OrderWatchersFactory } from './order_watchers/order_watchers_factory';
 import { paginate } from './paginator';
 import { APIOrderWithMetaData, OrderWatcherLifeCycleEvents } from './types';
-import { WebsocketSRA } from './websocket';
+import { WebsocketSRA } from './websocket_sra';
 
 // tslint:disable-next-line:no-var-requires
 const d = require('debug')('orderbook');
@@ -218,12 +218,12 @@ export class OrderBook {
         if (lifecycleEvent === OrderWatcherLifeCycleEvents.Add) {
             const signedOrdersModel = orders.map(o => serializeOrder(o.order));
             d('ADD', signedOrdersModel.map(o => o.hash));
-            this._websocketSRA._orderUpdate(orders);
+            this._websocketSRA.orderUpdate(orders);
             await connection.manager.save(signedOrdersModel);
         } else if (lifecycleEvent === OrderWatcherLifeCycleEvents.Remove) {
             const orderHashes = orders.map(o => o.metaData.orderHash);
             d('REMOVE', orderHashes);
-            this._websocketSRA._orderUpdate(orders);
+            this._websocketSRA.orderUpdate(orders);
             await connection.manager.delete(SignedOrderModel, orderHashes);
         }
     }

@@ -30,14 +30,7 @@ class MalformedJSONError extends BadRequestError {
     }
 }
 exports.MalformedJSONError = MalformedJSONError;
-class NotFoundError extends RelayerBaseError {
-    constructor() {
-        super(...arguments);
-        this.statusCode = 404;
-    }
-}
-exports.NotFoundError = NotFoundError;
-class TooManyRequestsError extends RelayerBaseError {
+class TooManyRequestsError extends BadRequestError {
     constructor() {
         super(...arguments);
         this.statusCode = 429;
@@ -45,6 +38,21 @@ class TooManyRequestsError extends RelayerBaseError {
     }
 }
 exports.TooManyRequestsError = TooManyRequestsError;
+class NotImplementedError extends BadRequestError {
+    constructor() {
+        super(...arguments);
+        this.statusCode = 501;
+        this.generalErrorCode = GeneralErrorCodes.NotImplemented;
+    }
+}
+exports.NotImplementedError = NotImplementedError;
+class NotFoundError extends RelayerBaseError {
+    constructor() {
+        super(...arguments);
+        this.statusCode = 404;
+    }
+}
+exports.NotFoundError = NotFoundError;
 class InternalServerError extends RelayerBaseError {
     constructor() {
         super(...arguments);
@@ -52,25 +60,20 @@ class InternalServerError extends RelayerBaseError {
     }
 }
 exports.InternalServerError = InternalServerError;
-class NotImplementedError extends RelayerBaseError {
-    constructor() {
-        super(...arguments);
-        this.statusCode = 501;
-    }
-}
-exports.NotImplementedError = NotImplementedError;
 var GeneralErrorCodes;
 (function(GeneralErrorCodes) {
     GeneralErrorCodes[(GeneralErrorCodes['ValidationError'] = 100)] = 'ValidationError';
     GeneralErrorCodes[(GeneralErrorCodes['MalformedJson'] = 101)] = 'MalformedJson';
     GeneralErrorCodes[(GeneralErrorCodes['OrderSubmissionDisabled'] = 102)] = 'OrderSubmissionDisabled';
     GeneralErrorCodes[(GeneralErrorCodes['Throttled'] = 103)] = 'Throttled';
+    GeneralErrorCodes[(GeneralErrorCodes['NotImplemented'] = 104)] = 'NotImplemented';
 })((GeneralErrorCodes = exports.GeneralErrorCodes || (exports.GeneralErrorCodes = {})));
 exports.generalErrorCodeToReason = {
     [GeneralErrorCodes.ValidationError]: 'Validation Failed',
     [GeneralErrorCodes.MalformedJson]: 'Malformed JSON',
     [GeneralErrorCodes.OrderSubmissionDisabled]: 'Order submission disabled',
     [GeneralErrorCodes.Throttled]: 'Throttled',
+    [GeneralErrorCodes.NotImplemented]: 'Not Implemented',
 };
 var ValidationErrorCodes;
 (function(ValidationErrorCodes) {

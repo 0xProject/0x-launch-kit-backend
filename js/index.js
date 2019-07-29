@@ -13,7 +13,7 @@ const error_handling_1 = require('./middleware/error_handling');
 const url_params_parsing_1 = require('./middleware/url_params_parsing');
 const orderbook_1 = require('./orderbook');
 const utils_1 = require('./utils');
-const websocket_1 = require('./websocket');
+const websocket_sra_1 = require('./websocket_sra');
 (async () => {
     await db_connection_1.initDBConnectionAsync();
     const app = express();
@@ -26,7 +26,7 @@ const websocket_1 = require('./websocket');
             )}`,
         );
     });
-    const orderBook = new orderbook_1.OrderBook(websocket_1.WebsocketSRA.createServer(server));
+    const orderBook = new orderbook_1.OrderBook(new websocket_sra_1.WebsocketSRA(server));
     const handlers = new handlers_1.Handlers(orderBook);
     await handlers.initOrderBookAsync();
     app.use(cors());

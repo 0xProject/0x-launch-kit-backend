@@ -12,7 +12,7 @@ import { errorHandler } from './middleware/error_handling';
 import { urlParamsParsing } from './middleware/url_params_parsing';
 import { OrderBook } from './orderbook';
 import { utils } from './utils';
-import { WebsocketSRA } from './websocket';
+import { WebsocketSRA } from './websocket_sra';
 
 (async () => {
     await initDBConnectionAsync();
@@ -26,7 +26,7 @@ import { WebsocketSRA } from './websocket';
             )}`,
         );
     });
-    const orderBook = new OrderBook(WebsocketSRA.createServer(server));
+    const orderBook = new OrderBook(new WebsocketSRA(server));
     const handlers = new Handlers(orderBook);
     await handlers.initOrderBookAsync();
 
