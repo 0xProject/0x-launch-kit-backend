@@ -3,6 +3,7 @@ import {
     AcceptedOrderInfo,
     OrderEvent,
     OrderEventKind,
+    OrderInfo,
     RejectedOrderInfo,
     ValidationResults,
     WSClient,
@@ -57,7 +58,7 @@ export class MeshAdapter {
         return { added, removed };
     }
     private static _orderInfoToAPIOrder(
-        orderEvent: OrderEvent | AcceptedOrderInfo | RejectedOrderInfo,
+        orderEvent: OrderEvent | AcceptedOrderInfo | RejectedOrderInfo | OrderInfo,
     ): APIOrderWithMetaData {
         const remainingFillableTakerAssetAmount = (orderEvent as OrderEvent).fillableTakerAssetAmount
             ? (orderEvent as OrderEvent).fillableTakerAssetAmount
