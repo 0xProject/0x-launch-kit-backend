@@ -1,4 +1,4 @@
-import { assetDataUtils, BigNumber, orderHashUtils, SignedOrder } from '0x.js';
+import { assetDataUtils, BigNumber, SignedOrder } from '0x.js';
 import { APIOrder, OrderbookResponse, PaginatedCollection } from '@0x/connect';
 import { Asset, AssetPairsItem, AssetProxyId, OrdersRequestOpts } from '@0x/types';
 import { errorUtils } from '@0x/utils';
@@ -216,7 +216,7 @@ export class OrderBook {
     ): Promise<void> {
         const connection = getDBConnection();
         if (lifecycleEvent === OrderWatcherLifeCycleEvents.Add) {
-            const signedOrdersModel = orders.map(o => serializeOrder(o.order));
+            const signedOrdersModel = orders.map(o => serializeOrder(o.order, o.metaData.orderHash));
             d('ADD', signedOrdersModel.map(o => o.hash));
             this._websocketSRA.orderUpdate(orders);
             await connection.manager.save(signedOrdersModel);
@@ -294,7 +294,7 @@ const deserializeOrder = (signedOrderModel: Required<SignedOrderModel>): SignedO
     return signedOrder;
 };
 
-const serializeOrder = (signedOrder: SignedOrder): SignedOrderModel => {
+const serializeOrder = (signedOrder: SignedOrder, orderHash: string): SignedOrderModel => {
     const signedOrderModel = new SignedOrderModel({
         signature: signedOrder.signature,
         senderAddress: signedOrder.senderAddress,
@@ -310,7 +310,7 @@ const serializeOrder = (signedOrder: SignedOrder): SignedOrderModel => {
         exchangeAddress: signedOrder.exchangeAddress,
         feeRecipientAddress: signedOrder.feeRecipientAddress,
         expirationTimeSeconds: signedOrder.expirationTimeSeconds.toNumber(),
-        hash: orderHashUtils.getOrderHashHex(signedOrder),
+        hash: orderHash,
     });
     return signedOrderModel;
 };

@@ -52,7 +52,7 @@ interface UpdateOrdersChannelMessageWithChannel extends UpdateOrdersChannelMessa
 
 interface WrappedWebSocket extends WebSocket {
     isAlive: boolean;
-    requestIds: string[];
+    requestIds: Set<string>;
 }
 
 const DEFAULT_OPTS: WebsocketSRAOpts = {
@@ -91,9 +91,10 @@ export class WebsocketSRA {
             return true;
         }
         const { makerAssetData, takerAssetData } = order;
+        const makerAssetDataTakerAssetData = [makerAssetData, takerAssetData];
         // Handle the specific, unambiguous asset datas
         // traderAssetData?: string;
-        if (opts.traderAssetData && [makerAssetData, takerAssetData].includes(opts.traderAssetData)) {
+        if (opts.traderAssetData && makerAssetDataTakerAssetData.includes(opts.traderAssetData)) {
             return true;
         }
         // baseAssetData?: string;
@@ -101,8 +102,8 @@ export class WebsocketSRA {
         if (
             opts.baseAssetData &&
             opts.quoteAssetData &&
-            [makerAssetData, takerAssetData].includes(opts.baseAssetData) &&
-            [makerAssetData, takerAssetData].includes(opts.quoteAssetData)
+            makerAssetDataTakerAssetData.includes(opts.baseAssetData) &&
+            makerAssetDataTakerAssetData.includes(opts.quoteAssetData)
         ) {
             return true;
         }
@@ -111,8 +112,8 @@ export class WebsocketSRA {
         if (
             opts.makerAssetData &&
             opts.takerAssetData &&
-            [makerAssetData, takerAssetData].includes(opts.makerAssetData) &&
-            [makerAssetData, takerAssetData].includes(opts.takerAssetData)
+            makerAssetDataTakerAssetData.includes(opts.makerAssetData) &&
+            makerAssetDataTakerAssetData.includes(opts.takerAssetData)
         ) {
             return true;
         }
@@ -157,24 +158,35 @@ export class WebsocketSRA {
         this._server.close();
     }
     public orderUpdate(apiOrders: APIOrder[]): void {
+        if (this._server.clients.size === 0) {
+            return;
+        }
         const response: Partial<UpdateOrdersChannelMessageWithChannel> = {
             type: OrdersChannelMessageTypes.Update,
             channel: MessageChannels.Orders,
             payload: apiOrders,
         };
         for (const order of apiOrders) {
-            const requestIdToOrders: { [requestId: string]: APIOrder[] } = {};
+            // Future optimisation is to invert this structure so the order isn't duplicated over many request ids
+            // order->requestIds it is less likely to get multiple order updates and more likely
+            // to have many subscribers and a single order
+            const requestIdToOrders: { [requestId: string]: Set<APIOrder> } = {};
             for (const [requestId, subscriptionOpts] of this._requestIdToSubscriptionOpts) {
                 if (WebsocketSRA._matchesOrdersChannelSubscription(order.order, subscriptionOpts)) {
-                    requestIdToOrders[requestId] = requestIdToOrders[requestId]
-                        ? [...requestIdToOrders[requestId], order]
-                        : [order];
+                    if (requestIdToOrders[requestId]) {
+                        const orderSet = requestIdToOrders[requestId];
+                        orderSet.add(order);
+                    } else {
+                        const orderSet = new Set<APIOrder>();
+                        orderSet.add(order);
+                        requestIdToOrders[requestId] = orderSet;
+                    }
                 }
             }
             for (const [requestId, orders] of Object.entries(requestIdToOrders)) {
                 const ws = this._requestIdToSocket.get(requestId);
                 if (ws) {
-                    ws.send(JSON.stringify({ ...response, payload: orders, requestId }));
+                    ws.send(JSON.stringify({ ...response, payload: Array.from(orders), requestId }));
                 }
             }
         }
@@ -184,7 +196,7 @@ export class WebsocketSRA {
         ws.on(WebsocketConnectionEventType.Message, this._messageHandler(ws).bind(this));
         ws.on(WebsocketConnectionEventType.Close, this._closeHandler(ws).bind(this));
         ws.isAlive = true;
-        ws.requestIds = [];
+        ws.requestIds = new Set<string>();
     }
     private _processMessage(ws: WrappedWebSocket, data: WebSocket.Data): void {
         let message: OrderChannelRequest;
@@ -198,6 +210,7 @@ export class WebsocketSRA {
         const requestId = message.requestId;
         switch (message.type) {
             case MessageTypes.Subscribe:
+                ws.requestIds.add(requestId);
                 if (!message.payload) {
                     this._requestIdToSubscriptionOpts.set(requestId, 'ALL_SUBSCRIPTION_OPTS');
                     this._requestIdToSocket.set(requestId, ws);
@@ -222,7 +235,6 @@ export class WebsocketSRA {
             }
         }
     }
-    // tslint:disable-next-line:prefer-function-over-method
     private _messageHandler(ws: WrappedWebSocket): (data: WebSocket.Data) => void {
         return (data: WebSocket.Data) => {
             try {
@@ -246,7 +258,7 @@ export class WebsocketSRA {
     }
     private _closeHandler(ws: WrappedWebSocket): () => void {
         return () => {
-            for (const [requestId] of ws.requestIds) {
+            for (const requestId of ws.requestIds) {
                 this._requestIdToSocket.delete(requestId);
                 this._requestIdToSubscriptionOpts.delete(requestId);
             }
