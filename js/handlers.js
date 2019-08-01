@@ -69,8 +69,8 @@ class Handlers {
             res.status(HttpStatus.OK).send(orderIfExists);
         }
     }
-    constructor() {
-        this._orderBook = new orderbook_1.OrderBook();
+    constructor(orderBook) {
+        this._orderBook = orderBook;
     }
     async initOrderBookAsync() {
         await this._orderBook.addExistingOrdersToOrderWatcherAsync();
