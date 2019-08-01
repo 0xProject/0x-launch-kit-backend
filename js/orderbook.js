@@ -33,8 +33,8 @@ class OrderBook {
         if (signedOrderModelIfExists === undefined) {
             return undefined;
         } else {
-            const deserializedOrder = deserializeOrder(signedOrderModelIfExists);
-            return { metaData: {}, order: deserializedOrder };
+            const deserializedOrder = deserializeOrderToAPIOrder(signedOrderModelIfExists);
+            return deserializedOrder;
         }
     }
     static async getAssetPairsAsync(page, perPage, assetDataA, assetDataB) {
@@ -90,13 +90,11 @@ class OrderBook {
             where: { takerAssetData: quoteAssetData, makerAssetData: baseAssetData },
         });
         const bidApiOrders = bidSignedOrderModels
-            .map(deserializeOrder)
-            .sort((orderA, orderB) => compareBidOrder(orderA, orderB))
-            .map(signedOrder => ({ metaData: {}, order: signedOrder }));
+            .map(deserializeOrderToAPIOrder)
+            .sort((orderA, orderB) => compareBidOrder(orderA.order, orderB.order));
         const askApiOrders = askSignedOrderModels
-            .map(deserializeOrder)
-            .sort((orderA, orderB) => compareAskOrder(orderA, orderB))
-            .map(signedOrder => ({ metaData: {}, order: signedOrder }));
+            .map(deserializeOrderToAPIOrder)
+            .sort((orderA, orderB) => compareAskOrder(orderA.order, orderB.order));
         const paginatedBidApiOrders = paginator_1.paginate(bidApiOrders, page, perPage);
         const paginatedAskApiOrders = paginator_1.paginate(askApiOrders, page, perPage);
         return {
@@ -122,43 +120,42 @@ class OrderBook {
         const signedOrderModels = await connection.manager.find(SignedOrderModel_1.SignedOrderModel, {
             where: filterObject,
         });
-        let signedOrders = _.map(signedOrderModels, deserializeOrder);
+        let apiOrders = _.map(signedOrderModels, deserializeOrderToAPIOrder);
         // Post-filters
-        signedOrders = signedOrders
+        apiOrders = apiOrders
             .filter(
                 // traderAddress
-                signedOrder =>
+                apiOrder =>
                     ordersFilterParams.traderAddress === undefined ||
-                    signedOrder.makerAddress === ordersFilterParams.traderAddress ||
-                    signedOrder.takerAddress === ordersFilterParams.traderAddress,
+                    apiOrder.order.makerAddress === ordersFilterParams.traderAddress ||
+                    apiOrder.order.takerAddress === ordersFilterParams.traderAddress,
             )
             .filter(
                 // makerAssetAddress
-                signedOrder =>
+                apiOrder =>
                     ordersFilterParams.makerAssetAddress === undefined ||
-                    includesTokenAddress(signedOrder.makerAssetData, ordersFilterParams.makerAssetAddress),
+                    includesTokenAddress(apiOrder.order.makerAssetData, ordersFilterParams.makerAssetAddress),
             )
             .filter(
                 // takerAssetAddress
-                signedOrder =>
+                apiOrder =>
                     ordersFilterParams.takerAssetAddress === undefined ||
-                    includesTokenAddress(signedOrder.takerAssetData, ordersFilterParams.takerAssetAddress),
+                    includesTokenAddress(apiOrder.order.takerAssetData, ordersFilterParams.takerAssetAddress),
             )
             .filter(
                 // makerAssetProxyId
-                signedOrder =>
+                apiOrder =>
                     ordersFilterParams.makerAssetProxyId === undefined ||
-                    _0x_js_1.assetDataUtils.decodeAssetDataOrThrow(signedOrder.makerAssetData).assetProxyId ===
+                    _0x_js_1.assetDataUtils.decodeAssetDataOrThrow(apiOrder.order.makerAssetData).assetProxyId ===
                         ordersFilterParams.makerAssetProxyId,
             )
             .filter(
-                // makerAssetProxyId
-                signedOrder =>
+                // takerAssetProxyId
+                apiOrder =>
                     ordersFilterParams.takerAssetProxyId === undefined ||
-                    _0x_js_1.assetDataUtils.decodeAssetDataOrThrow(signedOrder.takerAssetData).assetProxyId ===
+                    _0x_js_1.assetDataUtils.decodeAssetDataOrThrow(apiOrder.order.takerAssetData).assetProxyId ===
                         ordersFilterParams.takerAssetProxyId,
             );
-        const apiOrders = signedOrders.map(signedOrder => ({ metaData: {}, order: signedOrder }));
         const paginatedApiOrders = paginator_1.paginate(apiOrders, page, perPage);
         return paginatedApiOrders;
     }
@@ -188,7 +185,7 @@ class OrderBook {
     async _onOrderLifeCycleEventAsync(lifecycleEvent, orders) {
         const connection = db_connection_1.getDBConnection();
         if (lifecycleEvent === types_2.OrderWatcherLifeCycleEvents.Add) {
-            const signedOrdersModel = orders.map(o => serializeOrder(o.order));
+            const signedOrdersModel = orders.map(o => serializeOrder(o.order, o.metaData.orderHash));
             d('ADD', signedOrdersModel.map(o => o.hash));
             this._websocketSRA.orderUpdate(orders);
             await connection.manager.save(signedOrdersModel);
@@ -258,7 +255,31 @@ const deserializeOrder = signedOrderModel => {
     };
     return signedOrder;
 };
-const serializeOrder = signedOrder => {
+const deserializeOrderToAPIOrder = signedOrderModel => {
+    const apiOrder = {
+        order: {
+            signature: signedOrderModel.signature,
+            senderAddress: signedOrderModel.senderAddress,
+            makerAddress: signedOrderModel.makerAddress,
+            takerAddress: signedOrderModel.takerAddress,
+            makerFee: new _0x_js_1.BigNumber(signedOrderModel.makerFee),
+            takerFee: new _0x_js_1.BigNumber(signedOrderModel.takerFee),
+            makerAssetAmount: new _0x_js_1.BigNumber(signedOrderModel.makerAssetAmount),
+            takerAssetAmount: new _0x_js_1.BigNumber(signedOrderModel.takerAssetAmount),
+            makerAssetData: signedOrderModel.makerAssetData,
+            takerAssetData: signedOrderModel.takerAssetData,
+            salt: new _0x_js_1.BigNumber(signedOrderModel.salt),
+            exchangeAddress: signedOrderModel.exchangeAddress,
+            feeRecipientAddress: signedOrderModel.feeRecipientAddress,
+            expirationTimeSeconds: new _0x_js_1.BigNumber(signedOrderModel.expirationTimeSeconds),
+        },
+        metaData: {
+            orderHash: signedOrderModel.hash,
+        },
+    };
+    return apiOrder;
+};
+const serializeOrder = (signedOrder, orderHash) => {
     const signedOrderModel = new SignedOrderModel_1.SignedOrderModel({
         signature: signedOrder.signature,
         senderAddress: signedOrder.senderAddress,
@@ -274,7 +295,7 @@ const serializeOrder = signedOrder => {
         exchangeAddress: signedOrder.exchangeAddress,
         feeRecipientAddress: signedOrder.feeRecipientAddress,
         expirationTimeSeconds: signedOrder.expirationTimeSeconds.toNumber(),
-        hash: _0x_js_1.orderHashUtils.getOrderHashHex(signedOrder),
+        hash: orderHash,
     });
     return signedOrderModel;
 };

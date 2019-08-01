@@ -38,8 +38,10 @@ export class OrderBook {
         if (signedOrderModelIfExists === undefined) {
             return undefined;
         } else {
-            const deserializedOrder = deserializeOrder(signedOrderModelIfExists as Required<SignedOrderModel>);
-            return { metaData: {}, order: deserializedOrder };
+            const deserializedOrder = deserializeOrderToAPIOrder(signedOrderModelIfExists as Required<
+                SignedOrderModel
+            >);
+            return deserializedOrder;
         }
     }
     public static async getAssetPairsAsync(
@@ -109,13 +111,11 @@ export class OrderBook {
             where: { takerAssetData: quoteAssetData, makerAssetData: baseAssetData },
         })) as Array<Required<SignedOrderModel>>;
         const bidApiOrders: APIOrder[] = bidSignedOrderModels
-            .map(deserializeOrder)
-            .sort((orderA, orderB) => compareBidOrder(orderA, orderB))
-            .map(signedOrder => ({ metaData: {}, order: signedOrder }));
+            .map(deserializeOrderToAPIOrder)
+            .sort((orderA, orderB) => compareBidOrder(orderA.order, orderB.order));
         const askApiOrders: APIOrder[] = askSignedOrderModels
-            .map(deserializeOrder)
-            .sort((orderA, orderB) => compareAskOrder(orderA, orderB))
-            .map(signedOrder => ({ metaData: {}, order: signedOrder }));
+            .map(deserializeOrderToAPIOrder)
+            .sort((orderA, orderB) => compareAskOrder(orderA.order, orderB.order));
         const paginatedBidApiOrders = paginate(bidApiOrders, page, perPage);
         const paginatedAskApiOrders = paginate(askApiOrders, page, perPage);
         return {
@@ -145,43 +145,42 @@ export class OrderBook {
         const signedOrderModels = (await connection.manager.find(SignedOrderModel, { where: filterObject })) as Array<
             Required<SignedOrderModel>
         >;
-        let signedOrders = _.map(signedOrderModels, deserializeOrder);
+        let apiOrders = _.map(signedOrderModels, deserializeOrderToAPIOrder);
         // Post-filters
-        signedOrders = signedOrders
+        apiOrders = apiOrders
             .filter(
                 // traderAddress
-                signedOrder =>
+                apiOrder =>
                     ordersFilterParams.traderAddress === undefined ||
-                    signedOrder.makerAddress === ordersFilterParams.traderAddress ||
-                    signedOrder.takerAddress === ordersFilterParams.traderAddress,
+                    apiOrder.order.makerAddress === ordersFilterParams.traderAddress ||
+                    apiOrder.order.takerAddress === ordersFilterParams.traderAddress,
             )
             .filter(
                 // makerAssetAddress
-                signedOrder =>
+                apiOrder =>
                     ordersFilterParams.makerAssetAddress === undefined ||
-                    includesTokenAddress(signedOrder.makerAssetData, ordersFilterParams.makerAssetAddress),
+                    includesTokenAddress(apiOrder.order.makerAssetData, ordersFilterParams.makerAssetAddress),
             )
             .filter(
                 // takerAssetAddress
-                signedOrder =>
+                apiOrder =>
                     ordersFilterParams.takerAssetAddress === undefined ||
-                    includesTokenAddress(signedOrder.takerAssetData, ordersFilterParams.takerAssetAddress),
+                    includesTokenAddress(apiOrder.order.takerAssetData, ordersFilterParams.takerAssetAddress),
             )
             .filter(
                 // makerAssetProxyId
-                signedOrder =>
+                apiOrder =>
                     ordersFilterParams.makerAssetProxyId === undefined ||
-                    assetDataUtils.decodeAssetDataOrThrow(signedOrder.makerAssetData).assetProxyId ===
+                    assetDataUtils.decodeAssetDataOrThrow(apiOrder.order.makerAssetData).assetProxyId ===
                         ordersFilterParams.makerAssetProxyId,
             )
             .filter(
-                // makerAssetProxyId
-                signedOrder =>
+                // takerAssetProxyId
+                apiOrder =>
                     ordersFilterParams.takerAssetProxyId === undefined ||
-                    assetDataUtils.decodeAssetDataOrThrow(signedOrder.takerAssetData).assetProxyId ===
+                    assetDataUtils.decodeAssetDataOrThrow(apiOrder.order.takerAssetData).assetProxyId ===
                         ordersFilterParams.takerAssetProxyId,
             );
-        const apiOrders: APIOrder[] = signedOrders.map(signedOrder => ({ metaData: {}, order: signedOrder }));
         const paginatedApiOrders = paginate(apiOrders, page, perPage);
         return paginatedApiOrders;
     }
@@ -292,6 +291,30 @@ const deserializeOrder = (signedOrderModel: Required<SignedOrderModel>): SignedO
         expirationTimeSeconds: new BigNumber(signedOrderModel.expirationTimeSeconds),
     };
     return signedOrder;
+};
+const deserializeOrderToAPIOrder = (signedOrderModel: Required<SignedOrderModel>): APIOrder => {
+    const apiOrder: APIOrder = {
+        order: {
+            signature: signedOrderModel.signature,
+            senderAddress: signedOrderModel.senderAddress,
+            makerAddress: signedOrderModel.makerAddress,
+            takerAddress: signedOrderModel.takerAddress,
+            makerFee: new BigNumber(signedOrderModel.makerFee),
+            takerFee: new BigNumber(signedOrderModel.takerFee),
+            makerAssetAmount: new BigNumber(signedOrderModel.makerAssetAmount),
+            takerAssetAmount: new BigNumber(signedOrderModel.takerAssetAmount),
+            makerAssetData: signedOrderModel.makerAssetData,
+            takerAssetData: signedOrderModel.takerAssetData,
+            salt: new BigNumber(signedOrderModel.salt),
+            exchangeAddress: signedOrderModel.exchangeAddress,
+            feeRecipientAddress: signedOrderModel.feeRecipientAddress,
+            expirationTimeSeconds: new BigNumber(signedOrderModel.expirationTimeSeconds),
+        },
+        metaData: {
+            orderHash: signedOrderModel.hash,
+        },
+    };
+    return apiOrder;
 };
 
 const serializeOrder = (signedOrder: SignedOrder, orderHash: string): SignedOrderModel => {

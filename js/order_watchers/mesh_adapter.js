@@ -2,11 +2,13 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 const _0x_js_1 = require('0x.js');
 const dekz_mesh_rpc_client_1 = require('dekz-mesh-rpc-client');
+const _ = require('lodash');
 const config_1 = require('../config');
 const utils_1 = require('../utils');
 // tslint:disable-next-line:no-var-requires
 const d = require('debug')('MESH');
 const ZERO = new _0x_js_1.BigNumber(0);
+const ADD_ORDER_BATCH_SIZE = 100;
 class MeshAdapter {
     static _calculateAddOrRemove(orderEvents) {
         const added = [];
@@ -98,8 +100,16 @@ class MeshAdapter {
         return orders;
     }
     async _submitOrdersToMeshAsync(signedOrders) {
-        const validationResults = await utils_1.utils.attemptAsync(() => this._wsClient.addOrdersAsync(signedOrders));
-        return validationResults;
+        const chunks = _.chunk(signedOrders, ADD_ORDER_BATCH_SIZE);
+        let allValidationResults = { accepted: [], rejected: [] };
+        for (const chunk of chunks) {
+            const validationResults = await utils_1.utils.attemptAsync(() => this._wsClient.addOrdersAsync(chunk));
+            allValidationResults = {
+                accepted: [...allValidationResults.accepted, ...validationResults.accepted],
+                rejected: [...allValidationResults.rejected, ...validationResults.rejected],
+            };
+        }
+        return allValidationResults;
     }
 }
 exports.MeshAdapter = MeshAdapter;
