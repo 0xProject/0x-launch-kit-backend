@@ -84,6 +84,9 @@ export class OrderBook {
         this._orderWatcher.onOrdersRemoved(async orders => {
             await this._onOrderLifeCycleEventAsync(OrderWatcherLifeCycleEvents.Remove, orders);
         });
+        this._orderWatcher.onOrdersUpdated(async orders => {
+            await this._onOrderLifeCycleEventAsync(OrderWatcherLifeCycleEvents.Update, orders);
+        });
         this._orderWatcher.onReconnected(async () => {
             d('Reconnecting to orderwatcher');
             await this.addExistingOrdersToOrderWatcherAsync();
@@ -215,16 +218,19 @@ export class OrderBook {
     ): Promise<void> {
         const connection = getDBConnection();
         if (lifecycleEvent === OrderWatcherLifeCycleEvents.Add) {
-            const signedOrdersModel = orders.map(o => serializeOrder(o.order, o.metaData.orderHash));
+            const signedOrdersModel = orders.map(o => serializeOrder(o));
             d('ADD', signedOrdersModel.map(o => o.hash));
-            this._websocketSRA.orderUpdate(orders);
+            await connection.manager.save(signedOrdersModel);
+        } else if (lifecycleEvent === OrderWatcherLifeCycleEvents.Update) {
+            const signedOrdersModel = orders.map(o => serializeOrder(o));
+            d('UPDATE', signedOrdersModel.map(o => o.hash));
             await connection.manager.save(signedOrdersModel);
         } else if (lifecycleEvent === OrderWatcherLifeCycleEvents.Remove) {
             const orderHashes = orders.map(o => o.metaData.orderHash);
             d('REMOVE', orderHashes);
-            this._websocketSRA.orderUpdate(orders);
             await connection.manager.delete(SignedOrderModel, orderHashes);
         }
+        this._websocketSRA.orderUpdate(orders);
     }
 }
 
@@ -312,12 +318,14 @@ const deserializeOrderToAPIOrder = (signedOrderModel: Required<SignedOrderModel>
         },
         metaData: {
             orderHash: signedOrderModel.hash,
+            remainingFillableTakerAssetAmount: signedOrderModel.remainingFillableTakerAssetAmount,
         },
     };
     return apiOrder;
 };
 
-const serializeOrder = (signedOrder: SignedOrder, orderHash: string): SignedOrderModel => {
+const serializeOrder = (apiOrder: APIOrderWithMetaData): SignedOrderModel => {
+    const signedOrder = apiOrder.order;
     const signedOrderModel = new SignedOrderModel({
         signature: signedOrder.signature,
         senderAddress: signedOrder.senderAddress,
@@ -333,7 +341,8 @@ const serializeOrder = (signedOrder: SignedOrder, orderHash: string): SignedOrde
         exchangeAddress: signedOrder.exchangeAddress,
         feeRecipientAddress: signedOrder.feeRecipientAddress,
         expirationTimeSeconds: signedOrder.expirationTimeSeconds.toNumber(),
-        hash: orderHash,
+        hash: apiOrder.metaData.orderHash,
+        remainingFillableTakerAssetAmount: apiOrder.metaData.remainingFillableTakerAssetAmount.toString(),
     });
     return signedOrderModel;
 };

@@ -52,5 +52,8 @@ exports.signedOrderEntity = new typeorm_1.EntitySchema({
         signature: {
             type: 'varchar',
         },
+        remainingFillableTakerAssetAmount: {
+            type: 'varchar',
+        },
     },
 });

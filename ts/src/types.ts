@@ -4,6 +4,7 @@ import { APIOrder, SignedOrder } from '@0x/types';
 export enum OrderWatcherLifeCycleEvents {
     Add,
     Remove,
+    Update,
 }
 
 export type onOrdersUpdateCallback = (orders: APIOrderWithMetaData[]) => void;

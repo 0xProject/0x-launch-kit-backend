@@ -9,12 +9,13 @@
         "prettier": "yarn prettier:js && yarn prettier:ts",
         "build": "yarn build:ts && shx rm -rf js && shx cp -r ts/lib/ js",
         "prettier:js": "prettier --write 'js/**/*.js' --config .prettierrc",
-        "start:js": "node -r dotenv/config js/index.js",
+        "start:js": "yarn migration && node -r dotenv/config js/index.js",
         "build:ts": "tsc -p ts/tsconfig.json",
         "watch:ts": "tsc -w -p ts/tsconfig.json",
         "prettier:ts": "prettier --write 'ts/**/*.ts' --config .prettierrc",
-        "start:ts": "node -r dotenv/config ts/lib/index.js",
-        "lint:ts": "tslint --project ts --format stylish"
+        "start:ts": "yarn migration && node -r dotenv/config ts/lib/index.js",
+        "lint:ts": "tslint --project ts --format stylish",
+        "migration": "DEBUG='*' typeorm migration:run"
     },
     "devDependencies": {
         "@0x/tslint-config": "^3.0.1",

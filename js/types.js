@@ -4,4 +4,5 @@ var OrderWatcherLifeCycleEvents;
 (function(OrderWatcherLifeCycleEvents) {
     OrderWatcherLifeCycleEvents[(OrderWatcherLifeCycleEvents['Add'] = 0)] = 'Add';
     OrderWatcherLifeCycleEvents[(OrderWatcherLifeCycleEvents['Remove'] = 1)] = 'Remove';
+    OrderWatcherLifeCycleEvents[(OrderWatcherLifeCycleEvents['Update'] = 2)] = 'Update';
 })((OrderWatcherLifeCycleEvents = exports.OrderWatcherLifeCycleEvents || (exports.OrderWatcherLifeCycleEvents = {})));

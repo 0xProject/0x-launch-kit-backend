@@ -10,9 +10,36 @@ const d = require('debug')('MESH');
 const ZERO = new _0x_js_1.BigNumber(0);
 const ADD_ORDER_BATCH_SIZE = 100;
 class MeshAdapter {
+    constructor() {
+        this._listeners = {
+            added: new Set(),
+            updated: new Set(),
+            removed: new Set(),
+        };
+        this._wsClient = new dekz_mesh_rpc_client_1.WSClient(config_1.MESH_ENDPOINT);
+        this._wsClient.subscribeToOrdersAsync(orderEvents => {
+            const { added, updated, removed } = MeshAdapter._calculateAddOrRemove(orderEvents);
+            if (added.length > 0) {
+                for (const cb of this._listeners.added) {
+                    cb(added);
+                }
+            }
+            if (removed.length > 0) {
+                for (const cb of this._listeners.removed) {
+                    cb(removed);
+                }
+            }
+            if (updated.length > 0) {
+                for (const cb of this._listeners.updated) {
+                    cb(updated);
+                }
+            }
+        });
+    }
     static _calculateAddOrRemove(orderEvents) {
         const added = [];
         const removed = [];
+        const updated = [];
         for (const event of orderEvents) {
             const apiOrder = MeshAdapter._orderInfoToAPIOrder(event);
             switch (event.kind) {
@@ -29,6 +56,7 @@ class MeshAdapter {
                     break;
                 }
                 case dekz_mesh_rpc_client_1.OrderEventKind.Filled: {
+                    updated.push(apiOrder);
                     break;
                 }
                 default:
@@ -36,7 +64,7 @@ class MeshAdapter {
                     break;
             }
         }
-        return { added, removed };
+        return { added, removed, updated };
     }
     static _orderInfoToAPIOrder(orderEvent) {
         const remainingFillableTakerAssetAmount = orderEvent.fillableTakerAssetAmount
@@ -49,9 +77,6 @@ class MeshAdapter {
                 remainingFillableTakerAssetAmount,
             },
         };
-    }
-    constructor() {
-        this._wsClient = new dekz_mesh_rpc_client_1.WSClient(config_1.MESH_ENDPOINT);
     }
     async addOrdersAsync(orders) {
         if (orders.length === 0) {
@@ -71,25 +96,15 @@ class MeshAdapter {
     }
     // tslint:disable-next-line:async-suffix
     async onOrdersAdded(cb) {
-        await utils_1.utils.attemptAsync(() =>
-            this._wsClient.subscribeToOrdersAsync(orderEvents => {
-                const { added } = MeshAdapter._calculateAddOrRemove(orderEvents);
-                if (added.length > 0) {
-                    cb(added);
-                }
-            }),
-        );
+        this._listeners.added.add(cb);
+    }
+    // tslint:disable-next-line:async-suffix
+    async onOrdersUpdated(cb) {
+        this._listeners.updated.add(cb);
     }
     // tslint:disable-next-line:async-suffix
     async onOrdersRemoved(cb) {
-        await utils_1.utils.attemptAsync(() =>
-            this._wsClient.subscribeToOrdersAsync(orderEvents => {
-                const { removed } = MeshAdapter._calculateAddOrRemove(orderEvents);
-                if (removed.length > 0) {
-                    cb(removed);
-                }
-            }),
-        );
+        this._listeners.removed.add(cb);
     }
     onReconnected(cb) {
         this._wsClient.onReconnected(() => cb());
@@ -103,6 +118,7 @@ class MeshAdapter {
         const chunks = _.chunk(signedOrders, ADD_ORDER_BATCH_SIZE);
         let allValidationResults = { accepted: [], rejected: [] };
         for (const chunk of chunks) {
+            d('MESH SEND', chunk.length);
             const validationResults = await utils_1.utils.attemptAsync(() => this._wsClient.addOrdersAsync(chunk));
             allValidationResults = {
                 accepted: [...allValidationResults.accepted, ...validationResults.accepted],
