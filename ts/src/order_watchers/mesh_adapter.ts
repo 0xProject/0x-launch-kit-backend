@@ -27,15 +27,20 @@ const ADD_ORDER_BATCH_SIZE = 100;
 
 export class MeshAdapter {
     private readonly _wsClient: WSClient;
+    private readonly _listeners = {
+        added: new Set<onOrdersUpdateCallback>(),
+        updated: new Set<onOrdersUpdateCallback>(),
+        removed: new Set<onOrdersUpdateCallback>(),
+    };
     private static _calculateAddOrRemove(
         orderEvents: OrderEvent[],
-    ): { added: APIOrderWithMetaData[]; removed: APIOrderWithMetaData[] } {
+    ): { added: APIOrderWithMetaData[]; removed: APIOrderWithMetaData[]; updated: APIOrderWithMetaData[] } {
         const added = [];
         const removed = [];
+        const updated = [];
         for (const event of orderEvents) {
             const apiOrder = MeshAdapter._orderInfoToAPIOrder(event);
             switch (event.kind) {
-                case OrderEventKind.FillabilityIncreased:
                 case OrderEventKind.Added: {
                     added.push(apiOrder);
                     break;
@@ -47,7 +52,9 @@ export class MeshAdapter {
                     removed.push(apiOrder);
                     break;
                 }
+                case OrderEventKind.FillabilityIncreased:
                 case OrderEventKind.Filled: {
+                    updated.push(apiOrder);
                     break;
                 }
                 default:
@@ -55,7 +62,7 @@ export class MeshAdapter {
                     break;
             }
         }
-        return { added, removed };
+        return { added, removed, updated };
     }
     private static _orderInfoToAPIOrder(
         orderEvent: OrderEvent | AcceptedOrderInfo | RejectedOrderInfo | OrderInfo,
@@ -73,6 +80,24 @@ export class MeshAdapter {
     }
     constructor() {
         this._wsClient = new WSClient(MESH_ENDPOINT);
+        this._wsClient.subscribeToOrdersAsync(orderEvents => {
+            const { added, updated, removed } = MeshAdapter._calculateAddOrRemove(orderEvents);
+            if (added.length > 0) {
+                for (const cb of this._listeners.added) {
+                    cb(added);
+                }
+            }
+            if (removed.length > 0) {
+                for (const cb of this._listeners.removed) {
+                    cb(removed);
+                }
+            }
+            if (updated.length > 0) {
+                for (const cb of this._listeners.updated) {
+                    cb(updated);
+                }
+            }
+        });
     }
     public async addOrdersAsync(orders: SignedOrder[]): Promise<AdaptedValidationResults> {
         if (orders.length === 0) {
@@ -92,25 +117,15 @@ export class MeshAdapter {
     }
     // tslint:disable-next-line:async-suffix
     public async onOrdersAdded(cb: onOrdersUpdateCallback): Promise<void> {
-        await utils.attemptAsync(() =>
-            this._wsClient.subscribeToOrdersAsync((orderEvents: OrderEvent[]) => {
-                const { added } = MeshAdapter._calculateAddOrRemove(orderEvents);
-                if (added.length > 0) {
-                    cb(added);
-                }
-            }),
-        );
+        this._listeners.added.add(cb);
+    }
+    // tslint:disable-next-line:async-suffix
+    public async onOrdersUpdated(cb: onOrdersUpdateCallback): Promise<void> {
+        this._listeners.updated.add(cb);
     }
     // tslint:disable-next-line:async-suffix
     public async onOrdersRemoved(cb: onOrdersUpdateCallback): Promise<void> {
-        await utils.attemptAsync(() =>
-            this._wsClient.subscribeToOrdersAsync((orderEvents: OrderEvent[]) => {
-                const { removed } = MeshAdapter._calculateAddOrRemove(orderEvents);
-                if (removed.length > 0) {
-                    cb(removed);
-                }
-            }),
-        );
+        this._listeners.removed.add(cb);
     }
     public onReconnected(cb: () => void): void {
         this._wsClient.onReconnected(() => cb());
@@ -124,6 +139,7 @@ export class MeshAdapter {
         const chunks = _.chunk(signedOrders, ADD_ORDER_BATCH_SIZE);
         let allValidationResults: ValidationResults = { accepted: [], rejected: [] };
         for (const chunk of chunks) {
+            d('MESH SEND', chunk.length);
             const validationResults = await utils.attemptAsync(() => this._wsClient.addOrdersAsync(chunk));
             allValidationResults = {
                 accepted: [...allValidationResults.accepted, ...validationResults.accepted],

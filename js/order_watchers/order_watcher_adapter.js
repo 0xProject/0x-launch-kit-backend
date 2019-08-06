@@ -14,8 +14,11 @@ const VALIDATION_BATCH_SIZE = 100;
 const ZERO = new utils_1.BigNumber(0);
 class OrderWatcherAdapter {
     constructor(provider, networkId, contractWrappers) {
-        this._onOrdersRemovedCallbacks = [];
-        this._onOrdersAddedCallbacks = [];
+        this._listeners = {
+            added: new Set(),
+            updated: new Set(),
+            removed: new Set(),
+        };
         this._shadowedOrderHashes = new Map();
         this._orders = new Map();
         this._orderWatcher = new order_watcher_1.OrderWatcher(provider, networkId);
@@ -29,7 +32,7 @@ class OrderWatcherAdapter {
                 this._shadowedOrderHashes.set(orderHash, Date.now());
                 const order = this._orders.get(orderHash);
                 if (order) {
-                    for (const cb of this._onOrdersRemovedCallbacks) {
+                    for (const cb of this._listeners.removed) {
                         cb([
                             {
                                 order,
@@ -43,10 +46,14 @@ class OrderWatcherAdapter {
                 }
             } else {
                 const { orderRelevantState } = orderState;
+                // Order was shadowed and is now fillable, we previously removed the order with a REMOVE
+                // an ADD should follow rather than an update
+                const isAdded = this._shadowedOrderHashes.has(orderHash);
                 this._shadowedOrderHashes.delete(orderHash);
                 const order = this._orders.get(orderHash);
                 if (order) {
-                    for (const cb of this._onOrdersAddedCallbacks) {
+                    const listeners = isAdded ? this._listeners.added : this._listeners.updated;
+                    for (const cb of listeners) {
                         cb([
                             {
                                 order,
@@ -85,7 +92,7 @@ class OrderWatcherAdapter {
                         }
                     }
                     if (removedOrders.length > 0) {
-                        for (const cb of this._onOrdersRemovedCallbacks) {
+                        for (const cb of this._listeners.removed) {
                             cb(removedOrders);
                         }
                     }
@@ -103,10 +110,13 @@ class OrderWatcherAdapter {
         return [];
     }
     onOrdersAdded(cb) {
-        this._onOrdersAddedCallbacks.push(cb);
+        this._listeners.added.add(cb);
     }
     onOrdersRemoved(cb) {
-        this._onOrdersRemovedCallbacks.push(cb);
+        this._listeners.removed.add(cb);
+    }
+    onOrdersUpdated(cb) {
+        this._listeners.updated.add(cb);
     }
     async addOrdersAsync(orders) {
         const erc20Orders = orders.filter(
@@ -132,8 +142,8 @@ class OrderWatcherAdapter {
             await this._orderWatcher.addOrderAsync(result.order);
             this._orders.set(orderHash, result.order);
         }
-        for (const cb of this._onOrdersAddedCallbacks) {
-            if (accepted.length > 0) {
+        if (accepted.length > 0) {
+            for (const cb of this._listeners.added) {
                 cb(accepted);
             }
         }

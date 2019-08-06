@@ -52,5 +52,8 @@ export const signedOrderEntity = new EntitySchema<SignedOrderModel>({
         signature: {
             type: 'varchar',
         },
+        remainingFillableTakerAssetAmount: {
+            type: 'varchar',
+        },
     },
 });
