@@ -63,13 +63,13 @@ class OrderBook {
         this._websocketSRA = websocketSRA;
         this._orderWatcher = order_watchers_factory_1.OrderWatchersFactory.build();
         this._orderWatcher.onOrdersAdded(async orders => {
-            await this._onOrderLifeCycleEventAsync(types_2.OrderWatcherLifeCycleEvents.Add, orders);
+            await this._onOrderLifeCycleEventAsync(types_2.OrderWatcherLifeCycleEvents.Added, orders);
         });
         this._orderWatcher.onOrdersRemoved(async orders => {
-            await this._onOrderLifeCycleEventAsync(types_2.OrderWatcherLifeCycleEvents.Remove, orders);
+            await this._onOrderLifeCycleEventAsync(types_2.OrderWatcherLifeCycleEvents.Removed, orders);
         });
         this._orderWatcher.onOrdersUpdated(async orders => {
-            await this._onOrderLifeCycleEventAsync(types_2.OrderWatcherLifeCycleEvents.Update, orders);
+            await this._onOrderLifeCycleEventAsync(types_2.OrderWatcherLifeCycleEvents.Updated, orders);
         });
         this._orderWatcher.onReconnected(async () => {
             d('Reconnecting to orderwatcher');
@@ -177,28 +177,30 @@ class OrderBook {
         );
         // Remove all of the rejected orders
         if (rejected.length > 0) {
-            await this._onOrderLifeCycleEventAsync(types_2.OrderWatcherLifeCycleEvents.Remove, rejected);
+            await this._onOrderLifeCycleEventAsync(types_2.OrderWatcherLifeCycleEvents.Removed, rejected);
         }
         // Sync the order watching service state locally
         const orders = await getOrdersPromise;
         if (orders.length > 0) {
-            await this._onOrderLifeCycleEventAsync(types_2.OrderWatcherLifeCycleEvents.Add, orders);
+            await this._onOrderLifeCycleEventAsync(types_2.OrderWatcherLifeCycleEvents.Added, orders);
         }
     }
     async _onOrderLifeCycleEventAsync(lifecycleEvent, orders) {
         const connection = db_connection_1.getDBConnection();
-        if (lifecycleEvent === types_2.OrderWatcherLifeCycleEvents.Add) {
-            const signedOrdersModel = orders.map(o => serializeOrder(o));
-            d('ADD', signedOrdersModel.map(o => o.hash));
-            await connection.manager.save(signedOrdersModel);
-        } else if (lifecycleEvent === types_2.OrderWatcherLifeCycleEvents.Update) {
-            const signedOrdersModel = orders.map(o => serializeOrder(o));
-            d('UPDATE', signedOrdersModel.map(o => o.hash));
-            await connection.manager.save(signedOrdersModel);
-        } else if (lifecycleEvent === types_2.OrderWatcherLifeCycleEvents.Remove) {
-            const orderHashes = orders.map(o => o.metaData.orderHash);
-            d('REMOVE', orderHashes);
-            await connection.manager.delete(SignedOrderModel_1.SignedOrderModel, orderHashes);
+        switch (lifecycleEvent) {
+            case types_2.OrderWatcherLifeCycleEvents.Updated:
+            case types_2.OrderWatcherLifeCycleEvents.Added: {
+                const signedOrdersModel = orders.map(o => serializeOrder(o));
+                await connection.manager.save(signedOrdersModel);
+                break;
+            }
+            case types_2.OrderWatcherLifeCycleEvents.Removed: {
+                const orderHashes = orders.map(o => o.metaData.orderHash);
+                await connection.manager.delete(SignedOrderModel_1.SignedOrderModel, orderHashes);
+                break;
+            }
+            default:
+            // Do Nothing
         }
         this._websocketSRA.orderUpdate(orders);
     }
@@ -262,23 +264,9 @@ const deserializeOrder = signedOrderModel => {
     return signedOrder;
 };
 const deserializeOrderToAPIOrder = signedOrderModel => {
+    const order = deserializeOrder(signedOrderModel);
     const apiOrder = {
-        order: {
-            signature: signedOrderModel.signature,
-            senderAddress: signedOrderModel.senderAddress,
-            makerAddress: signedOrderModel.makerAddress,
-            takerAddress: signedOrderModel.takerAddress,
-            makerFee: new _0x_js_1.BigNumber(signedOrderModel.makerFee),
-            takerFee: new _0x_js_1.BigNumber(signedOrderModel.takerFee),
-            makerAssetAmount: new _0x_js_1.BigNumber(signedOrderModel.makerAssetAmount),
-            takerAssetAmount: new _0x_js_1.BigNumber(signedOrderModel.takerAssetAmount),
-            makerAssetData: signedOrderModel.makerAssetData,
-            takerAssetData: signedOrderModel.takerAssetData,
-            salt: new _0x_js_1.BigNumber(signedOrderModel.salt),
-            exchangeAddress: signedOrderModel.exchangeAddress,
-            feeRecipientAddress: signedOrderModel.feeRecipientAddress,
-            expirationTimeSeconds: new _0x_js_1.BigNumber(signedOrderModel.expirationTimeSeconds),
-        },
+        order,
         metaData: {
             orderHash: signedOrderModel.hash,
             remainingFillableTakerAssetAmount: signedOrderModel.remainingFillableTakerAssetAmount,

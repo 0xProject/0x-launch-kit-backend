@@ -42,10 +42,6 @@ exports.MAKER_FEE_ZRX_UNIT_AMOUNT = _.isEmpty(process.env.MAKER_FEE_ZRX_UNIT_AMO
 exports.TAKER_FEE_ZRX_UNIT_AMOUNT = _.isEmpty(process.env.TAKER_FEE_ZRX_UNIT_AMOUNT)
     ? new _0x_js_1.BigNumber(0)
     : assertEnvVarType('TAKER_FEE_ZRX_UNIT_AMOUNT', process.env.TAKER_FEE_ZRX_UNIT_AMOUNT, EnvVarType.UnitAmount);
-// Ethereum RPC url
-exports.RPC_URL = _.isEmpty(process.env.RPC_URL)
-    ? 'https://kovan.infura.io/v3/f215624b820f46028eb77aef44c5b400'
-    : assertEnvVarType('RPC_URL', process.env.RPC_URL, EnvVarType.Url);
 // Mesh Endpoint. Optional
 exports.MESH_ENDPOINT = _.isEmpty(process.env.MESH_ENDPOINT)
     ? 'ws://localhost:60557'
@@ -60,6 +56,10 @@ exports.DEFAULT_ERC20_TOKEN_PRECISION = 18;
 // Address used when simulating transfers from the maker as part of 0x order validation
 exports.DEFAULT_TAKER_SIMULATION_ADDRESS = '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 // OrderWatcher Options
+// Ethereum RPC url
+exports.RPC_URL = _.isEmpty(process.env.RPC_URL)
+    ? 'https://kovan.infura.io/v3/f215624b820f46028eb77aef44c5b400'
+    : assertEnvVarType('RPC_URL', process.env.RPC_URL, EnvVarType.Url);
 // A time window after which the order is considered permanently expired
 exports.ORDER_SHADOWING_MARGIN_MS = 100 * 1000; // tslint:disable-line custom-no-magic-numbers
 // Frequency of checks for permanently expired orders

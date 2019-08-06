@@ -1,7 +1,7 @@
 {
     "name": "0x-launch-kit",
     "version": "0.1.1",
-    "description": "0x elayer",
+    "description": "0x Relayer",
     "repository": "git@github.com:0xProject/0x-launch-kit-backend.git",
     "author": "Leonid Logvinov <logvinov.leon@gmail.com>",
     "license": "Apache-2.0",
@@ -9,11 +9,11 @@
         "prettier": "yarn prettier:js && yarn prettier:ts",
         "build": "yarn build:ts && shx rm -rf js && shx cp -r ts/lib/ js",
         "prettier:js": "prettier --write 'js/**/*.js' --config .prettierrc",
-        "start:js": "yarn migration && node -r dotenv/config js/index.js",
+        "start:js": "node -r dotenv/config js/index.js",
         "build:ts": "tsc -p ts/tsconfig.json",
         "watch:ts": "tsc -w -p ts/tsconfig.json",
         "prettier:ts": "prettier --write 'ts/**/*.ts' --config .prettierrc",
-        "start:ts": "yarn migration && node -r dotenv/config ts/lib/index.js",
+        "start:ts": "node -r dotenv/config ts/lib/index.js",
         "lint:ts": "tslint --project ts --format stylish",
         "migration": "DEBUG='*' typeorm migration:run"
     },

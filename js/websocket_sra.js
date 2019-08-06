@@ -6,15 +6,8 @@ const types_1 = require('@0x/types');
 const WebSocket = require('ws');
 const errors_1 = require('./errors');
 const error_handling_1 = require('./middleware/error_handling');
+const types_2 = require('./types');
 const utils_1 = require('./utils');
-var MessageTypes;
-(function(MessageTypes) {
-    MessageTypes['Subscribe'] = 'subscribe';
-})(MessageTypes || (MessageTypes = {}));
-var MessageChannels;
-(function(MessageChannels) {
-    MessageChannels['Orders'] = 'orders';
-})(MessageChannels || (MessageChannels = {}));
 const DEFAULT_OPTS = {
     pongInterval: 5000,
 };
@@ -111,7 +104,7 @@ class WebsocketSRA {
         }
         const response = {
             type: types_1.OrdersChannelMessageTypes.Update,
-            channel: MessageChannels.Orders,
+            channel: types_2.MessageChannels.Orders,
             payload: apiOrders,
         };
         for (const order of apiOrders) {
@@ -156,7 +149,7 @@ class WebsocketSRA {
         utils_1.utils.validateSchema(message, json_schemas_1.schemas.relayerApiOrdersChannelSubscribeSchema);
         const requestId = message.requestId;
         switch (message.type) {
-            case MessageTypes.Subscribe:
+            case types_2.MessageTypes.Subscribe:
                 ws.requestIds.add(requestId);
                 if (!message.payload) {
                     this._requestIdToSubscriptionOpts.set(requestId, 'ALL_SUBSCRIPTION_OPTS');

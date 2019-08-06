@@ -1,7 +1,7 @@
 {
     "type": "sqlite",
     "database": "db/database.sqlite",
-    "synchronize": false,
+    "synchronize": true,
     "logging": true,
     "logger": "debug",
     "entities": ["ts/lib/entity/**/*.js", "js/entity/**/*.js"],

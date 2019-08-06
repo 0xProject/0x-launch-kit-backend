@@ -5,7 +5,6 @@ import {
     AssetProxyId,
     OrdersChannelMessageTypes,
     SignedOrder,
-    UpdateOrdersChannelMessage,
     WebsocketConnectionEventType,
 } from '@0x/types';
 import * as http from 'http';
@@ -13,42 +12,15 @@ import * as WebSocket from 'ws';
 
 import { MalformedJSONError, NotImplementedError } from './errors';
 import { generateError } from './middleware/error_handling';
+import {
+    MessageChannels,
+    MessageTypes,
+    OrderChannelRequest,
+    OrdersChannelSubscriptionOpts,
+    UpdateOrdersChannelMessageWithChannel,
+    WebsocketSRAOpts,
+} from './types';
 import { utils } from './utils';
-
-export interface WebsocketSRAOpts {
-    pongInterval?: number;
-}
-
-export interface OrdersChannelSubscriptionOpts {
-    baseAssetData?: string;
-    quoteAssetData?: string;
-    makerAssetProxyId?: string;
-    takerAssetProxyId?: string;
-    makerAssetAddress?: string;
-    takerAssetAddress?: string;
-    makerAssetData?: string;
-    takerAssetData?: string;
-    traderAssetData?: string;
-    networkId?: number;
-}
-
-interface OrderChannelRequest {
-    type: string;
-    channel: MessageChannels;
-    requestId: string;
-    payload?: OrdersChannelSubscriptionOpts;
-}
-
-enum MessageTypes {
-    Subscribe = 'subscribe',
-}
-
-enum MessageChannels {
-    Orders = 'orders',
-}
-interface UpdateOrdersChannelMessageWithChannel extends UpdateOrdersChannelMessage {
-    channel: MessageChannels;
-}
 
 interface WrappedWebSocket extends WebSocket {
     isAlive: boolean;
