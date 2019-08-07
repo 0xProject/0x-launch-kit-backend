@@ -11,6 +11,8 @@ import {
 import * as _ from 'lodash';
 
 import { MESH_ENDPOINT } from '../config';
+import { getDBConnection } from '../db_connection';
+import { MeshEventModel } from '../models/MeshEventModel';
 import {
     AdaptedOrderAndValidationResult,
     AdaptedValidationResults,
@@ -25,6 +27,20 @@ const d = require('debug')('MESH');
 const ZERO = new BigNumber(0);
 const ADD_ORDER_BATCH_SIZE = 100;
 
+interface APIOrdersByState {
+    added: APIOrderWithMetaData[];
+    removed: APIOrderWithMetaData[];
+    updated: APIOrderWithMetaData[];
+}
+const uuidv4 = () => {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+        // tslint:disable:no-bitwise one-variable-per-declaration custom-no-magic-numbers
+        const r = (Math.random() * 16) | 0,
+            v = c === 'x' ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+    });
+};
+
 export class MeshAdapter {
     private readonly _wsClient: WSClient;
     private readonly _listeners = {
@@ -32,13 +48,28 @@ export class MeshAdapter {
         updated: new Set<onOrdersUpdateCallback>(),
         removed: new Set<onOrdersUpdateCallback>(),
     };
-    private static _calculateAddOrRemove(
-        orderEvents: OrderEvent[],
-    ): { added: APIOrderWithMetaData[]; removed: APIOrderWithMetaData[]; updated: APIOrderWithMetaData[] } {
+    private static _updateListeners(listeners: Set<onOrdersUpdateCallback>, orders: APIOrderWithMetaData[]): void {
+        if (orders.length > 0) {
+            for (const cb of listeners) {
+                cb(orders);
+            }
+        }
+    }
+    private static _calculateAddOrRemove(orderEvents: OrderEvent[]): APIOrdersByState {
+        const connection = getDBConnection();
         const added = [];
         const removed = [];
         const updated = [];
+        const uuid = uuidv4();
         for (const event of orderEvents) {
+            connection.manager.save(
+                new MeshEventModel({
+                    hash: event.orderHash,
+                    eventName: event.kind,
+                    occuredAt: Date.now().toString(),
+                    uuid,
+                }),
+            );
             const apiOrder = MeshAdapter._orderInfoToAPIOrder(event);
             switch (event.kind) {
                 case OrderEventKind.Added: {
@@ -67,6 +98,7 @@ export class MeshAdapter {
     private static _orderInfoToAPIOrder(
         orderEvent: OrderEvent | AcceptedOrderInfo | RejectedOrderInfo | OrderInfo,
     ): APIOrderWithMetaData {
+        // RejectedOrderInfo has no fillableTakerAssetAmount, default to 0
         const remainingFillableTakerAssetAmount = (orderEvent as OrderEvent).fillableTakerAssetAmount
             ? (orderEvent as OrderEvent).fillableTakerAssetAmount
             : ZERO;
@@ -82,21 +114,9 @@ export class MeshAdapter {
         this._wsClient = new WSClient(MESH_ENDPOINT);
         this._wsClient.subscribeToOrdersAsync(orderEvents => {
             const { added, updated, removed } = MeshAdapter._calculateAddOrRemove(orderEvents);
-            if (added.length > 0) {
-                for (const cb of this._listeners.added) {
-                    cb(added);
-                }
-            }
-            if (removed.length > 0) {
-                for (const cb of this._listeners.removed) {
-                    cb(removed);
-                }
-            }
-            if (updated.length > 0) {
-                for (const cb of this._listeners.updated) {
-                    cb(updated);
-                }
-            }
+            MeshAdapter._updateListeners(this._listeners.added, added);
+            MeshAdapter._updateListeners(this._listeners.updated, updated);
+            MeshAdapter._updateListeners(this._listeners.removed, removed);
         });
     }
     public async addOrdersAsync(orders: SignedOrder[]): Promise<AdaptedValidationResults> {
