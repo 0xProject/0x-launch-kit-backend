@@ -282,9 +282,9 @@ const includesTokenAddress = (assetData, tokenAddress) => {
 const deserializeOrder = signedOrderModel => {
     const signedOrder = {
         signature: signedOrderModel.signature,
-        senderAddress: signedOrderModel.senderAddress,
-        makerAddress: signedOrderModel.makerAddress,
-        takerAddress: signedOrderModel.takerAddress,
+        senderAddress: signedOrderModel.senderAddress.toLowerCase(),
+        makerAddress: signedOrderModel.makerAddress.toLowerCase(),
+        takerAddress: signedOrderModel.takerAddress.toLowerCase(),
         makerFee: new _0x_js_1.BigNumber(signedOrderModel.makerFee),
         takerFee: new _0x_js_1.BigNumber(signedOrderModel.takerFee),
         makerAssetAmount: new _0x_js_1.BigNumber(signedOrderModel.makerAssetAmount),
@@ -292,8 +292,8 @@ const deserializeOrder = signedOrderModel => {
         makerAssetData: signedOrderModel.makerAssetData,
         takerAssetData: signedOrderModel.takerAssetData,
         salt: new _0x_js_1.BigNumber(signedOrderModel.salt),
-        exchangeAddress: signedOrderModel.exchangeAddress,
-        feeRecipientAddress: signedOrderModel.feeRecipientAddress,
+        exchangeAddress: signedOrderModel.exchangeAddress.toLowerCase(),
+        feeRecipientAddress: signedOrderModel.feeRecipientAddress.toLowerCase(),
         expirationTimeSeconds: new _0x_js_1.BigNumber(signedOrderModel.expirationTimeSeconds),
     };
     return signedOrder;
@@ -301,9 +301,9 @@ const deserializeOrder = signedOrderModel => {
 const serializeOrder = signedOrder => {
     const signedOrderModel = new SignedOrderModel_1.SignedOrderModel({
         signature: signedOrder.signature,
-        senderAddress: signedOrder.senderAddress,
-        makerAddress: signedOrder.makerAddress,
-        takerAddress: signedOrder.takerAddress,
+        senderAddress: signedOrder.senderAddress.toLowerCase(),
+        makerAddress: signedOrder.makerAddress.toLowerCase(),
+        takerAddress: signedOrder.takerAddress.toLowerCase(),
         makerFee: signedOrder.makerFee.toString(),
         takerFee: signedOrder.takerFee.toString(),
         makerAssetAmount: signedOrder.makerAssetAmount.toString(),
@@ -311,8 +311,8 @@ const serializeOrder = signedOrder => {
         makerAssetData: signedOrder.makerAssetData,
         takerAssetData: signedOrder.takerAssetData,
         salt: signedOrder.salt.toString(),
-        exchangeAddress: signedOrder.exchangeAddress,
-        feeRecipientAddress: signedOrder.feeRecipientAddress,
+        exchangeAddress: signedOrder.exchangeAddress.toLowerCase(),
+        feeRecipientAddress: signedOrder.feeRecipientAddress.toLowerCase(),
         expirationTimeSeconds: signedOrder.expirationTimeSeconds.toNumber(),
         hash: _0x_js_1.orderHashUtils.getOrderHashHex(signedOrder),
     });
