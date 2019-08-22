@@ -1,4 +1,4 @@
-import { ContractWrappers, OrderAndTraderInfo, orderHashUtils, OrderStatus } from '0x.js';
+import { ContractWrappers, orderHashUtils, OrderStatus } from '0x.js';
 import { assetDataUtils } from '@0x/order-utils';
 import { OrderState, OrderWatcher, SignedOrder } from '@0x/order-watcher';
 import { AssetProxyId, OrderStateValid, RevertReason } from '@0x/types';
@@ -6,7 +6,7 @@ import { BigNumber, intervalUtils } from '@0x/utils';
 import { Provider } from 'ethereum-types';
 import _ = require('lodash');
 
-import { DEFAULT_TAKER_SIMULATION_ADDRESS, ORDER_SHADOWING_MARGIN_MS, PERMANENT_CLEANUP_INTERVAL_MS } from '../config';
+import { ORDER_SHADOWING_MARGIN_MS, PERMANENT_CLEANUP_INTERVAL_MS } from '../config';
 import {
     AdaptedOrderAndValidationResult,
     AdaptedValidationResults,
@@ -166,13 +166,21 @@ export class OrderWatcherAdapter {
         const rejected: AdaptedOrderAndValidationResult[] = [];
         // Batch so we don't request too many
         const orderChunks = _.chunk(orders, VALIDATION_BATCH_SIZE);
-        let ordersAndTradersInfos: OrderAndTraderInfo[] = [];
+        let ordersAndTradersInfos: Array<{ orderInfo: any; traderInfo: any }> = [];
         for (const chunk of orderChunks) {
-            const info = await this._contractWrappers.orderValidator.getOrdersAndTradersInfoAsync(
+            const [
+                orderInfos,
+                traderInfos,
+            ] = await this._contractWrappers.orderValidator.getOrdersAndTradersInfo.callAsync(
                 chunk,
                 chunk.map(o => o.makerAddress),
             );
-            ordersAndTradersInfos = [...ordersAndTradersInfos, ...info];
+            orderInfos.forEach((_r, i) => {
+                ordersAndTradersInfos = [
+                    ...ordersAndTradersInfos,
+                    { orderInfo: orderInfos[i], traderInfo: traderInfos[i] },
+                ];
+            });
         }
         ordersAndTradersInfos.forEach((result, i) => {
             const order = orders[i];
@@ -202,31 +210,34 @@ export class OrderWatcherAdapter {
         });
         return { accepted, rejected };
     }
-    private async _validateOrdersAsync(orders: SignedOrder[]): Promise<AdaptedValidationResults> {
-        const accepted: AdaptedOrderAndValidationResult[] = [];
-        const rejected: AdaptedOrderAndValidationResult[] = [];
+    // tslint:disable-next-line:prefer-function-over-method
+    private async _validateOrdersAsync(_orders: SignedOrder[]): Promise<AdaptedValidationResults> {
+        // const accepted: AdaptedOrderAndValidationResult[] = [];
+        // const rejected: AdaptedOrderAndValidationResult[] = [];
+        d('Cannot validate orders in this way');
+        throw new Error('Unsupported');
 
-        for (const order of orders) {
-            const orderHash = orderHashUtils.getOrderHashHex(order);
-            try {
-                d('validating', orderHash);
-                await this._contractWrappers.exchange.validateOrderFillableOrThrowAsync(order, {
-                    simulationTakerAddress: DEFAULT_TAKER_SIMULATION_ADDRESS,
-                });
-                accepted.push({
-                    order,
-                    message: undefined,
-                    // TODO this is not always correct and we should calculate the proper amount
-                    metaData: { orderHash, remainingFillableTakerAssetAmount: order.takerAssetAmount },
-                });
-            } catch (err) {
-                rejected.push({
-                    order,
-                    message: err.message,
-                    metaData: { orderHash, remainingFillableTakerAssetAmount: ZERO },
-                });
-            }
-        }
-        return { accepted, rejected };
+        // for (const order of orders) {
+        //     const orderHash = orderHashUtils.getOrderHashHex(order);
+        //     try {
+        //         d('validating', orderHash);
+        //         await this._contractWrappers.exchange.validateOrderFillableOrThrowAsync(order, {
+        //             simulationTakerAddress: DEFAULT_TAKER_SIMULATION_ADDRESS,
+        //         });
+        //         accepted.push({
+        //             order,
+        //             message: undefined,
+        //             // TODO this is not always correct and we should calculate the proper amount
+        //             metaData: { orderHash, remainingFillableTakerAssetAmount: order.takerAssetAmount },
+        //         });
+        //     } catch (err) {
+        //         rejected.push({
+        //             order,
+        //             message: err.message,
+        //             metaData: { orderHash, remainingFillableTakerAssetAmount: ZERO },
+        //         });
+        //     }
+        // }
+        // return { accepted, rejected };
     }
 }

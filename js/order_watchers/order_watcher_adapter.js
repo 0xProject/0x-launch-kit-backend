@@ -159,11 +159,19 @@ class OrderWatcherAdapter {
         const orderChunks = _.chunk(orders, VALIDATION_BATCH_SIZE);
         let ordersAndTradersInfos = [];
         for (const chunk of orderChunks) {
-            const info = await this._contractWrappers.orderValidator.getOrdersAndTradersInfoAsync(
+            const [
+                orderInfos,
+                traderInfos,
+            ] = await this._contractWrappers.orderValidator.getOrdersAndTradersInfo.callAsync(
                 chunk,
                 chunk.map(o => o.makerAddress),
             );
-            ordersAndTradersInfos = [...ordersAndTradersInfos, ...info];
+            orderInfos.forEach((_r, i) => {
+                ordersAndTradersInfos = [
+                    ...ordersAndTradersInfos,
+                    { orderInfo: orderInfos[i], traderInfo: traderInfos[i] },
+                ];
+            });
         }
         ordersAndTradersInfos.forEach((result, i) => {
             const order = orders[i];
@@ -193,31 +201,34 @@ class OrderWatcherAdapter {
         });
         return { accepted, rejected };
     }
-    async _validateOrdersAsync(orders) {
-        const accepted = [];
-        const rejected = [];
-        for (const order of orders) {
-            const orderHash = _0x_js_1.orderHashUtils.getOrderHashHex(order);
-            try {
-                d('validating', orderHash);
-                await this._contractWrappers.exchange.validateOrderFillableOrThrowAsync(order, {
-                    simulationTakerAddress: config_1.DEFAULT_TAKER_SIMULATION_ADDRESS,
-                });
-                accepted.push({
-                    order,
-                    message: undefined,
-                    // TODO this is not always correct and we should calculate the proper amount
-                    metaData: { orderHash, remainingFillableTakerAssetAmount: order.takerAssetAmount },
-                });
-            } catch (err) {
-                rejected.push({
-                    order,
-                    message: err.message,
-                    metaData: { orderHash, remainingFillableTakerAssetAmount: ZERO },
-                });
-            }
-        }
-        return { accepted, rejected };
+    // tslint:disable-next-line:prefer-function-over-method
+    async _validateOrdersAsync(_orders) {
+        // const accepted: AdaptedOrderAndValidationResult[] = [];
+        // const rejected: AdaptedOrderAndValidationResult[] = [];
+        d('Cannot validate orders in this way');
+        throw new Error('Unsupported');
+        // for (const order of orders) {
+        //     const orderHash = orderHashUtils.getOrderHashHex(order);
+        //     try {
+        //         d('validating', orderHash);
+        //         await this._contractWrappers.exchange.validateOrderFillableOrThrowAsync(order, {
+        //             simulationTakerAddress: DEFAULT_TAKER_SIMULATION_ADDRESS,
+        //         });
+        //         accepted.push({
+        //             order,
+        //             message: undefined,
+        //             // TODO this is not always correct and we should calculate the proper amount
+        //             metaData: { orderHash, remainingFillableTakerAssetAmount: order.takerAssetAmount },
+        //         });
+        //     } catch (err) {
+        //         rejected.push({
+        //             order,
+        //             message: err.message,
+        //             metaData: { orderHash, remainingFillableTakerAssetAmount: ZERO },
+        //         });
+        //     }
+        // }
+        // return { accepted, rejected };
     }
 }
 exports.OrderWatcherAdapter = OrderWatcherAdapter;
