@@ -1,4 +1,5 @@
 import { ContractWrappers, orderHashUtils, OrderStatus } from '0x.js';
+import { DevUtilsContract, getContractAddressesForNetworkOrThrow } from '@0x/contract-wrappers';
 import { assetDataUtils } from '@0x/order-utils';
 import { OrderState, OrderWatcher, SignedOrder } from '@0x/order-watcher';
 import { AssetProxyId, OrderStateValid, RevertReason } from '@0x/types';
@@ -6,7 +7,7 @@ import { BigNumber, intervalUtils } from '@0x/utils';
 import { Provider } from 'ethereum-types';
 import _ = require('lodash');
 
-import { ORDER_SHADOWING_MARGIN_MS, PERMANENT_CLEANUP_INTERVAL_MS } from '../config';
+import { NETWORK_ID, ORDER_SHADOWING_MARGIN_MS, PERMANENT_CLEANUP_INTERVAL_MS } from '../config';
 import {
     AdaptedOrderAndValidationResult,
     AdaptedValidationResults,
@@ -15,8 +16,6 @@ import {
 } from '../types';
 import { utils } from '../utils';
 
-// tslint:disable-next-line:no-var-requires
-const d = require('debug')('orderwatcher');
 const VALIDATION_BATCH_SIZE = 100;
 const ZERO = new BigNumber(0);
 
@@ -210,34 +209,40 @@ export class OrderWatcherAdapter {
         });
         return { accepted, rejected };
     }
-    // tslint:disable-next-line:prefer-function-over-method
-    private async _validateOrdersAsync(_orders: SignedOrder[]): Promise<AdaptedValidationResults> {
-        // const accepted: AdaptedOrderAndValidationResult[] = [];
-        // const rejected: AdaptedOrderAndValidationResult[] = [];
-        d('Cannot validate orders in this way');
-        throw new Error('Unsupported');
+    private async _validateOrdersAsync(orders: SignedOrder[]): Promise<AdaptedValidationResults> {
+        const accepted: AdaptedOrderAndValidationResult[] = [];
+        const rejected: AdaptedOrderAndValidationResult[] = [];
+        const contractAddresses = getContractAddressesForNetworkOrThrow(NETWORK_ID);
+        const orderChunks = _.chunk(orders, VALIDATION_BATCH_SIZE);
+        const devUtils = new DevUtilsContract(contractAddresses.devUtils, this._contractWrappers.getProvider());
+        for (const chunk of orderChunks) {
+            const [
+                orderInfos,
+                fillableTakerAssetAmounts,
+                isValidSignatures,
+            ] = await devUtils.getOrderRelevantStates.callAsync(chunk, chunk.map(o => o.signature));
+            orderInfos.forEach((orderInfo, i) => {
+                const order = chunk[i];
+                const metaData = { orderHash: orderInfo.orderHash, remainingFillableTakerAssetAmount: ZERO };
+                if (orderInfo.orderStatus !== OrderStatus.Fillable) {
+                    rejected.push({ message: RevertReason.OrderUnfillable, order, metaData });
+                } else if (fillableTakerAssetAmounts[i].isEqualTo(0)) {
+                    rejected.push({ message: RevertReason.Erc20InsufficientBalance, order, metaData });
+                } else if (!isValidSignatures[i]) {
+                    rejected.push({ message: RevertReason.InvalidSignature, order, metaData });
+                } else {
+                    accepted.push({
+                        order,
+                        message: undefined,
+                        metaData: {
+                            ...metaData,
+                            remainingFillableTakerAssetAmount: fillableTakerAssetAmounts[i],
+                        },
+                    });
+                }
+            });
+        }
 
-        // for (const order of orders) {
-        //     const orderHash = orderHashUtils.getOrderHashHex(order);
-        //     try {
-        //         d('validating', orderHash);
-        //         await this._contractWrappers.exchange.validateOrderFillableOrThrowAsync(order, {
-        //             simulationTakerAddress: DEFAULT_TAKER_SIMULATION_ADDRESS,
-        //         });
-        //         accepted.push({
-        //             order,
-        //             message: undefined,
-        //             // TODO this is not always correct and we should calculate the proper amount
-        //             metaData: { orderHash, remainingFillableTakerAssetAmount: order.takerAssetAmount },
-        //         });
-        //     } catch (err) {
-        //         rejected.push({
-        //             order,
-        //             message: err.message,
-        //             metaData: { orderHash, remainingFillableTakerAssetAmount: ZERO },
-        //         });
-        //     }
-        // }
-        // return { accepted, rejected };
+        return { accepted, rejected };
     }
 }

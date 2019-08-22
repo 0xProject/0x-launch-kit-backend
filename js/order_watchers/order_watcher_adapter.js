@@ -1,6 +1,7 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
 const _0x_js_1 = require('0x.js');
+const contract_wrappers_1 = require('@0x/contract-wrappers');
 const order_utils_1 = require('@0x/order-utils');
 const order_watcher_1 = require('@0x/order-watcher');
 const types_1 = require('@0x/types');
@@ -8,8 +9,6 @@ const utils_1 = require('@0x/utils');
 const _ = require('lodash');
 const config_1 = require('../config');
 const utils_2 = require('../utils');
-// tslint:disable-next-line:no-var-requires
-const d = require('debug')('orderwatcher');
 const VALIDATION_BATCH_SIZE = 100;
 const ZERO = new utils_1.BigNumber(0);
 class OrderWatcherAdapter {
@@ -201,34 +200,43 @@ class OrderWatcherAdapter {
         });
         return { accepted, rejected };
     }
-    // tslint:disable-next-line:prefer-function-over-method
-    async _validateOrdersAsync(_orders) {
-        // const accepted: AdaptedOrderAndValidationResult[] = [];
-        // const rejected: AdaptedOrderAndValidationResult[] = [];
-        d('Cannot validate orders in this way');
-        throw new Error('Unsupported');
-        // for (const order of orders) {
-        //     const orderHash = orderHashUtils.getOrderHashHex(order);
-        //     try {
-        //         d('validating', orderHash);
-        //         await this._contractWrappers.exchange.validateOrderFillableOrThrowAsync(order, {
-        //             simulationTakerAddress: DEFAULT_TAKER_SIMULATION_ADDRESS,
-        //         });
-        //         accepted.push({
-        //             order,
-        //             message: undefined,
-        //             // TODO this is not always correct and we should calculate the proper amount
-        //             metaData: { orderHash, remainingFillableTakerAssetAmount: order.takerAssetAmount },
-        //         });
-        //     } catch (err) {
-        //         rejected.push({
-        //             order,
-        //             message: err.message,
-        //             metaData: { orderHash, remainingFillableTakerAssetAmount: ZERO },
-        //         });
-        //     }
-        // }
-        // return { accepted, rejected };
+    async _validateOrdersAsync(orders) {
+        const accepted = [];
+        const rejected = [];
+        const contractAddresses = contract_wrappers_1.getContractAddressesForNetworkOrThrow(config_1.NETWORK_ID);
+        const orderChunks = _.chunk(orders, VALIDATION_BATCH_SIZE);
+        const devUtils = new contract_wrappers_1.DevUtilsContract(
+            contractAddresses.devUtils,
+            this._contractWrappers.getProvider(),
+        );
+        for (const chunk of orderChunks) {
+            const [
+                orderInfos,
+                fillableTakerAssetAmounts,
+                isValidSignatures,
+            ] = await devUtils.getOrderRelevantStates.callAsync(chunk, chunk.map(o => o.signature));
+            orderInfos.forEach((orderInfo, i) => {
+                const order = chunk[i];
+                const metaData = { orderHash: orderInfo.orderHash, remainingFillableTakerAssetAmount: ZERO };
+                if (orderInfo.orderStatus !== _0x_js_1.OrderStatus.Fillable) {
+                    rejected.push({ message: types_1.RevertReason.OrderUnfillable, order, metaData });
+                } else if (fillableTakerAssetAmounts[i].isEqualTo(0)) {
+                    rejected.push({ message: types_1.RevertReason.Erc20InsufficientBalance, order, metaData });
+                } else if (!isValidSignatures[i]) {
+                    rejected.push({ message: types_1.RevertReason.InvalidSignature, order, metaData });
+                } else {
+                    accepted.push({
+                        order,
+                        message: undefined,
+                        metaData: {
+                            ...metaData,
+                            remainingFillableTakerAssetAmount: fillableTakerAssetAmounts[i],
+                        },
+                    });
+                }
+            });
+        }
+        return { accepted, rejected };
     }
 }
 exports.OrderWatcherAdapter = OrderWatcherAdapter;
