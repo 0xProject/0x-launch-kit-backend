@@ -5,6 +5,7 @@ const types_1 = require('@0x/types');
 const utils_1 = require('@0x/utils');
 const _ = require('lodash');
 const config_1 = require('./config');
+const config_2 = require('./config');
 const constants_1 = require('./constants');
 const db_connection_1 = require('./db_connection');
 const SignedOrderModel_1 = require('./models/SignedOrderModel');
@@ -61,22 +62,27 @@ class OrderBook {
     }
     constructor(websocketSRA) {
         this._websocketSRA = websocketSRA;
-        this._orderWatcher = order_watchers_factory_1.OrderWatchersFactory.build();
-        this._orderWatcher.onOrdersAdded(async orders => {
-            await this._onOrderLifeCycleEventAsync(types_2.OrderWatcherLifeCycleEvents.Added, orders);
-        });
-        this._orderWatcher.onOrdersRemoved(async orders => {
-            await this._onOrderLifeCycleEventAsync(types_2.OrderWatcherLifeCycleEvents.Removed, orders);
-        });
-        this._orderWatcher.onOrdersUpdated(async orders => {
-            await this._onOrderLifeCycleEventAsync(types_2.OrderWatcherLifeCycleEvents.Updated, orders);
-        });
-        this._orderWatcher.onReconnected(async () => {
-            d('Reconnecting to orderwatcher');
-            await this.addExistingOrdersToOrderWatcherAsync();
-        });
+        if (!config_2.READ_ONLY) {
+            this._orderWatcher = order_watchers_factory_1.OrderWatchersFactory.build();
+            this._orderWatcher.onOrdersAdded(async orders => {
+                await this._onOrderLifeCycleEventAsync(types_2.OrderWatcherLifeCycleEvents.Added, orders);
+            });
+            this._orderWatcher.onOrdersRemoved(async orders => {
+                await this._onOrderLifeCycleEventAsync(types_2.OrderWatcherLifeCycleEvents.Removed, orders);
+            });
+            this._orderWatcher.onOrdersUpdated(async orders => {
+                await this._onOrderLifeCycleEventAsync(types_2.OrderWatcherLifeCycleEvents.Updated, orders);
+            });
+            this._orderWatcher.onReconnected(async () => {
+                d('Reconnecting to orderwatcher');
+                await this.addExistingOrdersToOrderWatcherAsync();
+            });
+        }
     }
     async addOrderAsync(signedOrder) {
+        if (config_2.READ_ONLY || !this._orderWatcher) {
+            return;
+        }
         const { rejected } = await this._orderWatcher.addOrdersAsync([signedOrder]);
         if (rejected.length !== 0) {
             throw new Error(rejected[0].message);
@@ -163,6 +169,9 @@ class OrderBook {
         return paginatedApiOrders;
     }
     async addExistingOrdersToOrderWatcherAsync() {
+        if (config_2.READ_ONLY || !this._orderWatcher) {
+            return;
+        }
         const connection = db_connection_1.getDBConnection();
         const signedOrderModels = await connection.manager.find(SignedOrderModel_1.SignedOrderModel);
         const signedOrders = signedOrderModels.map(deserializeOrder);

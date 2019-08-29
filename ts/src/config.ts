@@ -52,6 +52,15 @@ export const USE_MESH = _.isEmpty(process.env.USE_MESH)
     ? false
     : assertEnvVarType('USE_MESH', process.env.USE_MESH, EnvVarType.Boolean);
 
+// Disables POSTing of Orders, only read queries are valid
+export const DISABLE_POST = _.isEmpty(process.env.DISABLE_POST)
+    ? false
+    : assertEnvVarType('DISABLE_POST', process.env.DISABLE_POST, EnvVarType.Boolean);
+// Backend will not write any order updates
+export const READ_ONLY = _.isEmpty(process.env.READ_ONLY)
+    ? false
+    : assertEnvVarType('READ_ONLY', process.env.READ_ONLY, EnvVarType.Boolean);
+
 // Max number of entities per page
 export const MAX_PER_PAGE = 1000;
 // Default ERC20 token precision

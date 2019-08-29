@@ -50,20 +50,22 @@ import { WebsocketSRA } from './websocket_sra';
      */
     app.get('/v2/orderbook', asyncHandler(handlers.orderbookAsync.bind(handlers)));
     /**
-     * POST Order config endpoint retrives the values for order fields that the relayer requires.
-     * http://sra-spec.s3-website-us-east-1.amazonaws.com/#operation/getOrderConfig
-     */
-    app.post('/v2/order_config', Handlers.orderConfig.bind(Handlers));
-    /**
      * GET FeeRecepients endpoint retrieves a collection of all fee recipient addresses for a relayer.
      * http://sra-spec.s3-website-us-east-1.amazonaws.com/v2/fee_recipients
      */
     app.get('/v2/fee_recipients', Handlers.feeRecipients.bind(Handlers));
-    /**
-     * POST Order endpoint submits an order to the Relayer.
-     * http://sra-spec.s3-website-us-east-1.amazonaws.com/#operation/postOrder
-     */
-    app.post('/v2/order', asyncHandler(handlers.postOrderAsync.bind(handlers)));
+    if (!config.DISABLE_POST) {
+        /**
+         * POST Order config endpoint retrives the values for order fields that the relayer requires.
+         * http://sra-spec.s3-website-us-east-1.amazonaws.com/#operation/getOrderConfig
+         */
+        app.post('/v2/order_config', Handlers.orderConfig.bind(Handlers));
+        /**
+         * POST Order endpoint submits an order to the Relayer.
+         * http://sra-spec.s3-website-us-east-1.amazonaws.com/#operation/postOrder
+         */
+        app.post('/v2/order', asyncHandler(handlers.postOrderAsync.bind(handlers)));
+    }
     /**
      * GET Order endpoint retrieves the order by order hash.
      * http://sra-spec.s3-website-us-east-1.amazonaws.com/#operation/getOrder

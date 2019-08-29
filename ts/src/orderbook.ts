@@ -5,6 +5,7 @@ import { errorUtils } from '@0x/utils';
 import * as _ from 'lodash';
 
 import { DEFAULT_ERC20_TOKEN_PRECISION } from './config';
+import { READ_ONLY } from './config';
 import { MAX_TOKEN_SUPPLY_POSSIBLE } from './constants';
 import { getDBConnection } from './db_connection';
 import { SignedOrderModel } from './models/SignedOrderModel';
@@ -31,7 +32,7 @@ const DEFAULT_ERC20_ASSET = {
 
 export class OrderBook {
     private readonly _websocketSRA: WebsocketSRA;
-    private readonly _orderWatcher: OrderWatcherAdapter | MeshAdapter;
+    private readonly _orderWatcher?: OrderWatcherAdapter | MeshAdapter;
     public static async getOrderByHashIfExistsAsync(orderHash: string): Promise<APIOrder | undefined> {
         const connection = getDBConnection();
         const signedOrderModelIfExists = await connection.manager.findOne(SignedOrderModel, orderHash);
@@ -77,22 +78,27 @@ export class OrderBook {
 
     constructor(websocketSRA: WebsocketSRA) {
         this._websocketSRA = websocketSRA;
-        this._orderWatcher = OrderWatchersFactory.build();
-        this._orderWatcher.onOrdersAdded(async orders => {
-            await this._onOrderLifeCycleEventAsync(OrderWatcherLifeCycleEvents.Added, orders);
-        });
-        this._orderWatcher.onOrdersRemoved(async orders => {
-            await this._onOrderLifeCycleEventAsync(OrderWatcherLifeCycleEvents.Removed, orders);
-        });
-        this._orderWatcher.onOrdersUpdated(async orders => {
-            await this._onOrderLifeCycleEventAsync(OrderWatcherLifeCycleEvents.Updated, orders);
-        });
-        this._orderWatcher.onReconnected(async () => {
-            d('Reconnecting to orderwatcher');
-            await this.addExistingOrdersToOrderWatcherAsync();
-        });
+        if (!READ_ONLY) {
+            this._orderWatcher = OrderWatchersFactory.build();
+            this._orderWatcher.onOrdersAdded(async orders => {
+                await this._onOrderLifeCycleEventAsync(OrderWatcherLifeCycleEvents.Added, orders);
+            });
+            this._orderWatcher.onOrdersRemoved(async orders => {
+                await this._onOrderLifeCycleEventAsync(OrderWatcherLifeCycleEvents.Removed, orders);
+            });
+            this._orderWatcher.onOrdersUpdated(async orders => {
+                await this._onOrderLifeCycleEventAsync(OrderWatcherLifeCycleEvents.Updated, orders);
+            });
+            this._orderWatcher.onReconnected(async () => {
+                d('Reconnecting to orderwatcher');
+                await this.addExistingOrdersToOrderWatcherAsync();
+            });
+        }
     }
     public async addOrderAsync(signedOrder: SignedOrder): Promise<void> {
+        if (READ_ONLY || !this._orderWatcher) {
+            return;
+        }
         const { rejected } = await this._orderWatcher.addOrdersAsync([signedOrder]);
         if (rejected.length !== 0) {
             throw new Error(rejected[0].message);
@@ -188,6 +194,9 @@ export class OrderBook {
         return paginatedApiOrders;
     }
     public async addExistingOrdersToOrderWatcherAsync(): Promise<void> {
+        if (READ_ONLY || !this._orderWatcher) {
+            return;
+        }
         const connection = getDBConnection();
         const signedOrderModels = (await connection.manager.find(SignedOrderModel)) as Array<
             Required<SignedOrderModel>
