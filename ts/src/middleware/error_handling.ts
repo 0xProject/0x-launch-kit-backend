@@ -29,7 +29,7 @@ export function generateError(err: Error): ErrorBodyWithHTTPStatusCode {
                         validationErrors: validationError.validationErrors,
                     },
                 };
-            } else if (badRequestError.generalErrorCode === GeneralErrorCodes.MalformedJson) {
+            } else {
                 return {
                     statusCode,
                     errorBody: {
@@ -70,7 +70,7 @@ export function errorHandler(
     if (res.headersSent) {
         return next(err);
     }
-    if ((err as any).isRelayerError) {
+    if ((err as any).isRelayerError || (err as any).statusCode) {
         const { statusCode, errorBody } = generateError(err);
         res.status(statusCode).send(errorBody);
         return;

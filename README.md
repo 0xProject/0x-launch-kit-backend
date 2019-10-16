@@ -25,9 +25,9 @@ Fork this repository to get started!
 
 ## Language choice
 
-`0x-launch-kit` ships with 2 codebases, one in Typescript and another in Javascript. Although the Javascript is auto-generated from the Typescript, we made sure the Javascript generated is readable.
+`0x-launch-kit-backend` ships with 2 codebases, one in Typescript and another in Javascript. Although the Javascript is auto-generated from the Typescript, we made sure the Javascript generated is readable.
 
-Before you start using `0x-launch-kit`, choose whether you want your codebase to be in Typescript or Javascript.
+Before you start using `0x-launch-kit-backend`, choose whether you want your codebase to be in Typescript or Javascript.
 
 **If you want to work in Javascript:**
 
@@ -47,6 +47,7 @@ Note: If you also wish to build and use the Docker image, please update the comm
 
 -   [Node.js](https://nodejs.org/en/download/) > v8.x
 -   [Yarn](https://yarnpkg.com/en/) > v1.x
+-   [0x Mesh](https://github.com/0xProject/0x-mesh) > v5.0.1 for v3. Docker image `0xorg/mesh:5.0.1-beta-0xv3` or greater
 
 To develop ontop of `0x-launch-kit`, follow the following instructions:
 
@@ -60,13 +61,14 @@ To develop ontop of `0x-launch-kit`, follow the following instructions:
 
 4. Open the `.env` file and edit the following fields. Defaults are defined in `config.ts`/`config.js`. The bash environment takes precedence over the `.env` file. If you run `source .env`, changes to the `.env` file will have no effect until you unset the colliding variables.
 
-    - `NETWORK_ID` -- the network you'd like your relayer to run on (e.g: `1` -> mainnet, `42` -> Kovan, 3 -> Ropsten, etc...)
-    - `FEE_RECIPIENT` -- The Ethereum address which should be specified as the fee recipient in orders your relayer accepts. Defaults to a fake address that helps the 0x core team use anonymous, already public data to understand Launch Kit developer usage.
-    - `MAKER_FEE_ZRX_UNIT_AMOUNT` -- The flat maker fee you'd like to receive for filled orders hosted by you
-    - `TAKER_FEE_ZRX_UNIT_AMOUNT` -- The flat taker fee you'd like to receive for filled orders hosted by you.
-    - `RPC_URL` -- Update with your node url. NOTE: Kovan doesn't work on INFURA with the current version of the OrderWatcher
-    
-    
+    - `NETWORK_ID` -- the network you'd like your relayer to run on (e.g: `1` -> mainnet, `42` -> Kovan, 3 -> Ropsten, etc...). Defaults to `42`
+    - `MESH_ENDPOINT` -- the url pointing to the 0x Mesh node. Defaults to `ws://localhost:60557`
+    - `FEE_RECIPIENT` -- The Ethereum address which should be specified as the fee recipient in orders your relayer accepts. Defaults to a fake address that helps the 0x core team use anonymous, already public data to understand Launch Kit developer usage. Defaults to an auto-generated address
+    - `MAKER_FEE_ASSET_DATA` -- The maker fee token asset data. Defaults to `0x`, i.e no fee
+    - `MAKER_FEE_UNIT_AMOUNT` -- The flat maker fee amount you'd like to receive for filled orders hosted by you. Defaults to `0`
+    - `MAKER_FEE_ASSET_DATA` -- The taker fee token asset data. Defaults to `0x`, i.e no fee
+    - `TAKER_FEE_UNIT_AMOUNT` -- The flat taker fee you'd like to receive for filled orders hosted by you. Defaults to `0`
+
 [Instructions for using Launch Kit with Ganache](https://hackmd.io/-rC79gYWRyG7h6M9jUf5qA)
 
 5. Make sure you have [Yarn](https://yarnpkg.com/en/) installed.
@@ -105,14 +107,14 @@ To develop ontop of `0x-launch-kit`, follow the following instructions:
 
 ## Client for your relayer's API
 
-Since the `0x-launch-kit` relayer adheres to V2 of the [Standard Relayer API Specification](https://github.com/0xProject/standard-relayer-api/), you can use [0x Connect](https://0xproject.com/docs/connect) (an HTTP/Websocket client) to make calls to your relayer (e.g submit an order, get all orders, etc...)
+Since the `0x-launch-kit-backend` relayer adheres to V3 of the [Standard Relayer API Specification](https://github.com/0xProject/standard-relayer-api/), you can use [0x Connect](https://0xproject.com/docs/connect) (an HTTP/Websocket client) to make calls to your relayer (e.g submit an order, get all orders, etc...)
 
 Learn how to use 0x Connect to interact with your `0x-launch-kit` relayer in [this tutorial](https://0xproject.com/wiki#Find,-Submit,-Fill-Order-From-Relayer).
 
 To quickly check if your relayer is up-and-running, send it this CURL request from the command-line:
 
 ```sh
-curl http://localhost:3000/v2/orders
+curl http://localhost:3000/v3/orders
 ```
 
 If everything is working as expected, you should see this response:
@@ -154,7 +156,7 @@ Because we want to support both Javascript and Typescript codebases, we don't us
 `0x-launch-kit` ships as a docker container. First, install Docker ([mac](https://docs.docker.com/docker-for-mac/install/), [windows](https://docs.docker.com/docker-for-windows/install/)). To build the image run:
 
 ```sh
-docker build -t 0x-launch-kit .
+docker build -t 0x-launch-kit-backend .
 ```
 
 You can check that the image was built by running:
@@ -166,13 +168,13 @@ docker images
 And launch it with
 
 ```sh
-docker run -p 3000:3000 -d 0x-launch-kit
+docker run -p 3000:3000 -d 0x-launch-kit-backend
 ```
 
 Check that it's working by running
 
 ```
-curl http://localhost:3000/v2/asset_pairs
+curl http://localhost:3000/v3/asset_pairs
 ```
 
 ## Legal Disclaimer

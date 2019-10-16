@@ -1,26 +1,28 @@
 import { schemas } from '@0x/json-schemas';
+import { WSClient } from '@0x/mesh-rpc-client';
 import { assetDataUtils } from '@0x/order-utils';
 import {
     APIOrder,
     AssetProxyId,
     OrdersChannelMessageTypes,
+    OrdersChannelSubscriptionOpts,
     SignedOrder,
     WebsocketConnectionEventType,
 } from '@0x/types';
 import * as http from 'http';
 import * as WebSocket from 'ws';
 
-import { MalformedJSONError, NotImplementedError } from './errors';
-import { generateError } from './middleware/error_handling';
+import { MalformedJSONError, NotImplementedError } from '../errors';
+import { MeshUtils } from '../mesh_utils';
+import { generateError } from '../middleware/error_handling';
 import {
     MessageChannels,
     MessageTypes,
     OrderChannelRequest,
-    OrdersChannelSubscriptionOpts,
     UpdateOrdersChannelMessageWithChannel,
     WebsocketSRAOpts,
-} from './types';
-import { utils } from './utils';
+} from '../types';
+import { utils } from '../utils';
 
 interface WrappedWebSocket extends WebSocket {
     isAlive: boolean;
@@ -33,20 +35,22 @@ const DEFAULT_OPTS: WebsocketSRAOpts = {
 
 type ALL_SUBSCRIPTION_OPTS = 'ALL_SUBSCRIPTION_OPTS';
 
-export class WebsocketSRA {
+export class WebsocketService {
     private readonly _server: WebSocket.Server;
+    private readonly _meshClient: WSClient;
     private readonly _pongIntervalId: number;
     private readonly _requestIdToSocket: Map<string, WrappedWebSocket> = new Map(); // requestId to WebSocket mapping
     private readonly _requestIdToSubscriptionOpts: Map<
         string,
         OrdersChannelSubscriptionOpts | ALL_SUBSCRIPTION_OPTS
     > = new Map(); // requestId -> { base, quote }
+    private _meshSubscriptionId?: string;
     private static _decodedContractAndAssetData(assetData: string): { assetProxyId: string; data: string[] } {
         let data: string[] = [assetData];
         const decodedAssetData = assetDataUtils.decodeAssetDataOrThrow(assetData);
         if (assetDataUtils.isMultiAssetData(decodedAssetData)) {
             for (const nested of decodedAssetData.nestedAssetData) {
-                data = [...data, ...WebsocketSRA._decodedContractAndAssetData(nested).data];
+                data = [...data, ...WebsocketService._decodedContractAndAssetData(nested).data];
             }
         } else if (assetDataUtils.isStaticCallAssetData(decodedAssetData)) {
             // do nothing
@@ -69,16 +73,6 @@ export class WebsocketSRA {
         if (opts.traderAssetData && makerAssetDataTakerAssetData.includes(opts.traderAssetData)) {
             return true;
         }
-        // baseAssetData?: string;
-        // quoteAssetData?: string;
-        if (
-            opts.baseAssetData &&
-            opts.quoteAssetData &&
-            makerAssetDataTakerAssetData.includes(opts.baseAssetData) &&
-            makerAssetDataTakerAssetData.includes(opts.quoteAssetData)
-        ) {
-            return true;
-        }
         // makerAssetData?: string;
         // takerAssetData?: string;
         if (
@@ -91,8 +85,8 @@ export class WebsocketSRA {
         }
         // makerAssetAddress?: string;
         // takerAssetAddress?: string;
-        const makerContractAndAssetData = WebsocketSRA._decodedContractAndAssetData(makerAssetData);
-        const takerContractAndAssetData = WebsocketSRA._decodedContractAndAssetData(takerAssetData);
+        const makerContractAndAssetData = WebsocketService._decodedContractAndAssetData(makerAssetData);
+        const takerContractAndAssetData = WebsocketService._decodedContractAndAssetData(takerAssetData);
         if (
             opts.makerAssetAddress &&
             opts.takerAssetAddress &&
@@ -111,7 +105,7 @@ export class WebsocketSRA {
         // takerAssetProxyId?: string;
         return false;
     }
-    constructor(server: http.Server, opts?: WebsocketSRAOpts) {
+    constructor(server: http.Server, meshClient: WSClient, opts?: WebsocketSRAOpts) {
         const wsOpts = {
             ...DEFAULT_OPTS,
             ...opts,
@@ -119,6 +113,10 @@ export class WebsocketSRA {
         this._server = new WebSocket.Server({ server });
         this._server.on('connection', this._processConnection.bind(this));
         this._pongIntervalId = setInterval(this._cleanupConnections.bind(this), wsOpts.pongInterval);
+        this._meshClient = meshClient;
+        this._meshClient
+            .subscribeToOrdersAsync(e => this.orderUpdate(MeshUtils.orderInfosToApiOrders(e)))
+            .then(subscriptionId => (this._meshSubscriptionId = subscriptionId));
     }
     public destroy(): void {
         clearInterval(this._pongIntervalId);
@@ -128,6 +126,9 @@ export class WebsocketSRA {
         this._requestIdToSocket.clear();
         this._requestIdToSubscriptionOpts.clear();
         this._server.close();
+        if (this._meshSubscriptionId) {
+            void this._meshClient.unsubscribeAsync(this._meshSubscriptionId);
+        }
     }
     public orderUpdate(apiOrders: APIOrder[]): void {
         if (this._server.clients.size === 0) {
@@ -144,7 +145,7 @@ export class WebsocketSRA {
             // to have many subscribers and a single order
             const requestIdToOrders: { [requestId: string]: Set<APIOrder> } = {};
             for (const [requestId, subscriptionOpts] of this._requestIdToSubscriptionOpts) {
-                if (WebsocketSRA._matchesOrdersChannelSubscription(order.order, subscriptionOpts)) {
+                if (WebsocketService._matchesOrdersChannelSubscription(order.order, subscriptionOpts)) {
                     if (requestIdToOrders[requestId]) {
                         const orderSet = requestIdToOrders[requestId];
                         orderSet.add(order);
@@ -179,17 +180,13 @@ export class WebsocketSRA {
         }
 
         utils.validateSchema(message, schemas.relayerApiOrdersChannelSubscribeSchema);
-        const requestId = message.requestId;
-        switch (message.type) {
+        const { requestId, payload, type } = message;
+        switch (type) {
             case MessageTypes.Subscribe:
                 ws.requestIds.add(requestId);
-                if (!message.payload) {
-                    this._requestIdToSubscriptionOpts.set(requestId, 'ALL_SUBSCRIPTION_OPTS');
-                    this._requestIdToSocket.set(requestId, ws);
-                } else {
-                    this._requestIdToSubscriptionOpts.set(requestId, message.payload);
-                    this._requestIdToSocket.set(requestId, ws);
-                }
+                const subscriptionOpts = payload || 'ALL_SUBSCRIPTION_OPTS';
+                this._requestIdToSubscriptionOpts.set(requestId, subscriptionOpts);
+                this._requestIdToSocket.set(requestId, ws);
                 break;
             default:
                 throw new NotImplementedError(message.type);

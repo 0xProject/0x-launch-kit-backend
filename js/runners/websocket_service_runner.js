@@ -127,36 +127,41 @@ var __generator =
             return { value: op[0] ? op[1] : void 0, done: true };
         }
     };
+var _this = this;
 Object.defineProperty(exports, '__esModule', { value: true });
-var typeorm_1 = require('typeorm');
-var connectionIfExists;
+var mesh_rpc_client_1 = require('@0x/mesh-rpc-client');
+var express = require('express');
+require('reflect-metadata');
+var config = require('../config');
+var db_connection_1 = require('../db_connection');
+var websocket_service_1 = require('../services/websocket_service');
+var utils_1 = require('../utils');
 /**
- * Returns the DB connnection
+ * This service handles websocket updates using a subscription from Mesh.
  */
-function getDBConnection() {
-    if (connectionIfExists === undefined) {
-        throw new Error('DB connection not initialized');
-    }
-    return connectionIfExists;
-}
-exports.getDBConnection = getDBConnection;
-/**
- * Creates the DB connnection to use in an app
- */
-function initDBConnectionAsync() {
-    return __awaiter(this, void 0, void 0, function() {
+(function() {
+    return __awaiter(_this, void 0, void 0, function() {
+        var app, server, meshClient;
         return __generator(this, function(_a) {
             switch (_a.label) {
                 case 0:
-                    if (connectionIfExists !== undefined) {
-                        throw new Error('DB connection already exists');
-                    }
-                    return [4 /*yield*/, typeorm_1.createConnection()];
+                    return [4 /*yield*/, db_connection_1.initDBConnectionAsync()];
                 case 1:
-                    connectionIfExists = _a.sent();
+                    _a.sent();
+                    app = express();
+                    server = app.listen(config.HTTP_PORT, function() {
+                        utils_1.utils.log(
+                            'Standard relayer API (WS) listening on port ' +
+                                config.HTTP_PORT +
+                                '!\nConfig: ' +
+                                JSON.stringify(config, null, 2),
+                        );
+                    });
+                    meshClient = new mesh_rpc_client_1.WSClient(config.MESH_ENDPOINT);
+                    // tslint:disable-next-line:no-unused-expression
+                    new websocket_service_1.WebsocketService(server, meshClient);
                     return [2 /*return*/];
             }
         });
     });
-}
-exports.initDBConnectionAsync = initDBConnectionAsync;
+})().catch(utils_1.utils.log);

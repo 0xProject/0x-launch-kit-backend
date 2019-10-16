@@ -24,31 +24,6 @@ export const utils = {
             throw new ValidationError(validationErrorItems);
         }
     },
-    async delayAsync(ms: number): Promise<void> {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    },
-    async attemptAsync<T>(
-        fn: () => Promise<T>,
-        opts: { interval: number; maxRetries: number } = { interval: 1000, maxRetries: 10 },
-    ): Promise<T> {
-        let result: T | undefined;
-        let attempt = 0;
-        let error;
-        while (!result && attempt < opts.maxRetries) {
-            attempt++;
-            try {
-                result = await fn();
-            } catch (err) {
-                utils.log(new Date(), attempt, err.message);
-                error = err;
-                await utils.delayAsync(opts.interval);
-            }
-        }
-        if (result) {
-            return result;
-        }
-        throw error;
-    },
 };
 
 function schemaValidationErrorToValidationErrorItem(schemaValidationError: SchemaValidationError): ValidationErrorItem {

@@ -1,46 +1,56 @@
 'use strict';
+var __read =
+    (this && this.__read) ||
+    function(o, n) {
+        var m = typeof Symbol === 'function' && o[Symbol.iterator];
+        if (!m) return o;
+        var i = m.call(o),
+            r,
+            ar = [],
+            e;
+        try {
+            while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+        } catch (error) {
+            e = { error: error };
+        } finally {
+            try {
+                if (r && !r.done && (m = i['return'])) m.call(i);
+            } finally {
+                if (e) throw e.error;
+            }
+        }
+        return ar;
+    };
+var __spread =
+    (this && this.__spread) ||
+    function() {
+        for (var ar = [], i = 0; i < arguments.length; i++) ar = ar.concat(__read(arguments[i]));
+        return ar;
+    };
 Object.defineProperty(exports, '__esModule', { value: true });
-const json_schemas_1 = require('@0x/json-schemas');
-const _ = require('lodash');
-const errors_1 = require('./errors');
-const schemaValidator = new json_schemas_1.SchemaValidator();
+var json_schemas_1 = require('@0x/json-schemas');
+var _ = require('lodash');
+var errors_1 = require('./errors');
+var schemaValidator = new json_schemas_1.SchemaValidator();
 exports.utils = {
-    log: (...args) => {
+    log: function() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
         // tslint:disable-next-line:no-console
-        console.log(...args);
+        console.log.apply(console, __spread(args));
     },
-    validateSchema(instance, schema) {
-        const validationResult = schemaValidator.validate(instance, schema);
+    validateSchema: function(instance, schema) {
+        var validationResult = schemaValidator.validate(instance, schema);
         if (_.isEmpty(validationResult.errors)) {
             return;
         } else {
-            const validationErrorItems = _.map(validationResult.errors, schemaValidationError =>
-                schemaValidationErrorToValidationErrorItem(schemaValidationError),
-            );
+            var validationErrorItems = _.map(validationResult.errors, function(schemaValidationError) {
+                return schemaValidationErrorToValidationErrorItem(schemaValidationError);
+            });
             throw new errors_1.ValidationError(validationErrorItems);
         }
-    },
-    async delayAsync(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    },
-    async attemptAsync(fn, opts = { interval: 1000, maxRetries: 10 }) {
-        let result;
-        let attempt = 0;
-        let error;
-        while (!result && attempt < opts.maxRetries) {
-            attempt++;
-            try {
-                result = await fn();
-            } catch (err) {
-                exports.utils.log(new Date(), attempt, err.message);
-                error = err;
-                await exports.utils.delayAsync(opts.interval);
-            }
-        }
-        if (result) {
-            return result;
-        }
-        throw error;
     },
 };
 function schemaValidationErrorToValidationErrorItem(schemaValidationError) {
@@ -92,6 +102,6 @@ function schemaValidationErrorToValidationErrorItem(schemaValidationError) {
             reason: schemaValidationError.message,
         };
     } else {
-        throw new Error(`Unknnown schema validation error name: ${schemaValidationError.name}`);
+        throw new Error('Unknnown schema validation error name: ' + schemaValidationError.name);
     }
 }

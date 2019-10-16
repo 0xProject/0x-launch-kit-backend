@@ -15,6 +15,8 @@ export class SignedOrderModel {
     public salt?: string;
     public signature?: string;
     public remainingFillableTakerAssetAmount?: string;
+    public makerFeeAssetData?: string;
+    public takerFeeAssetData?: string;
     constructor(
         opts: {
             hash?: string;
@@ -28,6 +30,8 @@ export class SignedOrderModel {
             expirationTimeSeconds?: number;
             makerFee?: string;
             takerFee?: string;
+            makerFeeAssetData?: string;
+            takerFeeAssetData?: string;
             makerAssetAmount?: string;
             takerAssetAmount?: string;
             salt?: string;
@@ -46,6 +50,8 @@ export class SignedOrderModel {
         this.expirationTimeSeconds = opts.expirationTimeSeconds;
         this.makerFee = opts.makerFee;
         this.takerFee = opts.takerFee;
+        this.makerFeeAssetData = opts.makerFeeAssetData;
+        this.takerFeeAssetData = opts.takerFeeAssetData;
         this.makerAssetAmount = opts.makerAssetAmount;
         this.takerAssetAmount = opts.takerAssetAmount;
         this.salt = opts.salt;

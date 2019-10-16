@@ -1,29 +1,29 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-const HttpStatus = require('http-status-codes');
-const errors_1 = require('../errors');
+var HttpStatus = require('http-status-codes');
+var errors_1 = require('../errors');
 /**
  * Wraps an Error with a JSON human readable reason and status code.
  */
 function generateError(err) {
     if (err.isRelayerError) {
-        const relayerError = err;
-        const statusCode = relayerError.statusCode;
+        var relayerError = err;
+        var statusCode = relayerError.statusCode;
         if (relayerError.statusCode === HttpStatus.BAD_REQUEST) {
-            const badRequestError = relayerError;
+            var badRequestError = relayerError;
             if (badRequestError.generalErrorCode === errors_1.GeneralErrorCodes.ValidationError) {
-                const validationError = badRequestError;
+                var validationError = badRequestError;
                 return {
-                    statusCode,
+                    statusCode: statusCode,
                     errorBody: {
                         code: badRequestError.generalErrorCode,
                         reason: errors_1.generalErrorCodeToReason[badRequestError.generalErrorCode],
                         validationErrors: validationError.validationErrors,
                     },
                 };
-            } else if (badRequestError.generalErrorCode === errors_1.GeneralErrorCodes.MalformedJson) {
+            } else {
                 return {
-                    statusCode,
+                    statusCode: statusCode,
                     errorBody: {
                         code: badRequestError.generalErrorCode,
                         reason: errors_1.generalErrorCodeToReason[badRequestError.generalErrorCode],
@@ -32,7 +32,7 @@ function generateError(err) {
             }
         } else {
             return {
-                statusCode,
+                statusCode: statusCode,
                 errorBody: {
                     reason: HttpStatus.getStatusText(relayerError.statusCode),
                 },
@@ -57,8 +57,10 @@ function errorHandler(err, _req, res, next) {
     if (res.headersSent) {
         return next(err);
     }
-    if (err.isRelayerError) {
-        const { statusCode, errorBody } = generateError(err);
+    if (err.isRelayerError || err.statusCode) {
+        var _a = generateError(err),
+            statusCode = _a.statusCode,
+            errorBody = _a.errorBody;
         res.status(statusCode).send(errorBody);
         return;
     } else {

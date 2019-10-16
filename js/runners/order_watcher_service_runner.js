@@ -127,36 +127,36 @@ var __generator =
             return { value: op[0] ? op[1] : void 0, done: true };
         }
     };
+var _this = this;
 Object.defineProperty(exports, '__esModule', { value: true });
-var typeorm_1 = require('typeorm');
-var connectionIfExists;
+var mesh_rpc_client_1 = require('@0x/mesh-rpc-client');
+require('reflect-metadata');
+var config = require('../config');
+var db_connection_1 = require('../db_connection');
+var order_watcher_service_1 = require('../services/order_watcher_service');
+var utils_1 = require('../utils');
 /**
- * Returns the DB connnection
+ * This service is a simple writer from the Mesh events. On order discovery
+ * or an order update it will be persisted to the database. It also is responsible
+ * for syncing the database with Mesh on start or after a disconnect.
  */
-function getDBConnection() {
-    if (connectionIfExists === undefined) {
-        throw new Error('DB connection not initialized');
-    }
-    return connectionIfExists;
-}
-exports.getDBConnection = getDBConnection;
-/**
- * Creates the DB connnection to use in an app
- */
-function initDBConnectionAsync() {
-    return __awaiter(this, void 0, void 0, function() {
+(function() {
+    return __awaiter(_this, void 0, void 0, function() {
+        var meshClient, orderWatcherService;
         return __generator(this, function(_a) {
             switch (_a.label) {
                 case 0:
-                    if (connectionIfExists !== undefined) {
-                        throw new Error('DB connection already exists');
-                    }
-                    return [4 /*yield*/, typeorm_1.createConnection()];
+                    return [4 /*yield*/, db_connection_1.initDBConnectionAsync()];
                 case 1:
-                    connectionIfExists = _a.sent();
+                    _a.sent();
+                    utils_1.utils.log('Order Watching Service started!\nConfig: ' + JSON.stringify(config, null, 2));
+                    meshClient = new mesh_rpc_client_1.WSClient(config.MESH_ENDPOINT);
+                    orderWatcherService = new order_watcher_service_1.OrderWatcherService(meshClient);
+                    return [4 /*yield*/, orderWatcherService.syncOrderbookAsync()];
+                case 2:
+                    _a.sent();
                     return [2 /*return*/];
             }
         });
     });
-}
-exports.initDBConnectionAsync = initDBConnectionAsync;
+})().catch(utils_1.utils.log);

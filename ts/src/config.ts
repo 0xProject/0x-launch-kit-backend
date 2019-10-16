@@ -6,6 +6,8 @@ import * as fs from 'fs';
 import * as _ from 'lodash';
 import * as path from 'path';
 
+import { NULL_BYTES } from './constants';
+
 const metadataPath = path.join(__dirname, '../../metadata.json');
 enum EnvVarType {
     Port,
@@ -15,6 +17,7 @@ enum EnvVarType {
     Url,
     WhitelistAllTokens,
     Boolean,
+    FeeAssetData,
 }
 // Whitelisted token addresses. Set to a '*' instead of an array to allow all tokens.
 export const WHITELISTED_TOKENS: string[] | '*' = _.isEmpty(process.env.WHITELIST_ALL_TOKENS)
@@ -32,34 +35,31 @@ export const HTTP_PORT = _.isEmpty(process.env.HTTP_PORT)
 export const NETWORK_ID = _.isEmpty(process.env.NETWORK_ID)
     ? 42
     : assertEnvVarType('NETWORK_ID', process.env.NETWORK_ID, EnvVarType.NetworkId);
+
+// Mesh Endpoint
+export const MESH_ENDPOINT = _.isEmpty(process.env.MESH_ENDPOINT)
+    ? 'ws://localhost:60557'
+    : assertEnvVarType('MESH_ENDPOINT', process.env.MESH_ENDPOINT, EnvVarType.Url);
 // The fee recipient for orders
 export const FEE_RECIPIENT = _.isEmpty(process.env.FEE_RECIPIENT)
     ? getDefaultFeeRecipient()
     : assertEnvVarType('FEE_RECIPIENT', process.env.FEE_RECIPIENT, EnvVarType.FeeRecipient);
-// A flat fee in ZRX that should be charged to the order maker
-export const MAKER_FEE_ZRX_UNIT_AMOUNT = _.isEmpty(process.env.MAKER_FEE_ZRX_UNIT_AMOUNT)
+// A flat fee that should be charged to the order maker
+export const MAKER_FEE_UNIT_AMOUNT = _.isEmpty(process.env.MAKER_FEE_UNIT_AMOUNT)
     ? new BigNumber(0)
-    : assertEnvVarType('MAKER_FEE_ZRX_UNIT_AMOUNT', process.env.MAKER_FEE_ZRX_UNIT_AMOUNT, EnvVarType.UnitAmount);
-// A flat fee in ZRX that should be charged to the order taker
-export const TAKER_FEE_ZRX_UNIT_AMOUNT = _.isEmpty(process.env.TAKER_FEE_ZRX_UNIT_AMOUNT)
+    : assertEnvVarType('MAKER_FEE_UNIT_AMOUNT', process.env.MAKER_FEE_UNIT_AMOUNT, EnvVarType.UnitAmount);
+// A flat fee that should be charged to the order taker
+export const TAKER_FEE_UNIT_AMOUNT = _.isEmpty(process.env.TAKER_FEE_UNIT_AMOUNT)
     ? new BigNumber(0)
-    : assertEnvVarType('TAKER_FEE_ZRX_UNIT_AMOUNT', process.env.TAKER_FEE_ZRX_UNIT_AMOUNT, EnvVarType.UnitAmount);
-// Mesh Endpoint. Optional
-export const MESH_ENDPOINT = _.isEmpty(process.env.MESH_ENDPOINT)
-    ? 'ws://localhost:60557'
-    : assertEnvVarType('MESH_ENDPOINT', process.env.MESH_ENDPOINT, EnvVarType.Url);
-export const USE_MESH = _.isEmpty(process.env.USE_MESH)
-    ? false
-    : assertEnvVarType('USE_MESH', process.env.USE_MESH, EnvVarType.Boolean);
-
-// Disables POSTing of Orders, only read queries are valid
-export const DISABLE_POST = _.isEmpty(process.env.DISABLE_POST)
-    ? false
-    : assertEnvVarType('DISABLE_POST', process.env.DISABLE_POST, EnvVarType.Boolean);
-// Backend will not write any order updates
-export const READ_ONLY = _.isEmpty(process.env.READ_ONLY)
-    ? false
-    : assertEnvVarType('READ_ONLY', process.env.READ_ONLY, EnvVarType.Boolean);
+    : assertEnvVarType('TAKER_FEE_UNIT_AMOUNT', process.env.TAKER_FEE_UNIT_AMOUNT, EnvVarType.UnitAmount);
+// The maker fee token encoded as asset data
+export const MAKER_FEE_ASSET_DATA = _.isEmpty(process.env.MAKER_FEE_ASSET_DATA)
+    ? NULL_BYTES
+    : assertEnvVarType('MAKER_FEE_ASSET_DATA', process.env.MAKER_FEE_ASSET_DATA, EnvVarType.FeeAssetData);
+// The taker fee token encoded as asset data
+export const TAKER_FEE_ASSET_DATA = _.isEmpty(process.env.TAKER_FEE_ASSET_DATA)
+    ? NULL_BYTES
+    : assertEnvVarType('TAKER_FEE_ASSET_DATA', process.env.TAKER_FEE_ASSET_DATA, EnvVarType.FeeAssetData);
 
 // Max number of entities per page
 export const MAX_PER_PAGE = 1000;
@@ -67,15 +67,6 @@ export const MAX_PER_PAGE = 1000;
 export const DEFAULT_ERC20_TOKEN_PRECISION = 18;
 // Address used when simulating transfers from the maker as part of 0x order validation
 export const DEFAULT_TAKER_SIMULATION_ADDRESS = '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
-// OrderWatcher Options
-// Ethereum RPC url
-export const RPC_URL = _.isEmpty(process.env.RPC_URL)
-    ? 'https://kovan.infura.io/v3/f215624b820f46028eb77aef44c5b400'
-    : assertEnvVarType('RPC_URL', process.env.RPC_URL, EnvVarType.Url);
-// A time window after which the order is considered permanently expired
-export const ORDER_SHADOWING_MARGIN_MS = 100 * 1000; // tslint:disable-line custom-no-magic-numbers
-// Frequency of checks for permanently expired orders
-export const PERMANENT_CLEANUP_INTERVAL_MS = 10 * 1000; // tslint:disable-line custom-no-magic-numbers
 
 function assertEnvVarType(name: string, value: any, expectedType: EnvVarType): any {
     let returnValue;
@@ -118,6 +109,9 @@ function assertEnvVarType(name: string, value: any, expectedType: EnvVarType): a
             return returnValue;
         case EnvVarType.WhitelistAllTokens:
             return '*';
+        case EnvVarType.FeeAssetData:
+            assert.isString(name, value);
+            return value;
         default:
             throw new Error(`Unrecognised EnvVarType: ${expectedType} encountered for variable ${name}.`);
     }

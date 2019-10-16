@@ -5,9 +5,7 @@
     "logging": true,
     "logger": "debug",
     "entities": ["ts/lib/entity/**/*.js", "js/entity/**/*.js"],
-    "migrations": ["ts/lib/migration/*.js"],
     "cli": {
-        "entitiesDir": "ts/lib/entity",
-        "migrationsDir": "ts/src/migration"
+        "entitiesDir": "ts/lib/entity"
     }
 }

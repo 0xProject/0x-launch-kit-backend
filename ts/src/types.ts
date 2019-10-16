@@ -1,5 +1,6 @@
 import { BigNumber } from '0x.js';
-import { APIOrder, SignedOrder, UpdateOrdersChannelMessage } from '@0x/types';
+import { AcceptedOrderInfo, RejectedOrderInfo } from '@0x/mesh-rpc-client';
+import { APIOrder, OrdersChannelSubscriptionOpts, UpdateOrdersChannelMessage } from '@0x/types';
 
 export enum OrderWatcherLifeCycleEvents {
     Added,
@@ -9,15 +10,9 @@ export enum OrderWatcherLifeCycleEvents {
 
 export type onOrdersUpdateCallback = (orders: APIOrderWithMetaData[]) => void;
 
-export interface AdaptedOrderAndValidationResult {
-    order: SignedOrder;
-    message: string | undefined;
-    metaData: APIOrderMetaData;
-}
-
-export interface AdaptedValidationResults {
-    accepted: AdaptedOrderAndValidationResult[];
-    rejected: AdaptedOrderAndValidationResult[];
+export interface AcceptedRejectedResults {
+    accepted: AcceptedOrderInfo[];
+    rejected: RejectedOrderInfo[];
 }
 
 export interface APIOrderMetaData {
@@ -31,19 +26,6 @@ export interface APIOrderWithMetaData extends APIOrder {
 
 export interface WebsocketSRAOpts {
     pongInterval?: number;
-}
-
-export interface OrdersChannelSubscriptionOpts {
-    baseAssetData?: string;
-    quoteAssetData?: string;
-    makerAssetProxyId?: string;
-    takerAssetProxyId?: string;
-    makerAssetAddress?: string;
-    takerAssetAddress?: string;
-    makerAssetData?: string;
-    takerAssetData?: string;
-    traderAssetData?: string;
-    networkId?: number;
 }
 
 export interface OrderChannelRequest {
