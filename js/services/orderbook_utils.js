@@ -136,9 +136,6 @@ exports.deserializeOrder = function(signedOrderModel) {
         exchangeAddress: signedOrderModel.exchangeAddress,
         feeRecipientAddress: signedOrderModel.feeRecipientAddress,
         expirationTimeSeconds: new _0x_js_1.BigNumber(signedOrderModel.expirationTimeSeconds),
-        makerFeeAssetData: signedOrderModel.makerFeeAssetData,
-        takerFeeAssetData: signedOrderModel.takerFeeAssetData,
-        chainId: config_1.NETWORK_ID,
     };
     return signedOrder;
 };
@@ -166,8 +163,6 @@ exports.serializeOrder = function(apiOrder) {
         takerAssetData: signedOrder.takerAssetData,
         makerFee: signedOrder.makerFee.toString(),
         takerFee: signedOrder.takerFee.toString(),
-        makerFeeAssetData: signedOrder.makerFeeAssetData.toString(),
-        takerFeeAssetData: signedOrder.takerFeeAssetData.toString(),
         salt: signedOrder.salt.toString(),
         exchangeAddress: signedOrder.exchangeAddress,
         feeRecipientAddress: signedOrder.feeRecipientAddress,
@@ -192,6 +187,12 @@ var assetDataToAsset = function(assetData) {
             break;
         case types_1.AssetProxyId.ERC721:
             asset = erc721AssetDataToAsset(assetData);
+            break;
+        case types_1.AssetProxyId.MultiAsset:
+            asset = erc20AssetDataToAsset(assetData);
+            break;
+        case types_1.AssetProxyId.ERC1155:
+            asset = erc20AssetDataToAsset(assetData);
             break;
         default:
             throw utils_1.errorUtils.spawnSwitchErr('assetProxyId', assetProxyId);

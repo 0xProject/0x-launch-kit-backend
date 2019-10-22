@@ -40,12 +40,6 @@ export const signedOrderEntity = new EntitySchema<SignedOrderModel>({
         takerFee: {
             type: 'varchar',
         },
-        makerFeeAssetData: {
-            type: 'varchar',
-        },
-        takerFeeAssetData: {
-            type: 'varchar',
-        },
         makerAssetAmount: {
             type: 'varchar',
         },

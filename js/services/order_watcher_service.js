@@ -144,9 +144,18 @@ Object.defineProperty(exports, '__esModule', { value: true });
 var _ = require('lodash');
 var db_connection_1 = require('../db_connection');
 var mesh_utils_1 = require('../mesh_utils');
+var MeshEventModel_1 = require('../models/MeshEventModel');
 var SignedOrderModel_1 = require('../models/SignedOrderModel');
 var types_1 = require('../types');
 var orderbook_utils_1 = require('./orderbook_utils');
+var uuidv4 = function() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        // tslint:disable:no-bitwise one-variable-per-declaration custom-no-magic-numbers
+        var r = (Math.random() * 16) | 0,
+            v = c === 'x' ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+    });
+};
 // tslint:disable-next-line:no-var-requires
 var d = require('debug')('orderbook');
 var OrderWatcherService = /** @class */ (function() {
@@ -155,14 +164,41 @@ var OrderWatcherService = /** @class */ (function() {
         this._meshClient = meshClient;
         void this._meshClient.subscribeToOrdersAsync(function(orders) {
             return __awaiter(_this, void 0, void 0, function() {
-                var _a, added, removed, updated;
-                return __generator(this, function(_b) {
-                    switch (_b.label) {
+                var e_1, _a, connection, uuid, orders_1, orders_1_1, order, _b, added, removed, updated;
+                return __generator(this, function(_c) {
+                    switch (_c.label) {
                         case 0:
-                            (_a = mesh_utils_1.MeshUtils.calculateAddedRemovedUpdated(orders)),
-                                (added = _a.added),
-                                (removed = _a.removed),
-                                (updated = _a.updated);
+                            connection = db_connection_1.getDBConnection();
+                            uuid = uuidv4();
+                            try {
+                                for (
+                                    orders_1 = __values(orders), orders_1_1 = orders_1.next();
+                                    !orders_1_1.done;
+                                    orders_1_1 = orders_1.next()
+                                ) {
+                                    order = orders_1_1.value;
+                                    connection.manager.save(
+                                        new MeshEventModel_1.MeshEventModel({
+                                            hash: order.orderHash,
+                                            eventName: order.endState,
+                                            occuredAt: Date.now().toString(),
+                                            uuid: uuid,
+                                        }),
+                                    );
+                                }
+                            } catch (e_1_1) {
+                                e_1 = { error: e_1_1 };
+                            } finally {
+                                try {
+                                    if (orders_1_1 && !orders_1_1.done && (_a = orders_1.return)) _a.call(orders_1);
+                                } finally {
+                                    if (e_1) throw e_1.error;
+                                }
+                            }
+                            (_b = mesh_utils_1.MeshUtils.calculateAddedRemovedUpdated(orders)),
+                                (added = _b.added),
+                                (removed = _b.removed),
+                                (updated = _b.updated);
                             return [
                                 4 /*yield*/,
                                 OrderWatcherService._onOrderLifeCycleEventAsync(
@@ -171,7 +207,7 @@ var OrderWatcherService = /** @class */ (function() {
                                 ),
                             ];
                         case 1:
-                            _b.sent();
+                            _c.sent();
                             return [
                                 4 /*yield*/,
                                 OrderWatcherService._onOrderLifeCycleEventAsync(
@@ -180,7 +216,7 @@ var OrderWatcherService = /** @class */ (function() {
                                 ),
                             ];
                         case 2:
-                            _b.sent();
+                            _c.sent();
                             return [
                                 4 /*yield*/,
                                 OrderWatcherService._onOrderLifeCycleEventAsync(
@@ -189,7 +225,7 @@ var OrderWatcherService = /** @class */ (function() {
                                 ),
                             ];
                         case 3:
-                            _b.sent();
+                            _c.sent();
                             return [2 /*return*/];
                     }
                 });
@@ -212,7 +248,7 @@ var OrderWatcherService = /** @class */ (function() {
     }
     OrderWatcherService._onOrderLifeCycleEventAsync = function(lifecycleEvent, orders) {
         return __awaiter(this, void 0, void 0, function() {
-            var e_1, _a, connection, _b, signedOrdersModel, orderHashes, chunks, chunks_1, chunks_1_1, chunk, e_1_1;
+            var e_2, _a, connection, _b, signedOrdersModel, orderHashes, chunks, chunks_1, chunks_1_1, chunk, e_2_1;
             return __generator(this, function(_c) {
                 switch (_c.label) {
                     case 0:
@@ -271,14 +307,14 @@ var OrderWatcherService = /** @class */ (function() {
                     case 8:
                         return [3 /*break*/, 11];
                     case 9:
-                        e_1_1 = _c.sent();
-                        e_1 = { error: e_1_1 };
+                        e_2_1 = _c.sent();
+                        e_2 = { error: e_2_1 };
                         return [3 /*break*/, 11];
                     case 10:
                         try {
                             if (chunks_1_1 && !chunks_1_1.done && (_a = chunks_1.return)) _a.call(chunks_1);
                         } finally {
-                            if (e_1) throw e_1.error;
+                            if (e_2) throw e_2.error;
                         }
                         return [7 /*endfinally*/];
                     case 11:

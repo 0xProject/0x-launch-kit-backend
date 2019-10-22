@@ -44,7 +44,16 @@ export class OrderBookService {
             Required<SignedOrderModel>
         >;
 
-        const assetPairsItems: AssetPairsItem[] = signedOrderModels.map(deserializeOrder).map(signedOrderToAssetPair);
+        const assetPairsItems: AssetPairsItem[] = signedOrderModels
+            .map(deserializeOrder)
+            .map(o => {
+                try {
+                    return signedOrderToAssetPair(o);
+                } catch (e) {
+                    return null;
+                }
+            })
+            .filter(a => a !== null) as AssetPairsItem[];
         let nonPaginatedFilteredAssetPairs: AssetPairsItem[];
         if (assetDataA === undefined && assetDataB === undefined) {
             nonPaginatedFilteredAssetPairs = assetPairsItems;
@@ -107,8 +116,6 @@ export class OrderBookService {
             makerAddress: ordersFilterParams.makerAddress,
             takerAddress: ordersFilterParams.takerAddress,
             feeRecipientAddress: ordersFilterParams.feeRecipientAddress,
-            makerFeeAssetData: ordersFilterParams.makerFeeAssetData,
-            takerFeeAssetData: ordersFilterParams.takerFeeAssetData,
         };
         const filterObject = _.pickBy(filterObjectWithValuesIfExist, _.identity.bind(_));
         const signedOrderModels = (await connection.manager.find(SignedOrderModel, { where: filterObject })) as Array<

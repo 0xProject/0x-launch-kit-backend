@@ -6,6 +6,7 @@
         "outDir": "lib",
         "strict": true,
         "downlevelIteration": true,
+        "skipLibCheck": true,
         "noUnusedLocals": true,
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,

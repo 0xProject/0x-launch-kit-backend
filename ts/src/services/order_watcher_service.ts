@@ -3,11 +3,20 @@ import * as _ from 'lodash';
 
 import { getDBConnection } from '../db_connection';
 import { MeshUtils } from '../mesh_utils';
+import { MeshEventModel } from '../models/MeshEventModel';
 import { SignedOrderModel } from '../models/SignedOrderModel';
 import { APIOrderWithMetaData, OrderWatcherLifeCycleEvents } from '../types';
 
 import { deserializeOrder, serializeOrder } from './orderbook_utils';
 
+const uuidv4 = () => {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+        // tslint:disable:no-bitwise one-variable-per-declaration custom-no-magic-numbers
+        const r = (Math.random() * 16) | 0,
+            v = c === 'x' ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+    });
+};
 // tslint:disable-next-line:no-var-requires
 const d = require('debug')('orderbook');
 
@@ -51,6 +60,18 @@ export class OrderWatcherService {
     constructor(meshClient: WSClient) {
         this._meshClient = meshClient;
         void this._meshClient.subscribeToOrdersAsync(async orders => {
+            const connection = getDBConnection();
+            const uuid = uuidv4();
+            for (const order of orders) {
+                connection.manager.save(
+                    new MeshEventModel({
+                        hash: order.orderHash,
+                        eventName: order.endState,
+                        occuredAt: Date.now().toString(),
+                        uuid,
+                    }),
+                );
+            }
             const { added, removed, updated } = MeshUtils.calculateAddedRemovedUpdated(orders);
             await OrderWatcherService._onOrderLifeCycleEventAsync(OrderWatcherLifeCycleEvents.Removed, removed);
             await OrderWatcherService._onOrderLifeCycleEventAsync(OrderWatcherLifeCycleEvents.Updated, updated);

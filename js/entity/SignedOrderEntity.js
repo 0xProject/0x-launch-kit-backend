@@ -40,12 +40,6 @@ exports.signedOrderEntity = new typeorm_1.EntitySchema({
         takerFee: {
             type: 'varchar',
         },
-        makerFeeAssetData: {
-            type: 'varchar',
-        },
-        takerFeeAssetData: {
-            type: 'varchar',
-        },
         makerAssetAmount: {
             type: 'varchar',
         },

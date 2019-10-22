@@ -10,8 +10,6 @@ exports.fixedFeeStrategy = {
             feeRecipientAddress: normalizedFeeRecipient,
             makerFee: config_1.MAKER_FEE_UNIT_AMOUNT,
             takerFee: config_1.TAKER_FEE_UNIT_AMOUNT,
-            makerFeeAssetData: config_1.MAKER_FEE_ASSET_DATA,
-            takerFeeAssetData: config_1.TAKER_FEE_ASSET_DATA,
         };
         return orderConfigResponse;
     },

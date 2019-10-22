@@ -6,8 +6,6 @@ import * as fs from 'fs';
 import * as _ from 'lodash';
 import * as path from 'path';
 
-import { NULL_BYTES } from './constants';
-
 const metadataPath = path.join(__dirname, '../../metadata.json');
 enum EnvVarType {
     Port,
@@ -52,14 +50,6 @@ export const MAKER_FEE_UNIT_AMOUNT = _.isEmpty(process.env.MAKER_FEE_UNIT_AMOUNT
 export const TAKER_FEE_UNIT_AMOUNT = _.isEmpty(process.env.TAKER_FEE_UNIT_AMOUNT)
     ? new BigNumber(0)
     : assertEnvVarType('TAKER_FEE_UNIT_AMOUNT', process.env.TAKER_FEE_UNIT_AMOUNT, EnvVarType.UnitAmount);
-// The maker fee token encoded as asset data
-export const MAKER_FEE_ASSET_DATA = _.isEmpty(process.env.MAKER_FEE_ASSET_DATA)
-    ? NULL_BYTES
-    : assertEnvVarType('MAKER_FEE_ASSET_DATA', process.env.MAKER_FEE_ASSET_DATA, EnvVarType.FeeAssetData);
-// The taker fee token encoded as asset data
-export const TAKER_FEE_ASSET_DATA = _.isEmpty(process.env.TAKER_FEE_ASSET_DATA)
-    ? NULL_BYTES
-    : assertEnvVarType('TAKER_FEE_ASSET_DATA', process.env.TAKER_FEE_ASSET_DATA, EnvVarType.FeeAssetData);
 
 // Max number of entities per page
 export const MAX_PER_PAGE = 1000;

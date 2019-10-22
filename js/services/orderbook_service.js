@@ -184,7 +184,16 @@ var OrderBookService = /** @class */ (function() {
                         signedOrderModels = _a.sent();
                         assetPairsItems = signedOrderModels
                             .map(orderbook_utils_1.deserializeOrder)
-                            .map(orderbook_utils_1.signedOrderToAssetPair);
+                            .map(function(o) {
+                                try {
+                                    return orderbook_utils_1.signedOrderToAssetPair(o);
+                                } catch (e) {
+                                    return null;
+                                }
+                            })
+                            .filter(function(a) {
+                                return a !== null;
+                            });
                         if (assetDataA === undefined && assetDataB === undefined) {
                             nonPaginatedFilteredAssetPairs = assetPairsItems;
                         } else if (assetDataA !== undefined && assetDataB !== undefined) {
@@ -296,8 +305,6 @@ var OrderBookService = /** @class */ (function() {
                             makerAddress: ordersFilterParams.makerAddress,
                             takerAddress: ordersFilterParams.takerAddress,
                             feeRecipientAddress: ordersFilterParams.feeRecipientAddress,
-                            makerFeeAssetData: ordersFilterParams.makerFeeAssetData,
-                            takerFeeAssetData: ordersFilterParams.takerFeeAssetData,
                         };
                         filterObject = _.pickBy(filterObjectWithValuesIfExist, _.identity.bind(_));
                         return [

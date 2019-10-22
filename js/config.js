@@ -7,7 +7,6 @@ var crypto = require('crypto');
 var fs = require('fs');
 var _ = require('lodash');
 var path = require('path');
-var constants_1 = require('./constants');
 var metadataPath = path.join(__dirname, '../../metadata.json');
 var EnvVarType;
 (function(EnvVarType) {
@@ -48,14 +47,6 @@ exports.MAKER_FEE_UNIT_AMOUNT = _.isEmpty(process.env.MAKER_FEE_UNIT_AMOUNT)
 exports.TAKER_FEE_UNIT_AMOUNT = _.isEmpty(process.env.TAKER_FEE_UNIT_AMOUNT)
     ? new _0x_js_1.BigNumber(0)
     : assertEnvVarType('TAKER_FEE_UNIT_AMOUNT', process.env.TAKER_FEE_UNIT_AMOUNT, EnvVarType.UnitAmount);
-// The maker fee token encoded as asset data
-exports.MAKER_FEE_ASSET_DATA = _.isEmpty(process.env.MAKER_FEE_ASSET_DATA)
-    ? constants_1.NULL_BYTES
-    : assertEnvVarType('MAKER_FEE_ASSET_DATA', process.env.MAKER_FEE_ASSET_DATA, EnvVarType.FeeAssetData);
-// The taker fee token encoded as asset data
-exports.TAKER_FEE_ASSET_DATA = _.isEmpty(process.env.TAKER_FEE_ASSET_DATA)
-    ? constants_1.NULL_BYTES
-    : assertEnvVarType('TAKER_FEE_ASSET_DATA', process.env.TAKER_FEE_ASSET_DATA, EnvVarType.FeeAssetData);
 // Max number of entities per page
 exports.MAX_PER_PAGE = 1000;
 // Default ERC20 token precision
