@@ -128,7 +128,7 @@ var __generator =
         }
     };
 Object.defineProperty(exports, '__esModule', { value: true });
-var _0x_js_1 = require('0x.js');
+var order_utils_1 = require('@0x/order-utils');
 var _ = require('lodash');
 var db_connection_1 = require('../db_connection');
 var errors_1 = require('../errors');
@@ -348,8 +348,9 @@ var OrderBookService = /** @class */ (function() {
                                 function(apiOrder) {
                                     return (
                                         ordersFilterParams.makerAssetProxyId === undefined ||
-                                        _0x_js_1.assetDataUtils.decodeAssetDataOrThrow(apiOrder.order.makerAssetData)
-                                            .assetProxyId === ordersFilterParams.makerAssetProxyId
+                                        order_utils_1.assetDataUtils.decodeAssetDataOrThrow(
+                                            apiOrder.order.makerAssetData,
+                                        ).assetProxyId === ordersFilterParams.makerAssetProxyId
                                     );
                                 },
                             )
@@ -358,8 +359,9 @@ var OrderBookService = /** @class */ (function() {
                                 function(apiOrder) {
                                     return (
                                         ordersFilterParams.takerAssetProxyId === undefined ||
-                                        _0x_js_1.assetDataUtils.decodeAssetDataOrThrow(apiOrder.order.takerAssetData)
-                                            .assetProxyId === ordersFilterParams.takerAssetProxyId
+                                        order_utils_1.assetDataUtils.decodeAssetDataOrThrow(
+                                            apiOrder.order.takerAssetData,
+                                        ).assetProxyId === ordersFilterParams.takerAssetProxyId
                                     );
                                 },
                             );

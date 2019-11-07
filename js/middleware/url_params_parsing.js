@@ -7,25 +7,25 @@ var errors_1 = require('../errors');
  * Parses URL params and stores them on the request object
  */
 function urlParamsParsing(req, _res, next) {
-    var networkId = parseNetworkId(req.query.networkId);
+    var chainId = parseChainId(req.query.chainId);
     // HACK: This is the recommended way to pass data from middlewares on. It's not beautiful nor fully type-safe.
-    req.networkId = networkId;
+    req.chainId = chainId;
     next();
 }
 exports.urlParamsParsing = urlParamsParsing;
-function parseNetworkId(networkIdStrIfExists) {
-    if (networkIdStrIfExists === undefined) {
-        return config_1.NETWORK_ID;
+function parseChainId(chainIdStrIfExists) {
+    if (chainIdStrIfExists === undefined) {
+        return config_1.CHAIN_ID;
     } else {
-        var networkId = _.parseInt(networkIdStrIfExists);
-        if (networkId !== config_1.NETWORK_ID) {
+        var chainId = _.parseInt(chainIdStrIfExists);
+        if (chainId !== config_1.CHAIN_ID) {
             var validationErrorItem = {
-                field: 'networkId',
+                field: 'chainId',
                 code: 1004,
-                reason: 'Incorrect Network ID: ' + networkIdStrIfExists,
+                reason: 'Incorrect Chain ID: ' + chainIdStrIfExists,
             };
             throw new errors_1.ValidationError([validationErrorItem]);
         }
-        return networkId;
+        return chainId;
     }
 }

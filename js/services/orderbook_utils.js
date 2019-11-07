@@ -49,19 +49,19 @@ var __read =
         return ar;
     };
 Object.defineProperty(exports, '__esModule', { value: true });
-var _0x_js_1 = require('0x.js');
+var order_utils_1 = require('@0x/order-utils');
 var types_1 = require('@0x/types');
 var utils_1 = require('@0x/utils');
 var config_1 = require('../config');
 var constants_1 = require('../constants');
 var SignedOrderModel_1 = require('../models/SignedOrderModel');
 var DEFAULT_ERC721_ASSET = {
-    minAmount: new _0x_js_1.BigNumber(0),
-    maxAmount: new _0x_js_1.BigNumber(1),
+    minAmount: new utils_1.BigNumber(0),
+    maxAmount: new utils_1.BigNumber(1),
     precision: 0,
 };
 var DEFAULT_ERC20_ASSET = {
-    minAmount: new _0x_js_1.BigNumber(0),
+    minAmount: new utils_1.BigNumber(0),
     maxAmount: constants_1.MAX_TOKEN_SUPPLY_POSSIBLE,
     precision: config_1.DEFAULT_ERC20_TOKEN_PRECISION,
 };
@@ -91,8 +91,8 @@ exports.compareOrderByFeeRatio = function(orderA, orderB) {
 };
 exports.includesTokenAddress = function(assetData, tokenAddress) {
     var e_1, _a;
-    var decodedAssetData = _0x_js_1.assetDataUtils.decodeAssetDataOrThrow(assetData);
-    if (_0x_js_1.assetDataUtils.isMultiAssetData(decodedAssetData)) {
+    var decodedAssetData = order_utils_1.assetDataUtils.decodeAssetDataOrThrow(assetData);
+    if (order_utils_1.assetDataUtils.isMultiAssetData(decodedAssetData)) {
         try {
             for (
                 var _b = __values(decodedAssetData.nestedAssetData.entries()), _c = _b.next();
@@ -115,7 +115,7 @@ exports.includesTokenAddress = function(assetData, tokenAddress) {
             }
         }
         return false;
-    } else if (!_0x_js_1.assetDataUtils.isStaticCallAssetData(decodedAssetData)) {
+    } else if (!order_utils_1.assetDataUtils.isStaticCallAssetData(decodedAssetData)) {
         return decodedAssetData.tokenAddress === tokenAddress;
     }
     return false;
@@ -126,19 +126,19 @@ exports.deserializeOrder = function(signedOrderModel) {
         senderAddress: signedOrderModel.senderAddress,
         makerAddress: signedOrderModel.makerAddress,
         takerAddress: signedOrderModel.takerAddress,
-        makerFee: new _0x_js_1.BigNumber(signedOrderModel.makerFee),
-        takerFee: new _0x_js_1.BigNumber(signedOrderModel.takerFee),
-        makerAssetAmount: new _0x_js_1.BigNumber(signedOrderModel.makerAssetAmount),
-        takerAssetAmount: new _0x_js_1.BigNumber(signedOrderModel.takerAssetAmount),
+        makerFee: new utils_1.BigNumber(signedOrderModel.makerFee),
+        takerFee: new utils_1.BigNumber(signedOrderModel.takerFee),
+        makerAssetAmount: new utils_1.BigNumber(signedOrderModel.makerAssetAmount),
+        takerAssetAmount: new utils_1.BigNumber(signedOrderModel.takerAssetAmount),
         makerAssetData: signedOrderModel.makerAssetData,
         takerAssetData: signedOrderModel.takerAssetData,
-        salt: new _0x_js_1.BigNumber(signedOrderModel.salt),
+        salt: new utils_1.BigNumber(signedOrderModel.salt),
         exchangeAddress: signedOrderModel.exchangeAddress,
         feeRecipientAddress: signedOrderModel.feeRecipientAddress,
-        expirationTimeSeconds: new _0x_js_1.BigNumber(signedOrderModel.expirationTimeSeconds),
+        expirationTimeSeconds: new utils_1.BigNumber(signedOrderModel.expirationTimeSeconds),
         makerFeeAssetData: signedOrderModel.makerFeeAssetData,
         takerFeeAssetData: signedOrderModel.takerFeeAssetData,
-        chainId: config_1.NETWORK_ID,
+        chainId: config_1.CHAIN_ID,
     };
     return signedOrder;
 };
@@ -184,7 +184,7 @@ var erc20AssetDataToAsset = function(assetData) {
     return __assign({}, DEFAULT_ERC20_ASSET, { assetData: assetData });
 };
 var assetDataToAsset = function(assetData) {
-    var assetProxyId = _0x_js_1.assetDataUtils.decodeAssetProxyId(assetData);
+    var assetProxyId = order_utils_1.assetDataUtils.decodeAssetProxyId(assetData);
     var asset;
     switch (assetProxyId) {
         case types_1.AssetProxyId.ERC20:

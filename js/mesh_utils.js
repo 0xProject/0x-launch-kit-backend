@@ -257,7 +257,7 @@ var MeshUtils = /** @class */ (function() {
             case mesh_rpc_client_1.RejectedCode.OrderHasInvalidSignature: {
                 return errors_1.ValidationErrorCodes.InvalidSignatureOrHash;
             }
-            case mesh_rpc_client_1.RejectedCode.OrderForIncorrectNetwork: {
+            case mesh_rpc_client_1.RejectedCode.OrderForIncorrectChain: {
                 return errors_1.ValidationErrorCodes.InvalidAddress;
             }
             default:

@@ -1,6 +1,6 @@
-import { BigNumber } from '0x.js';
 import { AcceptedOrderInfo, RejectedOrderInfo } from '@0x/mesh-rpc-client';
 import { APIOrder, OrdersChannelSubscriptionOpts, UpdateOrdersChannelMessage } from '@0x/types';
+import { BigNumber } from '@0x/utils';
 
 export enum OrderWatcherLifeCycleEvents {
     Added,

@@ -177,8 +177,9 @@ var __read =
         return ar;
     };
 Object.defineProperty(exports, '__esModule', { value: true });
-var _0x_js_1 = require('0x.js');
 var json_schemas_1 = require('@0x/json-schemas');
+var order_utils_1 = require('@0x/order-utils');
+var utils_1 = require('@0x/utils');
 var HttpStatus = require('http-status-codes');
 var _ = require('lodash');
 var config_1 = require('./config');
@@ -187,7 +188,7 @@ var errors_1 = require('./errors');
 var fee_strategy_1 = require('./fee_strategy');
 var paginator_1 = require('./paginator');
 var orderbook_service_1 = require('./services/orderbook_service');
-var utils_1 = require('./utils');
+var utils_2 = require('./utils');
 var parsePaginationConfig = function(req) {
     var page = req.query.page === undefined ? constants_1.DEFAULT_PAGE : Number(req.query.page);
     var perPage = req.query.perPage === undefined ? constants_1.DEFAULT_PER_PAGE : Number(req.query.perPage);
@@ -216,7 +217,7 @@ var Handlers = /** @class */ (function() {
         res.status(HttpStatus.OK).send(paginatedFeeRecipients);
     };
     Handlers.orderConfig = function(req, res) {
-        utils_1.utils.validateSchema(req.body, json_schemas_1.schemas.orderConfigRequestSchema);
+        utils_2.utils.validateSchema(req.body, json_schemas_1.schemas.orderConfigRequestSchema);
         var orderConfigResponse = fee_strategy_1.fixedFeeStrategy.getOrderConfig(req.body);
         res.status(HttpStatus.OK).send(orderConfigResponse);
     };
@@ -226,7 +227,7 @@ var Handlers = /** @class */ (function() {
             return __generator(this, function(_b) {
                 switch (_b.label) {
                     case 0:
-                        utils_1.utils.validateSchema(req.query, json_schemas_1.schemas.assetPairsRequestOptsSchema);
+                        utils_2.utils.validateSchema(req.query, json_schemas_1.schemas.assetPairsRequestOptsSchema);
                         (_a = parsePaginationConfig(req)), (page = _a.page), (perPage = _a.perPage);
                         return [
                             4 /*yield*/,
@@ -273,7 +274,7 @@ var Handlers = /** @class */ (function() {
             return __generator(this, function(_b) {
                 switch (_b.label) {
                     case 0:
-                        utils_1.utils.validateSchema(req.query, json_schemas_1.schemas.ordersRequestOptsSchema);
+                        utils_2.utils.validateSchema(req.query, json_schemas_1.schemas.ordersRequestOptsSchema);
                         (_a = parsePaginationConfig(req)), (page = _a.page), (perPage = _a.perPage);
                         return [4 /*yield*/, this._orderBook.getOrdersAsync(page, perPage, req.query)];
                     case 1:
@@ -290,7 +291,7 @@ var Handlers = /** @class */ (function() {
             return __generator(this, function(_b) {
                 switch (_b.label) {
                     case 0:
-                        utils_1.utils.validateSchema(req.query, json_schemas_1.schemas.orderBookRequestSchema);
+                        utils_2.utils.validateSchema(req.query, json_schemas_1.schemas.orderBookRequestSchema);
                         (_a = parsePaginationConfig(req)), (page = _a.page), (perPage = _a.perPage);
                         baseAssetData = req.query.baseAssetData;
                         quoteAssetData = req.query.quoteAssetData;
@@ -312,7 +313,7 @@ var Handlers = /** @class */ (function() {
             return __generator(this, function(_a) {
                 switch (_a.label) {
                     case 0:
-                        utils_1.utils.validateSchema(req.body, json_schemas_1.schemas.signedOrderSchema);
+                        utils_2.utils.validateSchema(req.body, json_schemas_1.schemas.signedOrderSchema);
                         signedOrder = unmarshallOrder(req.body);
                         if (config_1.WHITELISTED_TOKENS !== '*') {
                             allowedTokens = config_1.WHITELISTED_TOKENS;
@@ -341,8 +342,8 @@ var Handlers = /** @class */ (function() {
 exports.Handlers = Handlers;
 function validateAssetDataIsWhitelistedOrThrow(allowedTokens, assetData, field) {
     var e_1, _a;
-    var decodedAssetData = _0x_js_1.assetDataUtils.decodeAssetDataOrThrow(assetData);
-    if (_0x_js_1.assetDataUtils.isMultiAssetData(decodedAssetData)) {
+    var decodedAssetData = order_utils_1.assetDataUtils.decodeAssetDataOrThrow(assetData);
+    if (order_utils_1.assetDataUtils.isMultiAssetData(decodedAssetData)) {
         try {
             for (
                 var _b = __values(decodedAssetData.nestedAssetData.entries()), _c = _b.next();
@@ -362,7 +363,7 @@ function validateAssetDataIsWhitelistedOrThrow(allowedTokens, assetData, field) 
                 if (e_1) throw e_1.error;
             }
         }
-    } else if (!_0x_js_1.assetDataUtils.isStaticCallAssetData(decodedAssetData)) {
+    } else if (!order_utils_1.assetDataUtils.isStaticCallAssetData(decodedAssetData)) {
         if (!_.includes(allowedTokens, decodedAssetData.tokenAddress)) {
             throw new errors_1.ValidationError([
                 {
@@ -377,12 +378,12 @@ function validateAssetDataIsWhitelistedOrThrow(allowedTokens, assetData, field) 
 // As the orders come in as JSON they need to be turned into the correct types such as BigNumber
 function unmarshallOrder(signedOrderRaw) {
     var signedOrder = __assign({}, signedOrderRaw, {
-        salt: new _0x_js_1.BigNumber(signedOrderRaw.salt),
-        makerAssetAmount: new _0x_js_1.BigNumber(signedOrderRaw.makerAssetAmount),
-        takerAssetAmount: new _0x_js_1.BigNumber(signedOrderRaw.takerAssetAmount),
-        makerFee: new _0x_js_1.BigNumber(signedOrderRaw.makerFee),
-        takerFee: new _0x_js_1.BigNumber(signedOrderRaw.takerFee),
-        expirationTimeSeconds: new _0x_js_1.BigNumber(signedOrderRaw.expirationTimeSeconds),
+        salt: new utils_1.BigNumber(signedOrderRaw.salt),
+        makerAssetAmount: new utils_1.BigNumber(signedOrderRaw.makerAssetAmount),
+        takerAssetAmount: new utils_1.BigNumber(signedOrderRaw.takerAssetAmount),
+        makerFee: new utils_1.BigNumber(signedOrderRaw.makerFee),
+        takerFee: new utils_1.BigNumber(signedOrderRaw.takerFee),
+        expirationTimeSeconds: new utils_1.BigNumber(signedOrderRaw.expirationTimeSeconds),
     });
     return signedOrder;
 }

@@ -1,8 +1,8 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
 // tslint:disable:custom-no-magic-numbers
-var _0x_js_1 = require('0x.js');
 var assert_1 = require('@0x/assert');
+var utils_1 = require('@0x/utils');
 var crypto = require('crypto');
 var fs = require('fs');
 var _ = require('lodash');
@@ -12,7 +12,7 @@ var metadataPath = path.join(__dirname, '../../metadata.json');
 var EnvVarType;
 (function(EnvVarType) {
     EnvVarType[(EnvVarType['Port'] = 0)] = 'Port';
-    EnvVarType[(EnvVarType['NetworkId'] = 1)] = 'NetworkId';
+    EnvVarType[(EnvVarType['ChainId'] = 1)] = 'ChainId';
     EnvVarType[(EnvVarType['FeeRecipient'] = 2)] = 'FeeRecipient';
     EnvVarType[(EnvVarType['UnitAmount'] = 3)] = 'UnitAmount';
     EnvVarType[(EnvVarType['Url'] = 4)] = 'Url';
@@ -28,10 +28,10 @@ exports.WHITELISTED_TOKENS = _.isEmpty(process.env.WHITELIST_ALL_TOKENS)
 exports.HTTP_PORT = _.isEmpty(process.env.HTTP_PORT)
     ? 3000
     : assertEnvVarType('HTTP_PORT', process.env.HTTP_PORT, EnvVarType.Port);
-// Default network id to use when not specified
-exports.NETWORK_ID = _.isEmpty(process.env.NETWORK_ID)
+// Default chain id to use when not specified
+exports.CHAIN_ID = _.isEmpty(process.env.CHAIN_ID)
     ? 42
-    : assertEnvVarType('NETWORK_ID', process.env.NETWORK_ID, EnvVarType.NetworkId);
+    : assertEnvVarType('CHAIN_ID', process.env.CHAIN_ID, EnvVarType.ChainId);
 // Mesh Endpoint
 exports.MESH_ENDPOINT = _.isEmpty(process.env.MESH_ENDPOINT)
     ? 'ws://localhost:60557'
@@ -42,11 +42,11 @@ exports.FEE_RECIPIENT = _.isEmpty(process.env.FEE_RECIPIENT)
     : assertEnvVarType('FEE_RECIPIENT', process.env.FEE_RECIPIENT, EnvVarType.FeeRecipient);
 // A flat fee that should be charged to the order maker
 exports.MAKER_FEE_UNIT_AMOUNT = _.isEmpty(process.env.MAKER_FEE_UNIT_AMOUNT)
-    ? new _0x_js_1.BigNumber(0)
+    ? new utils_1.BigNumber(0)
     : assertEnvVarType('MAKER_FEE_UNIT_AMOUNT', process.env.MAKER_FEE_UNIT_AMOUNT, EnvVarType.UnitAmount);
 // A flat fee that should be charged to the order taker
 exports.TAKER_FEE_UNIT_AMOUNT = _.isEmpty(process.env.TAKER_FEE_UNIT_AMOUNT)
-    ? new _0x_js_1.BigNumber(0)
+    ? new utils_1.BigNumber(0)
     : assertEnvVarType('TAKER_FEE_UNIT_AMOUNT', process.env.TAKER_FEE_UNIT_AMOUNT, EnvVarType.UnitAmount);
 // The maker fee token encoded as asset data
 exports.MAKER_FEE_ASSET_DATA = _.isEmpty(process.env.MAKER_FEE_ASSET_DATA)
@@ -76,7 +76,7 @@ function assertEnvVarType(name, value, expectedType) {
                 throw new Error(name + ' must be between 0 to 65535, found ' + value + '.');
             }
             return returnValue;
-        case EnvVarType.NetworkId:
+        case EnvVarType.ChainId:
             try {
                 returnValue = parseInt(value, 10);
             } catch (err) {
@@ -93,7 +93,7 @@ function assertEnvVarType(name, value, expectedType) {
             return value === 'true';
         case EnvVarType.UnitAmount:
             try {
-                returnValue = new _0x_js_1.BigNumber(parseFloat(value));
+                returnValue = new utils_1.BigNumber(parseFloat(value));
                 if (returnValue.isNegative()) {
                     throw new Error();
                 }

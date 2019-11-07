@@ -1,5 +1,6 @@
-import { assetDataUtils, BigNumber, SignedOrder } from '0x.js';
 import { schemas } from '@0x/json-schemas';
+import { assetDataUtils, SignedOrder } from '@0x/order-utils';
+import { BigNumber } from '@0x/utils';
 import * as express from 'express';
 import * as HttpStatus from 'http-status-codes';
 import * as _ from 'lodash';

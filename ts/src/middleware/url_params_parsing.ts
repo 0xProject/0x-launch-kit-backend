@@ -1,32 +1,32 @@
 import * as express from 'express';
 import * as _ from 'lodash';
 
-import { NETWORK_ID } from '../config';
+import { CHAIN_ID } from '../config';
 import { ValidationError } from '../errors';
 
 /**
  * Parses URL params and stores them on the request object
  */
 export function urlParamsParsing(req: express.Request, _res: express.Response, next: express.NextFunction): void {
-    const networkId = parseNetworkId(req.query.networkId);
+    const chainId = parseChainId(req.query.chainId);
     // HACK: This is the recommended way to pass data from middlewares on. It's not beautiful nor fully type-safe.
-    req.networkId = networkId;
+    (req as any).chainId = chainId;
     next();
 }
 
-function parseNetworkId(networkIdStrIfExists?: string): number {
-    if (networkIdStrIfExists === undefined) {
-        return NETWORK_ID;
+function parseChainId(chainIdStrIfExists?: string): number {
+    if (chainIdStrIfExists === undefined) {
+        return CHAIN_ID;
     } else {
-        const networkId = _.parseInt(networkIdStrIfExists);
-        if (networkId !== NETWORK_ID) {
+        const chainId = _.parseInt(chainIdStrIfExists);
+        if (chainId !== CHAIN_ID) {
             const validationErrorItem = {
-                field: 'networkId',
+                field: 'chainId',
                 code: 1004,
-                reason: `Incorrect Network ID: ${networkIdStrIfExists}`,
+                reason: `Incorrect Chain ID: ${chainIdStrIfExists}`,
             };
             throw new ValidationError([validationErrorItem]);
         }
-        return networkId;
+        return chainId;
     }
 }

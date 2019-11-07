@@ -1,9 +1,9 @@
-import { assetDataUtils, BigNumber, SignedOrder } from '0x.js';
 import { APIOrder } from '@0x/connect';
-import { Asset, AssetPairsItem, AssetProxyId } from '@0x/types';
-import { errorUtils } from '@0x/utils';
+import { assetDataUtils } from '@0x/order-utils';
+import { Asset, AssetPairsItem, AssetProxyId, SignedOrder } from '@0x/types';
+import { BigNumber, errorUtils } from '@0x/utils';
 
-import { DEFAULT_ERC20_TOKEN_PRECISION, NETWORK_ID } from '../config';
+import { CHAIN_ID, DEFAULT_ERC20_TOKEN_PRECISION } from '../config';
 import { MAX_TOKEN_SUPPLY_POSSIBLE } from '../constants';
 import { SignedOrderModel } from '../models/SignedOrderModel';
 import { APIOrderWithMetaData } from '../types';
@@ -82,7 +82,7 @@ export const deserializeOrder = (signedOrderModel: Required<SignedOrderModel>): 
         expirationTimeSeconds: new BigNumber(signedOrderModel.expirationTimeSeconds),
         makerFeeAssetData: signedOrderModel.makerFeeAssetData,
         takerFeeAssetData: signedOrderModel.takerFeeAssetData,
-        chainId: NETWORK_ID,
+        chainId: CHAIN_ID,
     };
     return signedOrder;
 };
