@@ -377,7 +377,7 @@ var OrderBookService = /** @class */ (function() {
             return __generator(this, function(_a) {
                 switch (_a.label) {
                     case 0:
-                        return [4 /*yield*/, this._meshClient.addOrdersAsync([signedOrder])];
+                        return [4 /*yield*/, this._meshClient.addOrdersAsync([signedOrder], { pinned: true })];
                     case 1:
                         rejected = _a.sent().rejected;
                         if (rejected.length !== 0) {

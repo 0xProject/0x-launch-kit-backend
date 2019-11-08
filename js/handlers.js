@@ -369,7 +369,7 @@ function validateAssetDataIsWhitelistedOrThrow(allowedTokens, assetData, field) 
                 {
                     field: field,
                     code: errors_1.ValidationErrorCodes.ValueOutOfRange,
-                    reason: decodedAssetData.tokenAddress + ' not supported',
+                    reason: 'Token ' + decodedAssetData.tokenAddress + ' not supported',
                 },
             ]);
         }

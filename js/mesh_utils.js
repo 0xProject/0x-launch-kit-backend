@@ -197,7 +197,7 @@ var MeshUtils = /** @class */ (function() {
                     case 2:
                         if (!!chunks_1_1.done) return [3 /*break*/, 5];
                         chunk = chunks_1_1.value;
-                        return [4 /*yield*/, meshClient.addOrdersAsync(chunk)];
+                        return [4 /*yield*/, meshClient.addOrdersAsync(chunk, { pinned: true })];
                     case 3:
                         results = _b.sent();
                         validationResults.accepted = __spread(validationResults.accepted, results.accepted);

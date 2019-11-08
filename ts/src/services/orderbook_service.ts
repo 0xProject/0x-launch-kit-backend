@@ -157,7 +157,7 @@ export class OrderBookService {
         this._meshClient = meshClient;
     }
     public async addOrderAsync(signedOrder: SignedOrder): Promise<void> {
-        const { rejected } = await this._meshClient.addOrdersAsync([signedOrder]);
+        const { rejected } = await this._meshClient.addOrdersAsync([signedOrder], { pinned: true } as any);
         if (rejected.length !== 0) {
             throw new ValidationError([
                 {

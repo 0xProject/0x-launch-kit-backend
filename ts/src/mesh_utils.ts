@@ -30,7 +30,7 @@ export class MeshUtils {
         const validationResults: ValidationResults = { accepted: [], rejected: [] };
         const chunks = _.chunk(orders, batchSize);
         for (const chunk of chunks) {
-            const results = await meshClient.addOrdersAsync(chunk);
+            const results = await meshClient.addOrdersAsync(chunk, { pinned: true } as any);
             validationResults.accepted = [...validationResults.accepted, ...results.accepted];
             validationResults.rejected = [...validationResults.rejected, ...results.rejected];
         }
