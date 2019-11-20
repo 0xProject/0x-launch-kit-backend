@@ -98,9 +98,9 @@
     jsonschema "^1.2.0"
     lodash.values "^4.3.0"
 
-"@0x/mesh-rpc-client@^7.0.4-beta-0xv3":
-  version "7.0.4-beta-0xv3"
-  resolved "https://registry.yarnpkg.com/@0x/mesh-rpc-client/-/mesh-rpc-client-7.0.4-beta-0xv3.tgz#5e933a0b9cf20ca900f309fc4adee03b081eb335"
+"@0x/mesh-rpc-client@^7.1.0-beta-0xv3":
+  version "7.1.0-beta-0xv3"
+  resolved "https://registry.yarnpkg.com/@0x/mesh-rpc-client/-/mesh-rpc-client-7.1.0-beta-0xv3.tgz#4397790c4214542fb855056176a3b36f209bc067"
   dependencies:
     "@0x/assert" "2.2.0-beta.2"
     "@0x/types" "2.5.0-beta.2"
