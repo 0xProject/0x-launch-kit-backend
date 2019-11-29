@@ -22,7 +22,18 @@ import { utils } from './utils';
             )}`,
         );
     });
-    const meshClient = new WSClient(config.MESH_ENDPOINT);
+    let meshClient;
+    await utils.attemptAsync(
+        async () => {
+            meshClient = new WSClient(config.MESH_ENDPOINT);
+            await meshClient.getStatsAsync();
+        },
+        { interval: 3000, maxRetries: 10 },
+    );
+    if (!meshClient) {
+        throw new Error('Unable to establish connection to Mesh');
+    }
+    utils.log('Connected to Mesh');
     const orderWatcherService = new OrderWatcherService(meshClient);
     await orderWatcherService.syncOrderbookAsync();
     // tslint:disable-next-line:no-unused-expression

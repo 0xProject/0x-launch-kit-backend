@@ -142,6 +142,7 @@ var utils_1 = require('./utils');
 (function() {
     return __awaiter(_this, void 0, void 0, function() {
         var app, server, meshClient, orderWatcherService, orderBookService;
+        var _this = this;
         return __generator(this, function(_a) {
             switch (_a.label) {
                 case 0:
@@ -157,10 +158,35 @@ var utils_1 = require('./utils');
                                 JSON.stringify(config, null, 2),
                         );
                     });
-                    meshClient = new mesh_rpc_client_1.WSClient(config.MESH_ENDPOINT);
+                    return [
+                        4 /*yield*/,
+                        utils_1.utils.attemptAsync(
+                            function() {
+                                return __awaiter(_this, void 0, void 0, function() {
+                                    return __generator(this, function(_a) {
+                                        switch (_a.label) {
+                                            case 0:
+                                                meshClient = new mesh_rpc_client_1.WSClient(config.MESH_ENDPOINT);
+                                                return [4 /*yield*/, meshClient.getStatsAsync()];
+                                            case 1:
+                                                _a.sent();
+                                                return [2 /*return*/];
+                                        }
+                                    });
+                                });
+                            },
+                            { interval: 3000, maxRetries: 10 },
+                        ),
+                    ];
+                case 2:
+                    _a.sent();
+                    if (!meshClient) {
+                        throw new Error('Unable to establish connection to Mesh');
+                    }
+                    utils_1.utils.log('Connected to Mesh');
                     orderWatcherService = new order_watcher_service_1.OrderWatcherService(meshClient);
                     return [4 /*yield*/, orderWatcherService.syncOrderbookAsync()];
-                case 2:
+                case 3:
                     _a.sent();
                     // tslint:disable-next-line:no-unused-expression
                     new websocket_service_1.WebsocketService(server, meshClient);
