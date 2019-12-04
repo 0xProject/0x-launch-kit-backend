@@ -1,77 +1,129 @@
 'use strict';
+var __extends =
+    (this && this.__extends) ||
+    (function() {
+        var extendStatics = function(d, b) {
+            extendStatics =
+                Object.setPrototypeOf ||
+                ({ __proto__: [] } instanceof Array &&
+                    function(d, b) {
+                        d.__proto__ = b;
+                    }) ||
+                function(d, b) {
+                    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+                };
+            return extendStatics(d, b);
+        };
+        return function(d, b) {
+            extendStatics(d, b);
+            function __() {
+                this.constructor = d;
+            }
+            d.prototype = b === null ? Object.create(b) : ((__.prototype = b.prototype), new __());
+        };
+    })();
 Object.defineProperty(exports, '__esModule', { value: true });
+var _a;
 // tslint:disable:max-classes-per-file
-class RelayerBaseError extends Error {
-    constructor() {
-        super(...arguments);
-        this.isRelayerError = true;
+var RelayerBaseError = /** @class */ (function(_super) {
+    __extends(RelayerBaseError, _super);
+    function RelayerBaseError() {
+        var _this = (_super !== null && _super.apply(this, arguments)) || this;
+        _this.isRelayerError = true;
+        return _this;
     }
-}
+    return RelayerBaseError;
+})(Error);
 exports.RelayerBaseError = RelayerBaseError;
-class BadRequestError extends RelayerBaseError {
-    constructor() {
-        super(...arguments);
-        this.statusCode = 400;
+var BadRequestError = /** @class */ (function(_super) {
+    __extends(BadRequestError, _super);
+    function BadRequestError() {
+        var _this = (_super !== null && _super.apply(this, arguments)) || this;
+        _this.statusCode = 400;
+        return _this;
     }
-}
+    return BadRequestError;
+})(RelayerBaseError);
 exports.BadRequestError = BadRequestError;
-class ValidationError extends BadRequestError {
-    constructor(validationErrors) {
-        super();
-        this.generalErrorCode = GeneralErrorCodes.ValidationError;
-        this.validationErrors = validationErrors;
+var ValidationError = /** @class */ (function(_super) {
+    __extends(ValidationError, _super);
+    function ValidationError(validationErrors) {
+        var _this = _super.call(this) || this;
+        _this.generalErrorCode = GeneralErrorCodes.ValidationError;
+        _this.validationErrors = validationErrors;
+        return _this;
     }
-}
+    return ValidationError;
+})(BadRequestError);
 exports.ValidationError = ValidationError;
-class MalformedJSONError extends BadRequestError {
-    constructor() {
-        super(...arguments);
-        this.generalErrorCode = GeneralErrorCodes.MalformedJson;
+var MalformedJSONError = /** @class */ (function(_super) {
+    __extends(MalformedJSONError, _super);
+    function MalformedJSONError() {
+        var _this = (_super !== null && _super.apply(this, arguments)) || this;
+        _this.generalErrorCode = GeneralErrorCodes.MalformedJson;
+        return _this;
     }
-}
+    return MalformedJSONError;
+})(BadRequestError);
 exports.MalformedJSONError = MalformedJSONError;
-class NotFoundError extends RelayerBaseError {
-    constructor() {
-        super(...arguments);
-        this.statusCode = 404;
+var TooManyRequestsError = /** @class */ (function(_super) {
+    __extends(TooManyRequestsError, _super);
+    function TooManyRequestsError() {
+        var _this = (_super !== null && _super.apply(this, arguments)) || this;
+        _this.statusCode = 429;
+        _this.generalErrorCode = GeneralErrorCodes.Throttled;
+        return _this;
     }
-}
-exports.NotFoundError = NotFoundError;
-class TooManyRequestsError extends RelayerBaseError {
-    constructor() {
-        super(...arguments);
-        this.statusCode = 429;
-        this.generalErrorCode = GeneralErrorCodes.Throttled;
-    }
-}
+    return TooManyRequestsError;
+})(BadRequestError);
 exports.TooManyRequestsError = TooManyRequestsError;
-class InternalServerError extends RelayerBaseError {
-    constructor() {
-        super(...arguments);
-        this.statusCode = 500;
+var NotImplementedError = /** @class */ (function(_super) {
+    __extends(NotImplementedError, _super);
+    function NotImplementedError() {
+        var _this = (_super !== null && _super.apply(this, arguments)) || this;
+        _this.statusCode = 501;
+        _this.generalErrorCode = GeneralErrorCodes.NotImplemented;
+        return _this;
     }
-}
-exports.InternalServerError = InternalServerError;
-class NotImplementedError extends RelayerBaseError {
-    constructor() {
-        super(...arguments);
-        this.statusCode = 501;
-    }
-}
+    return NotImplementedError;
+})(BadRequestError);
 exports.NotImplementedError = NotImplementedError;
+var NotFoundError = /** @class */ (function(_super) {
+    __extends(NotFoundError, _super);
+    function NotFoundError() {
+        var _this = (_super !== null && _super.apply(this, arguments)) || this;
+        _this.statusCode = 404;
+        return _this;
+    }
+    return NotFoundError;
+})(RelayerBaseError);
+exports.NotFoundError = NotFoundError;
+var InternalServerError = /** @class */ (function(_super) {
+    __extends(InternalServerError, _super);
+    function InternalServerError() {
+        var _this = (_super !== null && _super.apply(this, arguments)) || this;
+        _this.statusCode = 500;
+        return _this;
+    }
+    return InternalServerError;
+})(RelayerBaseError);
+exports.InternalServerError = InternalServerError;
 var GeneralErrorCodes;
 (function(GeneralErrorCodes) {
     GeneralErrorCodes[(GeneralErrorCodes['ValidationError'] = 100)] = 'ValidationError';
     GeneralErrorCodes[(GeneralErrorCodes['MalformedJson'] = 101)] = 'MalformedJson';
     GeneralErrorCodes[(GeneralErrorCodes['OrderSubmissionDisabled'] = 102)] = 'OrderSubmissionDisabled';
     GeneralErrorCodes[(GeneralErrorCodes['Throttled'] = 103)] = 'Throttled';
+    GeneralErrorCodes[(GeneralErrorCodes['NotImplemented'] = 104)] = 'NotImplemented';
 })((GeneralErrorCodes = exports.GeneralErrorCodes || (exports.GeneralErrorCodes = {})));
-exports.generalErrorCodeToReason = {
-    [GeneralErrorCodes.ValidationError]: 'Validation Failed',
-    [GeneralErrorCodes.MalformedJson]: 'Malformed JSON',
-    [GeneralErrorCodes.OrderSubmissionDisabled]: 'Order submission disabled',
-    [GeneralErrorCodes.Throttled]: 'Throttled',
-};
+exports.generalErrorCodeToReason =
+    ((_a = {}),
+    (_a[GeneralErrorCodes.ValidationError] = 'Validation Failed'),
+    (_a[GeneralErrorCodes.MalformedJson] = 'Malformed JSON'),
+    (_a[GeneralErrorCodes.OrderSubmissionDisabled] = 'Order submission disabled'),
+    (_a[GeneralErrorCodes.Throttled] = 'Throttled'),
+    (_a[GeneralErrorCodes.NotImplemented] = 'Not Implemented'),
+    _a);
 var ValidationErrorCodes;
 (function(ValidationErrorCodes) {
     ValidationErrorCodes[(ValidationErrorCodes['RequiredField'] = 1000)] = 'RequiredField';
@@ -82,4 +134,5 @@ var ValidationErrorCodes;
     ValidationErrorCodes[(ValidationErrorCodes['InvalidSignatureOrHash'] = 1005)] = 'InvalidSignatureOrHash';
     ValidationErrorCodes[(ValidationErrorCodes['UnsupportedOption'] = 1006)] = 'UnsupportedOption';
     ValidationErrorCodes[(ValidationErrorCodes['InvalidOrder'] = 1007)] = 'InvalidOrder';
+    ValidationErrorCodes[(ValidationErrorCodes['InternalError'] = 1008)] = 'InternalError';
 })((ValidationErrorCodes = exports.ValidationErrorCodes || (exports.ValidationErrorCodes = {})));

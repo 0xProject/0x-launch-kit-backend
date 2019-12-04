@@ -1,7 +1,7 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-const typeorm_1 = require('typeorm');
-const SignedOrderModel_1 = require('../models/SignedOrderModel');
+var typeorm_1 = require('typeorm');
+var SignedOrderModel_1 = require('../models/SignedOrderModel');
 exports.signedOrderEntity = new typeorm_1.EntitySchema({
     name: 'SignedOrder',
     target: SignedOrderModel_1.SignedOrderModel,
@@ -40,6 +40,12 @@ exports.signedOrderEntity = new typeorm_1.EntitySchema({
         takerFee: {
             type: 'varchar',
         },
+        makerFeeAssetData: {
+            type: 'varchar',
+        },
+        takerFeeAssetData: {
+            type: 'varchar',
+        },
         makerAssetAmount: {
             type: 'varchar',
         },
@@ -50,6 +56,9 @@ exports.signedOrderEntity = new typeorm_1.EntitySchema({
             type: 'varchar',
         },
         signature: {
+            type: 'varchar',
+        },
+        remainingFillableTakerAssetAmount: {
             type: 'varchar',
         },
     },

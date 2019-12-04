@@ -132,17 +132,18 @@ Object.defineProperty(exports, '__esModule', { value: true });
 var mesh_rpc_client_1 = require('@0x/mesh-rpc-client');
 var express = require('express');
 require('reflect-metadata');
-var config = require('./config');
-var db_connection_1 = require('./db_connection');
-var http_service_1 = require('./services/http_service');
-var order_watcher_service_1 = require('./services/order_watcher_service');
-var orderbook_service_1 = require('./services/orderbook_service');
-var websocket_service_1 = require('./services/websocket_service');
-var utils_1 = require('./utils');
+var config = require('../config');
+var db_connection_1 = require('../db_connection');
+var http_service_1 = require('../services/http_service');
+var orderbook_service_1 = require('../services/orderbook_service');
+var utils_1 = require('../utils');
+/**
+ * This service handles the HTTP requests. This involves fetching from the database
+ * as well as adding orders to mesh.
+ */
 (function() {
     return __awaiter(_this, void 0, void 0, function() {
-        var app, server, meshClient, orderWatcherService, orderBookService;
-        var _this = this;
+        var app, meshClient, orderBookService;
         return __generator(this, function(_a) {
             switch (_a.label) {
                 case 0:
@@ -150,7 +151,7 @@ var utils_1 = require('./utils');
                 case 1:
                     _a.sent();
                     app = express();
-                    server = app.listen(config.HTTP_PORT, function() {
+                    app.listen(config.HTTP_PORT, function() {
                         utils_1.utils.log(
                             'Standard relayer API (HTTP) listening on port ' +
                                 config.HTTP_PORT +
@@ -158,38 +159,7 @@ var utils_1 = require('./utils');
                                 JSON.stringify(config, null, 2),
                         );
                     });
-                    return [
-                        4 /*yield*/,
-                        utils_1.utils.attemptAsync(
-                            function() {
-                                return __awaiter(_this, void 0, void 0, function() {
-                                    return __generator(this, function(_a) {
-                                        switch (_a.label) {
-                                            case 0:
-                                                meshClient = new mesh_rpc_client_1.WSClient(config.MESH_ENDPOINT);
-                                                return [4 /*yield*/, meshClient.getStatsAsync()];
-                                            case 1:
-                                                _a.sent();
-                                                return [2 /*return*/];
-                                        }
-                                    });
-                                });
-                            },
-                            { interval: 3000, maxRetries: 10 },
-                        ),
-                    ];
-                case 2:
-                    _a.sent();
-                    if (!meshClient) {
-                        throw new Error('Unable to establish connection to Mesh');
-                    }
-                    utils_1.utils.log('Connected to Mesh');
-                    orderWatcherService = new order_watcher_service_1.OrderWatcherService(meshClient);
-                    return [4 /*yield*/, orderWatcherService.syncOrderbookAsync()];
-                case 3:
-                    _a.sent();
-                    // tslint:disable-next-line:no-unused-expression
-                    new websocket_service_1.WebsocketService(server, meshClient);
+                    meshClient = new mesh_rpc_client_1.WSClient(config.MESH_ENDPOINT);
                     orderBookService = new orderbook_service_1.OrderBookService(meshClient);
                     // tslint:disable-next-line:no-unused-expression
                     new http_service_1.HttpService(app, orderBookService);

@@ -1,9 +1,11 @@
 {
     "compilerOptions": {
         "module": "commonjs",
-        "target": "esnext",
+        "lib": ["es2017", "dom"],
+        "target": "es5",
         "outDir": "lib",
         "strict": true,
+        "downlevelIteration": true,
         "noUnusedLocals": true,
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,

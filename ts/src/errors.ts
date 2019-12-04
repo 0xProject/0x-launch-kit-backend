@@ -15,6 +15,17 @@ export interface ValidationErrorItem {
     reason: string;
 }
 
+export interface ErrorBodyWithHTTPStatusCode {
+    statusCode: number;
+    errorBody: ErrorBody;
+}
+
+export interface ErrorBody {
+    reason: string;
+    code?: number;
+    validationErrors?: ValidationErrorItem[];
+}
+
 export class ValidationError extends BadRequestError {
     public generalErrorCode = GeneralErrorCodes.ValidationError;
     public validationErrors: ValidationErrorItem[];
@@ -28,21 +39,22 @@ export class MalformedJSONError extends BadRequestError {
     public generalErrorCode = GeneralErrorCodes.MalformedJson;
 }
 
-export class NotFoundError extends RelayerBaseError {
-    public statusCode = 404;
-}
-
-export class TooManyRequestsError extends RelayerBaseError {
+export class TooManyRequestsError extends BadRequestError {
     public statusCode = 429;
     public generalErrorCode = GeneralErrorCodes.Throttled;
 }
 
-export class InternalServerError extends RelayerBaseError {
-    public statusCode = 500;
+export class NotImplementedError extends BadRequestError {
+    public statusCode = 501;
+    public generalErrorCode = GeneralErrorCodes.NotImplemented;
 }
 
-export class NotImplementedError extends RelayerBaseError {
-    public statusCode = 501;
+export class NotFoundError extends RelayerBaseError {
+    public statusCode = 404;
+}
+
+export class InternalServerError extends RelayerBaseError {
+    public statusCode = 500;
 }
 
 export enum GeneralErrorCodes {
@@ -50,6 +62,7 @@ export enum GeneralErrorCodes {
     MalformedJson = 101,
     OrderSubmissionDisabled = 102,
     Throttled = 103,
+    NotImplemented = 104,
 }
 
 export const generalErrorCodeToReason: { [key in GeneralErrorCodes]: string } = {
@@ -57,6 +70,7 @@ export const generalErrorCodeToReason: { [key in GeneralErrorCodes]: string } = 
     [GeneralErrorCodes.MalformedJson]: 'Malformed JSON',
     [GeneralErrorCodes.OrderSubmissionDisabled]: 'Order submission disabled',
     [GeneralErrorCodes.Throttled]: 'Throttled',
+    [GeneralErrorCodes.NotImplemented]: 'Not Implemented',
 };
 
 export enum ValidationErrorCodes {
@@ -68,4 +82,5 @@ export enum ValidationErrorCodes {
     InvalidSignatureOrHash = 1005,
     UnsupportedOption = 1006,
     InvalidOrder = 1007,
+    InternalError = 1008,
 }
