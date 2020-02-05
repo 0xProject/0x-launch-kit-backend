@@ -32,7 +32,7 @@ exports.signedOrderEntity = new typeorm_1.EntitySchema({
             type: 'varchar',
         },
         expirationTimeSeconds: {
-            type: 'int',
+            type: 'varchar',
         },
         makerFee: {
             type: 'varchar',

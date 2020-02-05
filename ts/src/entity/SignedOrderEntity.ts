@@ -32,7 +32,7 @@ export const signedOrderEntity = new EntitySchema<SignedOrderModel>({
             type: 'varchar',
         },
         expirationTimeSeconds: {
-            type: 'int',
+            type: 'varchar',
         },
         makerFee: {
             type: 'varchar',

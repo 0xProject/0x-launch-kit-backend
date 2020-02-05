@@ -7,7 +7,7 @@ export class SignedOrderModel {
     public takerAssetData?: string;
     public exchangeAddress?: string;
     public feeRecipientAddress?: string;
-    public expirationTimeSeconds?: number;
+    public expirationTimeSeconds?: string;
     public makerFee?: string;
     public takerFee?: string;
     public makerAssetAmount?: string;
@@ -27,7 +27,7 @@ export class SignedOrderModel {
             takerAssetData?: string;
             exchangeAddress?: string;
             feeRecipientAddress?: string;
-            expirationTimeSeconds?: number;
+            expirationTimeSeconds?: string;
             makerFee?: string;
             takerFee?: string;
             makerFeeAssetData?: string;
