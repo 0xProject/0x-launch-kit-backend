@@ -1,5 +1,10 @@
 <img src="launch_kit_banner.png">
 
+## ⚠️ Deprecation Warning ️️⚠️
+
+This project is no longer being actively maintained. 
+To fork or run a [Standard Relayer API](https://0x.org/docs/api#sra) instance, you can use the [0x API](https://github.com/0xProject/0x-api) instead.
+
 ## Table of contents
 
 -   [Introduction](#introduction)
