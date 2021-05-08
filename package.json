@@ -56,7 +56,7 @@
         "lodash": "^4.17.15",
         "reflect-metadata": "^0.1.13",
         "sqlite3": "^4.1.0",
-        "typeorm": "0.2.18",
+        "typeorm": "0.2.25",
         "ws": "^7.1.2"
     }
 }
